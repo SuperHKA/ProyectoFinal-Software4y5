@@ -5,7 +5,7 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
 {
     public class ConexionBD
     {
-        private static readonly string ConnectionString = "Server=localhost;Database=BD_BancoDinamo;User Id=sa;Password=TheOne9016;TrustServerCertificate=true;";
+        private static readonly string ConnectionString = "Server=127.0.0.1;Database=BD_BancoFisclase;User Id=sa;Password=TheOne9016;TrustServerCertificate=true;";
         private static ConexionBD _instancia;
         private SqlConnection _conexion;
 
