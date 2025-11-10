@@ -4,3 +4,6 @@
 
 /.vs/ProyectoFinal-Software-4-y-5
 /ProyectoFinal-Software-4-y-5/obj/Debug
+/ProyectoFinal-Software-4-y-5/Forms
+/ProyectoFinal-Software-4-y-5/Servicios
+*.cs
