@@ -8,3 +8,9 @@
 /ProyectoFinal-Software-4-y-5/Servicios
 *.cs
 /ProyectoFinal-Software-4-y-5/.vs
+/packages/System.Configuration.ConfigurationManager.10.0.0
+/ProyectoFinal-Software-4-y-5/bin/Debug/ProyectoFinal-Software-4-y-5.exe
+*.dll
+/ProyectoFinal-Software-4-y-5/bin/Debug/ProyectoFinal-Software-4-y-5.pdb
+*.xml
+*.config
