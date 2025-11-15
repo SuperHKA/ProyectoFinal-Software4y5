@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace ProyectoFinal_Software_4_y_5.Servicios
@@ -802,6 +803,128 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
             }
 
             return dt;
+        }
+
+        public enum LoginResult
+        {
+            Success,
+            UsuarioNoExiste,
+            Bloqueado,
+            ContrasenaIncorrecta,
+            NoAdmin
+        }
+
+        public LoginResult AutenticarAdministrador(string username, string password, out Usuario usuario)
+        {
+            usuario = null;
+
+            const string sql = @"
+        SELECT u.usuario_id, u.username, u.password_hash, u.salt, u.intentos_fallidos, u.bloqueado, u.es_admin,
+               c.nombre, c.email, c.telefono, c.calle, c.numero, c.ciudad, c.estado_provincia, c.codigo_postal, c.pais
+        FROM Usuario u
+        JOIN Cliente c ON u.cliente_id = c.cliente_id
+        WHERE u.username = @username";
+
+            using (var conexion = _conexionBD.GetConexion())
+            using (var cmd = new SqlCommand(sql, conexion))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        return LoginResult.UsuarioNoExiste;
+                    }
+
+                    var usuarioId = reader.IsDBNull(reader.GetOrdinal("usuario_id")) ? 0 : reader.GetInt32(reader.GetOrdinal("usuario_id"));
+                    var dbUsername = reader.IsDBNull(reader.GetOrdinal("username")) ? string.Empty : reader.GetString(reader.GetOrdinal("username"));
+                    var salt = reader.IsDBNull(reader.GetOrdinal("salt")) ? string.Empty : reader.GetString(reader.GetOrdinal("salt"));
+                    var dbHash = reader.IsDBNull(reader.GetOrdinal("password_hash")) ? null : (byte[])reader["password_hash"];
+                    var bloqueado = reader.IsDBNull(reader.GetOrdinal("bloqueado")) ? false : reader.GetBoolean(reader.GetOrdinal("bloqueado"));
+                    var esAdmin = reader.IsDBNull(reader.GetOrdinal("es_admin")) ? false : reader.GetBoolean(reader.GetOrdinal("es_admin"));
+                    var nombre = reader.IsDBNull(reader.GetOrdinal("nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("nombre"));
+                    var email = reader.IsDBNull(reader.GetOrdinal("email")) ? string.Empty : reader.GetString(reader.GetOrdinal("email"));
+                    var telefono = reader.IsDBNull(reader.GetOrdinal("telefono")) ? null : reader.GetString(reader.GetOrdinal("telefono"));
+                    var calle = reader.IsDBNull(reader.GetOrdinal("calle")) ? null : reader.GetString(reader.GetOrdinal("calle"));
+                    var numero = reader.IsDBNull(reader.GetOrdinal("numero")) ? null : reader.GetString(reader.GetOrdinal("numero"));
+                    var ciudad = reader.IsDBNull(reader.GetOrdinal("ciudad")) ? null : reader.GetString(reader.GetOrdinal("ciudad"));
+                    var estadoProv = reader.IsDBNull(reader.GetOrdinal("estado_provincia")) ? null : reader.GetString(reader.GetOrdinal("estado_provincia"));
+                    var codigoPostal = reader.IsDBNull(reader.GetOrdinal("codigo_postal")) ? null : reader.GetString(reader.GetOrdinal("codigo_postal"));
+                    var pais = reader.IsDBNull(reader.GetOrdinal("pais")) ? null : reader.GetString(reader.GetOrdinal("pais"));
+
+                    if (bloqueado)
+                    {
+                        return LoginResult.Bloqueado;
+                    }
+
+                    var hasher = new Hasher();
+                    var computedHashString = hasher.GenerarHash(password, salt ?? string.Empty);
+                    var computedHash = Encoding.UTF8.GetBytes(computedHashString);
+
+                    var hashesMatch = dbHash != null && dbHash.Length == computedHash.Length && dbHash.SequenceEqual(computedHash);
+
+                    if (!hashesMatch)
+                    {
+                        // close reader before executing update
+                        reader.Close();
+
+                        const string sqlUpdateAttempts = @"
+                    UPDATE Usuario 
+                    SET intentos_fallidos = intentos_fallidos + 1, 
+                        bloqueado = CASE WHEN intentos_fallidos + 1 >= 3 THEN 1 ELSE 0 END 
+                    WHERE usuario_id = @id";
+
+                        using (var cmdUpdate = new SqlCommand(sqlUpdateAttempts, conexion))
+                        {
+                            cmdUpdate.Parameters.AddWithValue("@id", usuarioId);
+                            cmdUpdate.ExecuteNonQuery();
+                        }
+
+                        return LoginResult.ContrasenaIncorrecta;
+                    }
+
+                    if (!esAdmin)
+                    {
+                        return LoginResult.NoAdmin;
+                    }
+
+                    // Success: reset attempts and update last login
+                    reader.Close();
+
+                    const string sqlReset = @"
+                UPDATE Usuario 
+                SET intentos_fallidos = 0, fecha_ultimo_login = @fecha 
+                WHERE usuario_id = @id";
+
+                    using (var cmdReset = new SqlCommand(sqlReset, conexion))
+                    {
+                        cmdReset.Parameters.AddWithValue("@fecha", DateTime.Now);
+                        cmdReset.Parameters.AddWithValue("@id", usuarioId);
+                        cmdReset.ExecuteNonQuery();
+                    }
+
+                    // build Usuario object and set additional properties
+                    usuario = new Usuario(usuarioId, dbUsername, dbHash, salt, nombre, email)
+                    {
+                        Telefono = telefono,
+                        Calle = calle,
+                        Numero = numero,
+                        Ciudad = ciudad,
+                        EstadoProvincia = estadoProv,
+                        CodigoPostal = codigoPostal,
+                        Pais = pais,
+                        IntentosFallidos = 0,
+                        EstadoCuenta = !bloqueado,
+                        Admin = esAdmin,
+                        UltimoLogin = DateTime.Now
+                    };
+
+                    // set session
+                    ControladorSession.ObtenerInstancia().SetUsuarioActual(usuario);
+
+                    return LoginResult.Success;
+                }
+            }
         }
     }
 }

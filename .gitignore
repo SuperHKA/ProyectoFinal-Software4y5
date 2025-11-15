@@ -11,3 +11,5 @@
 /packages/System.Configuration.ConfigurationManager.10.0.0
 /ProyectoFinal-Software-4-y-5/bin/Debug
 *.config
+/.vs
+/ProyectoFinal-Software-4-y-5/obj/Release

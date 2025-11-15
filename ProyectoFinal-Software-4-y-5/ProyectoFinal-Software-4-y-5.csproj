@@ -53,11 +53,11 @@
     <Compile Include="Entidades\Cuenta.cs" />
     <Compile Include="Entidades\Transaccion.cs" />
     <Compile Include="Entidades\Usuario.cs" />
-    <Compile Include="Forms\Form1.cs">
+    <Compile Include="Forms\FormLogin.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\FormLogin.Designer.cs">
+      <DependentUpon>FormLogin.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\PanelAdministrativo.cs">
       <SubType>Form</SubType>
@@ -71,6 +71,9 @@
     <Compile Include="Servicios\ServicioBanco.cs" />
     <Compile Include="Servicios\Hasher.cs" />
     <Compile Include="Servicios\ControladorSesion.cs" />
+    <EmbeddedResource Include="Forms\FormLogin.resx">
+      <DependentUpon>FormLogin.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\PanelAdministrativo.resx">
       <DependentUpon>PanelAdministrativo.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Proyecto Final.sql" />
+    <Content Include="Resources\Screenshot 2025-11-10 184112.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
