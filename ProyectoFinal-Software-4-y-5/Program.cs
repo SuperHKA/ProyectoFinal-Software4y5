@@ -17,7 +17,7 @@ namespace ProyectoFinal_Software_4_y_5
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new PanelAdministrativo());
+            Application.Run(new FormLogin());
         }
     }
 }
