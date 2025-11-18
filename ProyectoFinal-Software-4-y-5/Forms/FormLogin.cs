@@ -1,13 +1,5 @@
 ﻿using ProyectoFinal_Software_4_y_5.Servicios;
-using ProyectoFinal_Software_4_y_5.Entidades;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -16,14 +8,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
     public partial class FormLogin : Form
     {
-        private ServicioBanco servicioBanco;
+        private ServicioBancoApi servicioBanco;
         private ControladorSession controladorSesion;
-        private readonly ApiCliente _apiCliente = new ApiCliente("https://localhost:5001"); // use your API URL
+        // Use the API scheme+port the server actually exposes (HTTP on 5202 per your logs)
+        private readonly ApiCliente _apiCliente = new ApiCliente("http://localhost:5202"); // use your API URL
 
         public FormLogin()
         {
             InitializeComponent();
-            servicioBanco = new ServicioBanco();
+            // Use matching base URL for the adapter as well
+            servicioBanco = new ServicioBancoApi("http://localhost:5202", allowInvalidSsl: false);
 
             // Configuraciones adicionales
             this.AcceptButton = btnLogin; // Enter ejecuta login

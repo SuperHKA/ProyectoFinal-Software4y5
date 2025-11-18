@@ -7,9 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Register our Banco service (uses IConfiguration to read connection string)
-// Note: do not assign the result to a local variable; call AddSingleton directly.
-// Ensure `ServicioBanco` is defined under `API_BancoFisclase.Servicios` and is public.
-builder.Services.AddSingleton<IServicioBanco, ServicioBanco>();
+// Note: register the actual implementation type `APIServicioBanco`.
+builder.Services.AddSingleton<IServicioBanco, APIServicioBanco>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

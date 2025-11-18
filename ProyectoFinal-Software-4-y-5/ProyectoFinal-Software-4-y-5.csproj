@@ -75,6 +75,7 @@
     <Compile Include="Servicios\ControladorSesion.cs" />
     <Compile Include="Servicios\Hasher.cs" />
     <Compile Include="Servicios\ServicioBanco.cs" />
+    <Compile Include="Servicios\ServicioBancoApi.cs" />
     <EmbeddedResource Include="Forms\FormLogin.resx">
       <DependentUpon>FormLogin.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,6 +106,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PaginaWeb\pongan aqui.txt" />
     <Content Include="Proyecto Final.sql" />
     <Content Include="Resources\Screenshot 2025-11-10 184112.png" />
   </ItemGroup>

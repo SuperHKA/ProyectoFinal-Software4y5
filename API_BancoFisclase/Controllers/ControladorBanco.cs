@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 namespace API_BancoFisclase.Controllers
 {
+    [ApiController]
+    [Route("api/banco")]
     public class ControladorBanco : ControllerBase
     {
         private readonly IServicioBanco _banco;

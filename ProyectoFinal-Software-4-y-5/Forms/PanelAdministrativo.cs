@@ -19,6 +19,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private Button btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo;
 
         private readonly ServicioBanco _servicioBanco;
+        private readonly ServicioBancoApi _servicioBancoApi;
 
         public PanelAdministrativo()
         {
@@ -26,10 +27,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 InitializeComponent();
 
-                // Probar conexión primero
+                // Probar conexión primero (local DB) - keep for features still using local DB
                 ConexionBD.DiagnosticarConexion();
 
                 _servicioBanco = new ServicioBanco();
+
+                // NEW: API adapter (use HTTPS port your API is listening on; console showed 7029)
+                _servicioBancoApi = new ServicioBancoApi("https://localhost:7029", allowInvalidSsl: true);
 
                 // Ejecutar diagnóstico completo
                 EjecutarDiagnosticoCompleto();
@@ -111,6 +115,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        // Replace the existing CargarDatosClientes() with this implementation
         private void CargarDatosClientes()
         {
             try
@@ -127,17 +132,19 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 var dt = new DataTable();
                 dt.Columns.Add("ID");
                 dt.Columns.Add("Usuario");
-                dt.Columns.Add("Nombre");
+                dt.Columns.Add("NombreCliente"); // explicit client name column
                 dt.Columns.Add("Email");
                 dt.Columns.Add("Teléfono");
                 dt.Columns.Add("Estado");
 
                 foreach (var cliente in clientes)
                 {
+                    // cliente.NombreCompleto should hold the client name (if your Usuario model carries it)
+                    // If your model exposes a separate ClienteId property, add a column for it and fill it here.
                     dt.Rows.Add(
                         cliente.IdUsuario,
                         cliente.NombreUsuario ?? "N/A",
-                        cliente.NombreCompleto ?? "N/A",
+                        cliente.NombreCompleto ?? "N/A", // explicit client name
                         cliente.Email ?? "N/A",
                         cliente.Telefono ?? "N/A",
                         cliente.EstadoCuenta ? "Bloqueado" : "Activo"
@@ -268,7 +275,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var stats = _servicioBanco.ObtenerEstadisticasGenerales();
+                // Use API for stats
+                var stats = _servicioBancoApi.ObtenerEstadisticasGenerales();
                 if (stats.Rows.Count > 0)
                 {
                     var row = stats.Rows[0];
@@ -291,7 +299,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                tablaMovimientos.DataSource = _servicioBanco.ObtenerMovimientosDelDia();
+                // Use API for movimientos del dia
+                tablaMovimientos.DataSource = _servicioBancoApi.ObtenerMovimientosDelDia();
                 tablaAnalisis.DataSource = _servicioBanco.ObtenerAnalisisTransacciones();
                 tablaResumen.DataSource = _servicioBanco.ObtenerResumenClientes();
             }
@@ -702,8 +711,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al generar reporte: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al generar reporte: {ex.Message}", "Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -714,7 +723,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 try
                 {
-                    if (_servicioBanco.EjecutarResumenesDiarios())
+                    // Use API implementation
+                    if (_servicioBancoApi.EjecutarResumenesDiarios())
                     {
                         MessageBox.Show("Resúmenes diarios ejecutados exitosamente", "Éxito",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -5,15 +5,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace API_BancoFisclase.Servicios
 {
-    public class ServicioBanco : IServicioBanco
+    public class APIServicioBanco : IServicioBanco
     {
         private readonly string _cs;
 
-        public ServicioBanco(IConfiguration config)
+        public APIServicioBanco(IConfiguration config)
         {
             _cs = config.GetConnectionString("DefaultConnection");
             if (string.IsNullOrWhiteSpace(_cs))
@@ -50,10 +51,27 @@ WHERE username = @username";
                     if (bloqueado)
                         return new LoginResultDto { Status = EstatusLogin.Locked, Message = "Cuenta bloqueada" };
 
-                    // Compute SHA256 hex of password+salt
-                    var computed = ComputeSha256Hex(password + salt);
+                    // Compute both hex and base64 forms of SHA256(password + salt) using Unicode encoding
+                    var computedHex = ComputeSha256Hex(password + salt);
+                    var computedBase64 = ComputeSha256Base64(password + salt);
 
-                    if (!string.Equals(computed, dbHash, StringComparison.OrdinalIgnoreCase))
+                    // Compare against DB hash, accept either hex (64 hex chars) or base64
+                    bool passwordMatches = false;
+                    if (!string.IsNullOrEmpty(dbHash))
+                    {
+                        // hex: 64 hex characters
+                        if (dbHash.Length == 64 && Regex.IsMatch(dbHash, @"\A[0-9a-fA-F]{64}\z"))
+                        {
+                            passwordMatches = string.Equals(computedHex, dbHash, StringComparison.OrdinalIgnoreCase);
+                        }
+                        else
+                        {
+                            // treat as base64 (default)
+                            passwordMatches = string.Equals(computedBase64, dbHash, StringComparison.Ordinal);
+                        }
+                    }
+
+                    if (!passwordMatches)
                     {
                         // increment attempts and possibly lock
                         reader.Close();
@@ -171,16 +189,18 @@ SELECT
 
         private static string ComputeSha256Hex(string input)
         {
-            var bytes = Encoding.UTF8.GetBytes(input);
+            var bytes = Encoding.Unicode.GetBytes(input); // <-- Unicode (match SQL NVARCHAR)
             var hash = SHA256.HashData(bytes);
             var sb = new StringBuilder(hash.Length * 2);
             foreach (var b in hash) sb.AppendFormat("{0:x2}", b);
             return sb.ToString();
         }
 
-        Task<LoginResultDto> IServicioBanco.AuthenticateAdminAsync(string username, string password)
+        private static string ComputeSha256Base64(string input)
         {
-            throw new NotImplementedException();
+            var bytes = Encoding.Unicode.GetBytes(input); // <-- Unicode (match SQL NVARCHAR)
+            var hash = SHA256.HashData(bytes);
+            return Convert.ToBase64String(hash);
         }
     }
 }

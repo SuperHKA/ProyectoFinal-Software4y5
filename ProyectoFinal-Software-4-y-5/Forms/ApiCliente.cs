@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace ProyectoFinal_Software_4_y_5.Forms
 {
@@ -12,9 +13,20 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private readonly HttpClient _http;
         private readonly string _baseUrl;
 
-        public ApiCliente(string baseUrl)
+        // allowInvalidSsl sólo para desarrollo/local (no usar en producción)
+        public ApiCliente(string baseUrl, bool allowInvalidSsl = false)
         {
             _baseUrl = baseUrl?.TrimEnd('/') ?? throw new ArgumentNullException(nameof(baseUrl));
+
+            // Forzar TLS 1.2 (compatibilidad en .NET Framework)
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
+            if (allowInvalidSsl)
+            {
+                // Sólo para desarrollo local: aceptar certificados autofirmados
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            }
+
             _http = new HttpClient { BaseAddress = new Uri(_baseUrl) };
             _http.Timeout = TimeSpan.FromSeconds(30);
         }
@@ -42,6 +54,17 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         public async Task<IEnumerable<Dictionary<string, object>>> ObtenerEstadisticasAsync()
         {
             using (var res = await _http.GetAsync("/api/banco/estadisticas").ConfigureAwait(false))
+            {
+                res.EnsureSuccessStatusCode();
+                var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return JsonConvert.DeserializeObject<IEnumerable<Dictionary<string, object>>>(body);
+            }
+        }
+
+        // NEW: fetch movimientos del dia from API
+        public async Task<IEnumerable<Dictionary<string, object>>> ObtenerMovimientosDelDiaAsync()
+        {
+            using (var res = await _http.GetAsync("/api/banco/movimientos-del-dia").ConfigureAwait(false))
             {
                 res.EnsureSuccessStatusCode();
                 var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);

@@ -1,4 +1,4 @@
-@API_BancoFisclase_HostAddress = https://localhost:5001
+@API_BancoFisclase_HostAddress = https://localhost:5202
 
 ### Health / Swagger
 GET {{API_BancoFisclase_HostAddress}}/swagger/index.html

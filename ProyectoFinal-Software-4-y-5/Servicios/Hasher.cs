@@ -10,8 +10,9 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
         {
             using (var sha256 = SHA256.Create())
             {
+                // Match SQL Server NVARCHAR hashing (UTF-16 / little-endian)
                 var contrasenaConSalt = contrasena + salt;
-                var bytes = Encoding.UTF8.GetBytes(contrasenaConSalt);
+                var bytes = Encoding.Unicode.GetBytes(contrasenaConSalt);
                 var hashBytes = sha256.ComputeHash(bytes);
                 return Convert.ToBase64String(hashBytes);
             }
