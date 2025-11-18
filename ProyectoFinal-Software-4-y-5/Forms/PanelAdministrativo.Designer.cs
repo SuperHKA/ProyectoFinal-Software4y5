@@ -31,27 +31,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PanelAdministrativo));
-            this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabPanelAdmin = new System.Windows.Forms.TabControl();
             this.tabDashboard = new System.Windows.Forms.TabPage();
             this.panelDashboard = new System.Windows.Forms.Panel();
             this.panelTransaccionesRecientes = new System.Windows.Forms.Panel();
             this.gridTransaccionesRecientes = new System.Windows.Forms.DataGridView();
-            this.label11 = new System.Windows.Forms.Label();
+            this.lblTransRecientes = new System.Windows.Forms.Label();
             this.panelEstadisticas = new System.Windows.Forms.Panel();
             this.flowLayoutEstadisticas = new System.Windows.Forms.FlowLayoutPanel();
             this.panelTotalClientes = new System.Windows.Forms.Panel();
             this.lblTotalClientes = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblTotalCliente = new System.Windows.Forms.Label();
             this.panelTotalCuentas = new System.Windows.Forms.Panel();
             this.lblTotalCuentas = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.lblTotalCuenta = new System.Windows.Forms.Label();
             this.panelSaldoTotal = new System.Windows.Forms.Panel();
             this.lblSaldoTotal = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.lblSaldoSis = new System.Windows.Forms.Label();
             this.panelTransaccionesHoy = new System.Windows.Forms.Panel();
             this.lblTransaccionesHoy = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.lblTransHoy = new System.Windows.Forms.Label();
             this.tabClientes = new System.Windows.Forms.TabPage();
             this.splitContainerClientes = new System.Windows.Forms.SplitContainer();
             this.tablaClientes = new System.Windows.Forms.DataGridView();
@@ -97,7 +96,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaAnalisis = new System.Windows.Forms.DataGridView();
             this.tabResumen = new System.Windows.Forms.TabPage();
             this.tablaResumen = new System.Windows.Forms.DataGridView();
-            this.tabControl.SuspendLayout();
+            this.tabPanelAdmin.SuspendLayout();
             this.tabDashboard.SuspendLayout();
             this.panelDashboard.SuspendLayout();
             this.panelTransaccionesRecientes.SuspendLayout();
@@ -140,22 +139,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             ((System.ComponentModel.ISupportInitialize)(this.tablaResumen)).BeginInit();
             this.SuspendLayout();
             // 
-            // tabControl
+            // tabPanelAdmin
             // 
-            this.tabControl.Controls.Add(this.tabDashboard);
-            this.tabControl.Controls.Add(this.tabClientes);
-            this.tabControl.Controls.Add(this.tabSeguridad);
-            this.tabControl.Controls.Add(this.tabReportes);
-            this.tabControl.Controls.Add(this.tabNotificaciones);
-            this.tabControl.Controls.Add(this.tabMovimientos);
-            this.tabControl.Controls.Add(this.tabAnalisis);
-            this.tabControl.Controls.Add(this.tabResumen);
-            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(0, 0);
-            this.tabControl.Name = "tabControl";
-            this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1400, 800);
-            this.tabControl.TabIndex = 0;
+            this.tabPanelAdmin.Controls.Add(this.tabDashboard);
+            this.tabPanelAdmin.Controls.Add(this.tabClientes);
+            this.tabPanelAdmin.Controls.Add(this.tabSeguridad);
+            this.tabPanelAdmin.Controls.Add(this.tabReportes);
+            this.tabPanelAdmin.Controls.Add(this.tabNotificaciones);
+            this.tabPanelAdmin.Controls.Add(this.tabMovimientos);
+            this.tabPanelAdmin.Controls.Add(this.tabAnalisis);
+            this.tabPanelAdmin.Controls.Add(this.tabResumen);
+            this.tabPanelAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabPanelAdmin.Location = new System.Drawing.Point(0, 0);
+            this.tabPanelAdmin.Name = "tabPanelAdmin";
+            this.tabPanelAdmin.SelectedIndex = 0;
+            this.tabPanelAdmin.Size = new System.Drawing.Size(1400, 800);
+            this.tabPanelAdmin.TabIndex = 0;
             // 
             // tabDashboard
             // 
@@ -181,7 +180,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // panelTransaccionesRecientes
             // 
             this.panelTransaccionesRecientes.Controls.Add(this.gridTransaccionesRecientes);
-            this.panelTransaccionesRecientes.Controls.Add(this.label11);
+            this.panelTransaccionesRecientes.Controls.Add(this.lblTransRecientes);
             this.panelTransaccionesRecientes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelTransaccionesRecientes.Location = new System.Drawing.Point(0, 150);
             this.panelTransaccionesRecientes.Name = "panelTransaccionesRecientes";
@@ -203,16 +202,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1386, 581);
             this.gridTransaccionesRecientes.TabIndex = 1;
             // 
-            // label11
+            // lblTransRecientes
             // 
-            this.label11.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label11.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(0, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(1386, 30);
-            this.label11.TabIndex = 0;
-            this.label11.Text = "Transacciones Recientes";
-            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTransRecientes.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTransRecientes.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTransRecientes.Location = new System.Drawing.Point(0, 0);
+            this.lblTransRecientes.Name = "lblTransRecientes";
+            this.lblTransRecientes.Size = new System.Drawing.Size(1386, 30);
+            this.lblTransRecientes.TabIndex = 0;
+            this.lblTransRecientes.Text = "Transacciones Recientes";
+            this.lblTransRecientes.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelEstadisticas
             // 
@@ -239,7 +238,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.panelTotalClientes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTotalClientes.Controls.Add(this.lblTotalClientes);
-            this.panelTotalClientes.Controls.Add(this.label2);
+            this.panelTotalClientes.Controls.Add(this.lblTotalCliente);
             this.panelTotalClientes.Location = new System.Drawing.Point(20, 20);
             this.panelTotalClientes.Margin = new System.Windows.Forms.Padding(20);
             this.panelTotalClientes.Name = "panelTotalClientes";
@@ -258,22 +257,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTotalClientes.Text = "0";
             this.lblTotalClientes.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label2
+            // lblTotalCliente
             // 
-            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(298, 30);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Total Clientes";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTotalCliente.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTotalCliente.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTotalCliente.Location = new System.Drawing.Point(0, 0);
+            this.lblTotalCliente.Name = "lblTotalCliente";
+            this.lblTotalCliente.Size = new System.Drawing.Size(298, 30);
+            this.lblTotalCliente.TabIndex = 0;
+            this.lblTotalCliente.Text = "Total Clientes";
+            this.lblTotalCliente.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelTotalCuentas
             // 
             this.panelTotalCuentas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTotalCuentas.Controls.Add(this.lblTotalCuentas);
-            this.panelTotalCuentas.Controls.Add(this.label4);
+            this.panelTotalCuentas.Controls.Add(this.lblTotalCuenta);
             this.panelTotalCuentas.Location = new System.Drawing.Point(360, 20);
             this.panelTotalCuentas.Margin = new System.Windows.Forms.Padding(20);
             this.panelTotalCuentas.Name = "panelTotalCuentas";
@@ -292,22 +291,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTotalCuentas.Text = "0";
             this.lblTotalCuentas.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label4
+            // lblTotalCuenta
             // 
-            this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label4.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(0, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(298, 30);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Total Cuentas";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTotalCuenta.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTotalCuenta.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTotalCuenta.Location = new System.Drawing.Point(0, 0);
+            this.lblTotalCuenta.Name = "lblTotalCuenta";
+            this.lblTotalCuenta.Size = new System.Drawing.Size(298, 30);
+            this.lblTotalCuenta.TabIndex = 0;
+            this.lblTotalCuenta.Text = "Total Cuentas";
+            this.lblTotalCuenta.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelSaldoTotal
             // 
             this.panelSaldoTotal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelSaldoTotal.Controls.Add(this.lblSaldoTotal);
-            this.panelSaldoTotal.Controls.Add(this.label6);
+            this.panelSaldoTotal.Controls.Add(this.lblSaldoSis);
             this.panelSaldoTotal.Location = new System.Drawing.Point(700, 20);
             this.panelSaldoTotal.Margin = new System.Windows.Forms.Padding(20);
             this.panelSaldoTotal.Name = "panelSaldoTotal";
@@ -326,22 +325,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblSaldoTotal.Text = "$0";
             this.lblSaldoTotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label6
+            // lblSaldoSis
             // 
-            this.label6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label6.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(0, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(298, 30);
-            this.label6.TabIndex = 0;
-            this.label6.Text = "Saldo Total Sistema";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblSaldoSis.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblSaldoSis.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSaldoSis.Location = new System.Drawing.Point(0, 0);
+            this.lblSaldoSis.Name = "lblSaldoSis";
+            this.lblSaldoSis.Size = new System.Drawing.Size(298, 30);
+            this.lblSaldoSis.TabIndex = 0;
+            this.lblSaldoSis.Text = "Saldo Total Sistema";
+            this.lblSaldoSis.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelTransaccionesHoy
             // 
             this.panelTransaccionesHoy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelTransaccionesHoy.Controls.Add(this.lblTransaccionesHoy);
-            this.panelTransaccionesHoy.Controls.Add(this.label8);
+            this.panelTransaccionesHoy.Controls.Add(this.lblTransHoy);
             this.panelTransaccionesHoy.Location = new System.Drawing.Point(1040, 20);
             this.panelTransaccionesHoy.Margin = new System.Windows.Forms.Padding(20);
             this.panelTransaccionesHoy.Name = "panelTransaccionesHoy";
@@ -360,16 +359,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTransaccionesHoy.Text = "0";
             this.lblTransaccionesHoy.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label8
+            // lblTransHoy
             // 
-            this.label8.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label8.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(0, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(298, 30);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "Transacciones Hoy";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTransHoy.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTransHoy.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTransHoy.Location = new System.Drawing.Point(0, 0);
+            this.lblTransHoy.Name = "lblTransHoy";
+            this.lblTransHoy.Size = new System.Drawing.Size(298, 30);
+            this.lblTransHoy.TabIndex = 0;
+            this.lblTransHoy.Text = "Transacciones Hoy";
+            this.lblTransHoy.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tabClientes
             // 
@@ -557,9 +556,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.label10.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 15);
+            this.label10.Location = new System.Drawing.Point(3, 14);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(83, 20);
+            this.label10.Size = new System.Drawing.Size(81, 22);
             this.label10.TabIndex = 0;
             this.label10.Text = "Username:";
             // 
@@ -568,16 +567,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminUsername.Location = new System.Drawing.Point(414, 12);
             this.txtAdminUsername.Name = "txtAdminUsername";
-            this.txtAdminUsername.Size = new System.Drawing.Size(955, 27);
+            this.txtAdminUsername.Size = new System.Drawing.Size(955, 26);
             this.txtAdminUsername.TabIndex = 1;
             // 
             // label12
             // 
             this.label12.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 65);
+            this.label12.Location = new System.Drawing.Point(3, 64);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(73, 20);
+            this.label12.Size = new System.Drawing.Size(75, 22);
             this.label12.TabIndex = 2;
             this.label12.Text = "Password:";
             // 
@@ -587,16 +586,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminPassword.Location = new System.Drawing.Point(414, 62);
             this.txtAdminPassword.Name = "txtAdminPassword";
             this.txtAdminPassword.PasswordChar = '*';
-            this.txtAdminPassword.Size = new System.Drawing.Size(955, 27);
+            this.txtAdminPassword.Size = new System.Drawing.Size(955, 26);
             this.txtAdminPassword.TabIndex = 3;
             // 
             // label13
             // 
             this.label13.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(3, 115);
+            this.label13.Location = new System.Drawing.Point(3, 114);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(67, 20);
+            this.label13.Size = new System.Drawing.Size(66, 22);
             this.label13.TabIndex = 4;
             this.label13.Text = "Nombre:";
             // 
@@ -605,16 +604,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminNombre.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminNombre.Location = new System.Drawing.Point(414, 112);
             this.txtAdminNombre.Name = "txtAdminNombre";
-            this.txtAdminNombre.Size = new System.Drawing.Size(955, 27);
+            this.txtAdminNombre.Size = new System.Drawing.Size(955, 26);
             this.txtAdminNombre.TabIndex = 5;
             // 
             // label14
             // 
             this.label14.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(3, 165);
+            this.label14.Location = new System.Drawing.Point(3, 164);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(49, 20);
+            this.label14.Size = new System.Drawing.Size(50, 22);
             this.label14.TabIndex = 6;
             this.label14.Text = "Email:";
             // 
@@ -623,7 +622,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminEmail.Location = new System.Drawing.Point(414, 162);
             this.txtAdminEmail.Name = "txtAdminEmail";
-            this.txtAdminEmail.Size = new System.Drawing.Size(955, 27);
+            this.txtAdminEmail.Size = new System.Drawing.Size(955, 26);
             this.txtAdminEmail.TabIndex = 7;
             // 
             // label15
@@ -699,7 +698,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaFin.Location = new System.Drawing.Point(550, 28);
             this.dtpFechaFin.Name = "dtpFechaFin";
-            this.dtpFechaFin.Size = new System.Drawing.Size(200, 27);
+            this.dtpFechaFin.Size = new System.Drawing.Size(200, 26);
             this.dtpFechaFin.TabIndex = 4;
             // 
             // label7
@@ -707,7 +706,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(470, 32);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(74, 20);
+            this.label7.Size = new System.Drawing.Size(78, 22);
             this.label7.TabIndex = 3;
             this.label7.Text = "Fecha Fin:";
             // 
@@ -715,7 +714,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaInicio.Location = new System.Drawing.Point(220, 28);
             this.dtpFechaInicio.Name = "dtpFechaInicio";
-            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 27);
+            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 26);
             this.dtpFechaInicio.TabIndex = 2;
             // 
             // label5
@@ -723,7 +722,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(120, 32);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(94, 20);
+            this.label5.Size = new System.Drawing.Size(90, 22);
             this.label5.TabIndex = 1;
             this.label5.Text = "Fecha Inicio:";
             // 
@@ -797,7 +796,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label16.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label16.Location = new System.Drawing.Point(400, 32);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(187, 19);
+            this.label16.Size = new System.Drawing.Size(214, 19);
             this.label16.TabIndex = 0;
             this.label16.Text = "Notificaciones del Sistema";
             // 
@@ -881,15 +880,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1400, 800);
-            this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.tabPanelAdmin);
             this.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "PanelAdministrativo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Banco Fisclase 24/7 - Panel de Administración Avanzado";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.tabControl.ResumeLayout(false);
+            this.tabPanelAdmin.ResumeLayout(false);
             this.tabDashboard.ResumeLayout(false);
             this.panelDashboard.ResumeLayout(false);
             this.panelTransaccionesRecientes.ResumeLayout(false);
@@ -901,15 +899,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelSaldoTotal.ResumeLayout(false);
             this.panelTransaccionesHoy.ResumeLayout(false);
             this.tabClientes.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerClientes)).EndInit();
             this.splitContainerClientes.Panel1.ResumeLayout(false);
             this.splitContainerClientes.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerClientes)).EndInit();
             this.splitContainerClientes.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tablaClientes)).EndInit();
             this.tabSeguridad.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerSeguridad)).EndInit();
             this.splitContainerSeguridad.Panel1.ResumeLayout(false);
             this.splitContainerSeguridad.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerSeguridad)).EndInit();
             this.splitContainerSeguridad.ResumeLayout(false);
             this.panelUsuariosBloqueados.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridUsuariosBloqueados)).EndInit();
@@ -939,26 +937,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
         #endregion
 
-        private TabControl tabControl;
+        private TabControl tabPanelAdmin;
         private TabPage tabDashboard;
         private Panel panelDashboard;
         private Panel panelTransaccionesRecientes;
         private DataGridView gridTransaccionesRecientes;
-        private Label label11;
+        private Label lblTransRecientes;
         private Panel panelEstadisticas;
         private FlowLayoutPanel flowLayoutEstadisticas;
         private Panel panelTotalClientes;
         private Label lblTotalClientes;
-        private Label label2;
+        private Label lblTotalCliente;
         private Panel panelTotalCuentas;
         private Label lblTotalCuentas;
-        private Label label4;
+        private Label lblTotalCuenta;
         private Panel panelSaldoTotal;
         private Label lblSaldoTotal;
-        private Label label6;
+        private Label lblSaldoSis;
         private Panel panelTransaccionesHoy;
         private Label lblTransaccionesHoy;
-        private Label label8;
+        private Label lblTransHoy;
         private TabPage tabClientes;
         private SplitContainer splitContainerClientes;
         private DataGridView tablaClientes;
