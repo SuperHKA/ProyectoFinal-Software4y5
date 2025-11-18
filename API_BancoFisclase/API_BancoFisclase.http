@@ -1,6 +1,37 @@
-@API_BancoFisclase_HostAddress = http://localhost:5202
+@API_BancoFisclase_HostAddress = https://localhost:5001
 
-GET {{API_BancoFisclase_HostAddress}}/weatherforecast/
+### Health / Swagger
+GET {{API_BancoFisclase_HostAddress}}/swagger/index.html
+Accept: text/html
+
+###
+
+### Get estadisticas generales
+GET {{API_BancoFisclase_HostAddress}}/api/banco/estadisticas
+Accept: application/json
+
+###
+
+### Get movimientos del dia
+GET {{API_BancoFisclase_HostAddress}}/api/banco/movimientos-del-dia
+Accept: application/json
+
+###
+
+### Admin login (replace credentials)
+POST {{API_BancoFisclase_HostAddress}}/api/banco/login-admin
+Content-Type: application/json
+Accept: application/json
+
+{
+  "Username": "admin",
+  "Password": "yourPasswordHere"
+}
+
+###
+
+### Ejecutar resúmenes diarios (requires admin, no body)
+POST {{API_BancoFisclase_HostAddress}}/api/banco/ejecutar-resumenes
 Accept: application/json
 
 ###

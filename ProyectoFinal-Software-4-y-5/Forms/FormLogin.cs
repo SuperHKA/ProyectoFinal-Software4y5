@@ -18,6 +18,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
     {
         private ServicioBanco servicioBanco;
         private ControladorSession controladorSesion;
+        private readonly ApiCliente _apiCliente = new ApiCliente("https://localhost:5001"); // use your API URL
+
         public FormLogin()
         {
             InitializeComponent();
@@ -28,42 +30,48 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             txtPassword.PasswordChar = '•';
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
-            var username = txtUsuario.Text.Trim();
-            var password = txtPassword.Text ?? string.Empty;
-
-            var result = servicioBanco.AutenticarAdministrador(username, password, out var usuario);
-
-            switch (result)
+            btnLogin.Enabled = false;
+            try
             {
-                case ServicioBanco.LoginResult.Success:
-                    // Open admin panel and hide login; restore login when admin panel closes
-                    var panel = new PanelAdministrativo();
-                    panel.FormClosed += (s, args) => this.Show();
-                    panel.Show();
-                    this.Hide();
-                    break;
+                var username = txtUsuario.Text?.Trim();
+                var password = txtPassword.Text ?? string.Empty;
 
-                case ServicioBanco.LoginResult.UsuarioNoExiste:
-                    MessageBox.Show("Usuario no existe.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
+                var result = await _apiCliente.AutenticarAdministradorAsync(username, password).ConfigureAwait(false);
 
-                case ServicioBanco.LoginResult.Bloqueado:
-                    MessageBox.Show("Cuenta bloqueada por seguridad. Contacte con soporte.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
-
-                case ServicioBanco.LoginResult.ContrasenaIncorrecta:
-                    MessageBox.Show("Contraseña incorrecta. Intentos incrementados.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
-
-                case ServicioBanco.LoginResult.NoAdmin:
-                    MessageBox.Show("No tiene permisos de administrador.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    break;
-
-                default:
-                    MessageBox.Show("Error desconocido al iniciar sesión.", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
+                // back to UI thread
+                this.Invoke((Action)(() =>
+                {
+                    switch (result.Status)
+                    {
+                        case EstatusLogin.Success:
+                            // set local session if you want, open admin panel
+                            var panel = new PanelAdministrativo();
+                            panel.Show();
+                            this.Hide();
+                            break;
+                        case EstatusLogin.NotFound:
+                            MessageBox.Show("Usuario no encontrado", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            break;
+                        case EstatusLogin.Locked:
+                            MessageBox.Show("Cuenta bloqueada", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        case EstatusLogin.BadCredentials:
+                            MessageBox.Show("Credenciales incorrectas", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            break;
+                        case EstatusLogin.Forbidden:
+                            MessageBox.Show("No es administrador", "Login", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                            break;
+                        default:
+                            MessageBox.Show("Error de autenticación: " + result.Message, "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                    }
+                }));
+            }
+            finally
+            {
+                this.Invoke((Action)(() => btnLogin.Enabled = true));
             }
         }
 
