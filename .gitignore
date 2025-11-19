@@ -17,3 +17,6 @@
 /API_BancoFisclase/bin/Debug/net10.0
 /API_BancoFisclase/obj/Release/net10.0
 /.vscode
+/API_BancoFisclase/obj/API_BancoFisclase.csproj.nuget.dgspec.json
+/API_BancoFisclase/obj/project.assets.json
+/API_BancoFisclase/obj/project.nuget.cache
