@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using ProyectoFinal_Software_4_y_5.Entidades;
 using ProyectoFinal_Software_4_y_5.Servicios;
+using ProyectoFinal_Software_4_y_5.Forms; // ensure ApiCliente visible (namespace may vary)
 
 namespace ProyectoFinal_Software_4_y_5.Forms
 {
@@ -18,7 +19,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private Button btnNuevo, btnGuardar, btnEliminar, btnActualizar;
         private Button btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo;
 
-        private readonly ServicioBanco _servicioBanco;
+        // Use the API adapter exclusively
         private readonly ServicioBancoApi _servicioBancoApi;
 
         public PanelAdministrativo()
@@ -27,15 +28,28 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 InitializeComponent();
 
-                // Probar conexión primero (local DB) - keep for features still using local DB
-                ConexionBD.DiagnosticarConexion();
+                // API health check (replace local DB diagnostic)
+                try
+                {
+                    var apiClient = new ApiCliente("http://localhost:5202", allowInvalidSsl: false);
+                    var healthy = apiClient.HealthAsync().GetAwaiter().GetResult();
+                    if (!healthy)
+                    {
+                        MessageBox.Show("Warning: API health check failed. UI will run in degraded mode and features requiring the API may fail.",
+                            "API Unreachable", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                catch (Exception hx)
+                {
+                    // Non-fatal: show a warning, continue into UI (calls will fail until API is up)
+                    MessageBox.Show($"Warning: could not reach API: {hx.Message}\nThe application will continue but some features may not work.",
+                        "API Unreachable", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
 
-                _servicioBanco = new ServicioBanco();
+                // Use API adapter (single instance)
+                _servicioBancoApi = new ServicioBancoApi("http://localhost:5202", allowInvalidSsl: false);
 
-                // NEW: API adapter (use HTTPS port your API is listening on; console showed 7029)
-                _servicioBancoApi = new ServicioBancoApi("https://localhost:7029", allowInvalidSsl: true);
-
-                // Ejecutar diagnóstico completo
+                // Ejecutar diagnóstico completo (now uses API)
                 EjecutarDiagnosticoCompleto();
 
                 // Crear formulario de cliente dinámicamente
@@ -45,7 +59,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 ConectarEventos();
 
                 // CARGAR DATOS INICIALES EN UI
-                // Llamadas adicionales para poblar grids y tablas al inicio
                 try
                 {
                     CargarDatosClientes();
@@ -56,7 +69,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
                 catch (Exception loadEx)
                 {
-                    // Registrar y mostrar aviso mínimo, sin romper inicialización
                     System.Diagnostics.Debug.WriteLine($"[PanelAdministrativo] Error cargando datos iniciales: {loadEx.Message}");
                     MessageBox.Show("Hubo un problema cargando datos iniciales. Revisa el Output de Debug para más detalles.",
                         "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -73,38 +85,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                // 1. Probar consulta básica
-                var resultadoConsulta = _servicioBanco.ProbarConsultaBasica();
+                // 1. Probar consulta básica (not available on API adapter) — skip or call API health if present.
+                string resultadoConsulta = "API health not checked here.";
 
-                // 2. Diagnosticar tablas
-                var tablas = _servicioBanco.DiagnosticarTablas();
-                string mensajeTablas = "📊 TABLAS ENCONTRADAS:\n";
-                foreach (DataRow row in tablas.Rows)
-                {
-                    if (row.Table.Columns.Contains("Error"))
-                    {
-                        mensajeTablas = $"❌ ERROR EN TABLAS: {row["Error"]}";
-                        break;
-                    }
-                    mensajeTablas += $"• {row["tabla_nombre"]} ({row["tipo"]})\n";
-                }
+                // 2. Diagnosticar tablas (not available in API adapter signature) — skip local DB checks if removed.
+                string mensajeTablas = "Using API service; local DB diagnostics omitted.";
 
                 // 3. Diagnosticar vistas
-                var vistas = _servicioBanco.DiagnosticarVistas();
-                string mensajeVistas = "\n👁️ VISTAS ENCONTRADAS:\n";
-                foreach (DataRow row in vistas.Rows)
-                {
-                    if (row.Table.Columns.Contains("Error"))
-                    {
-                        mensajeVistas = $"\n❌ ERROR EN VISTAS: {row["Error"]}";
-                        break;
-                    }
-                    mensajeVistas += $"• {row["vista_nombre"]} ({row["tipo"]})\n";
-                }
+                string mensajeVistas = "";
 
-                // 4. Contar clientes
-                var clientes = _servicioBanco.ObtenerTodosLosClientes();
-                string mensajeRegistros = $"\n📈 REGISTROS:\n• Clientes: {clientes?.Count ?? 0}";
+                // 4. Contar clientes via API
+                var clientes = _servicioBancoApi.ObtenerTodosLosClientes();
+                string mensajeRegistros = $"\nREGISTROS:\n• Clientes: {clientes?.Count ?? 0}";
 
                 MessageBox.Show($"{resultadoConsulta}\n\n{mensajeTablas}{mensajeVistas}{mensajeRegistros}",
                     "Diagnóstico Completo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -115,12 +107,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        // Replace the existing CargarDatosClientes() with this implementation
+
         private void CargarDatosClientes()
         {
             try
             {
-                var clientes = _servicioBanco.ObtenerTodosLosClientes();
+                var clientes = _servicioBancoApi.ObtenerTodosLosClientes();
 
                 if (clientes == null)
                 {
@@ -132,19 +124,17 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 var dt = new DataTable();
                 dt.Columns.Add("ID");
                 dt.Columns.Add("Usuario");
-                dt.Columns.Add("NombreCliente"); // explicit client name column
+                dt.Columns.Add("Nombre");
                 dt.Columns.Add("Email");
                 dt.Columns.Add("Teléfono");
                 dt.Columns.Add("Estado");
 
                 foreach (var cliente in clientes)
                 {
-                    // cliente.NombreCompleto should hold the client name (if your Usuario model carries it)
-                    // If your model exposes a separate ClienteId property, add a column for it and fill it here.
                     dt.Rows.Add(
                         cliente.IdUsuario,
                         cliente.NombreUsuario ?? "N/A",
-                        cliente.NombreCompleto ?? "N/A", // explicit client name
+                        cliente.NombreCompleto ?? "N/A",
                         cliente.Email ?? "N/A",
                         cliente.Telefono ?? "N/A",
                         cliente.EstadoCuenta ? "Bloqueado" : "Activo"
@@ -164,7 +154,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                // Crear tabla vacía para evitar errores
                 var dt = new DataTable();
                 dt.Columns.Add("Error");
                 dt.Rows.Add($"Error: {ex.Message}");
@@ -183,11 +172,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 Padding = new Padding(10)
             };
 
-            // Configurar columnas
             tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
             tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
 
-            // Crear controles
             int row = 0;
             AgregarControl(tableLayout, "ID:", txtId = new TextBox { ReadOnly = true }, row++);
             AgregarControl(tableLayout, "Usuario:", txtUsuario = new TextBox(), row++);
@@ -195,9 +182,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             AgregarControl(tableLayout, "Email:", txtEmail = new TextBox(), row++);
             AgregarControl(tableLayout, "Teléfono:", txtTelefono = new TextBox(), row++);
 
-            // Separador dirección
-            tableLayout.Controls.Add(new Label { Text = "Dirección", Font = new Font("Arial", 9, FontStyle.Bold) }, 0,
-                row++);
+            tableLayout.Controls.Add(new Label { Text = "Dirección", Font = new Font("Arial", 9, FontStyle.Bold) }, 0, row++);
             tableLayout.SetColumnSpan(tableLayout.Controls[tableLayout.Controls.Count - 1], 2);
 
             AgregarControl(tableLayout, "Calle:", txtCalle = new TextBox(), row++);
@@ -207,10 +192,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             AgregarControl(tableLayout, "Código Postal:", txtCodigoPostal = new TextBox(), row++);
             AgregarControl(tableLayout, "País:", txtPais = new TextBox(), row++);
 
-            AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true },
-                row++);
+            AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true }, row++);
 
-            // Panel de botones
             var panelBotones = CrearPanelBotones();
             tableLayout.Controls.Add(panelBotones, 0, row++);
             tableLayout.SetColumnSpan(panelBotones, 2);
@@ -249,7 +232,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
         private void ConectarEventos()
         {
-            // Eventos del formulario de cliente
             tablaClientes.SelectionChanged += (s, e) => CargarClienteSeleccionado();
             btnNuevo.Click += (s, e) => LimpiarFormulario();
             btnGuardar.Click += (s, e) => GuardarCliente();
@@ -259,23 +241,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             btnCrearCuenta.Click += (s, e) => CrearCuentaBancaria();
             btnActualizarSaldo.Click += (s, e) => ActualizarSaldoCuenta();
 
-            // Eventos de seguridad
             btnDesbloquearUsuario.Click += (s, e) => DesbloquearUsuario();
             btnCrearAdministrador.Click += (s, e) => CrearAdministrador();
 
-            // Eventos de reportes
             btnGenerarReporte.Click += (s, e) => GenerarReporteTransacciones();
 
-            // Eventos de notificaciones
             btnEjecutarResumenes.Click += (s, e) => EjecutarResumenesDiarios();
         }
 
-        // Métodos de carga de datos
         private void CargarDashboard()
         {
             try
             {
-                // Use API for stats
                 var stats = _servicioBancoApi.ObtenerEstadisticasGenerales();
                 if (stats.Rows.Count > 0)
                 {
@@ -286,7 +263,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     lblTransaccionesHoy.Text = row["transacciones_hoy"].ToString();
                 }
 
-                gridTransaccionesRecientes.DataSource = _servicioBanco.ObtenerTransaccionesRecientes(20);
+                gridTransaccionesRecientes.DataSource = _servicioBancoApi.ObtenerTransaccionesRecientes(20);
             }
             catch (Exception ex)
             {
@@ -299,10 +276,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                // Use API for movimientos del dia
                 tablaMovimientos.DataSource = _servicioBancoApi.ObtenerMovimientosDelDia();
-                tablaAnalisis.DataSource = _servicioBanco.ObtenerAnalisisTransacciones();
-                tablaResumen.DataSource = _servicioBanco.ObtenerResumenClientes();
+                tablaAnalisis.DataSource = _servicioBancoApi.ObtenerAnalisisTransacciones();
+                tablaResumen.DataSource = _servicioBancoApi.ObtenerResumenClientes();
             }
             catch (Exception ex)
             {
@@ -315,7 +291,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                gridUsuariosBloqueados.DataSource = _servicioBanco.ObtenerUsuariosBloqueados();
+                gridUsuariosBloqueados.DataSource = _servicioBancoApi.ObtenerUsuariosBloqueados();
             }
             catch (Exception ex)
             {
@@ -328,7 +304,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                gridNotificacionesSistema.DataSource = _servicioBanco.ObtenerNotificacionesSistema();
+                gridNotificacionesSistema.DataSource = _servicioBancoApi.ObtenerNotificacionesSistema();
             }
             catch (Exception ex)
             {
@@ -364,7 +340,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
         private void GuardarCliente()
         {
-            // Validaciones básicas
             if (string.IsNullOrEmpty(txtUsuario.Text) || string.IsNullOrEmpty(txtNombre.Text) ||
                 string.IsNullOrEmpty(txtEmail.Text))
             {
@@ -373,7 +348,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 return;
             }
 
-            // Validar formato de email
             if (!EsEmailValido(txtEmail.Text))
             {
                 MessageBox.Show("El formato del email no es válido", "Validación",
@@ -383,7 +357,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
             try
             {
-                // Crear objeto Usuario con los datos del formulario
                 var usuario = new Usuario(
                     idUsuario: string.IsNullOrEmpty(txtId.Text) ? 0 : int.Parse(txtId.Text),
                     nombreUsuario: txtUsuario.Text.Trim(),
@@ -406,7 +379,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 if (string.IsNullOrEmpty(txtId.Text))
                 {
-                    // NUEVO CLIENTE
                     if (string.IsNullOrEmpty(txtContrasena.Text))
                     {
                         MessageBox.Show("Para crear un nuevo cliente debe ingresar una contraseña", "Validación",
@@ -414,7 +386,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         return;
                     }
 
-                    // Verificar si el usuario ya existe
                     if (UsuarioExiste(txtUsuario.Text.Trim()))
                     {
                         MessageBox.Show("El nombre de usuario ya existe. Por favor elija otro.", "Error",
@@ -422,7 +393,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         return;
                     }
 
-                    // Verificar si el email ya existe
                     if (EmailExiste(txtEmail.Text.Trim()))
                     {
                         MessageBox.Show("El email ya está registrado. Por favor use otro email.", "Error",
@@ -430,7 +400,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         return;
                     }
 
-                    resultado = _servicioBanco.CrearClienteCompleto(usuario, txtContrasena.Text);
+                    resultado = _servicioBancoApi.CrearClienteCompleto(usuario, txtContrasena.Text);
 
                     if (resultado)
                     {
@@ -446,20 +416,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
                 else
                 {
-                    // ACTUALIZAR CLIENTE EXISTENTE
                     usuario.IdUsuario = int.Parse(txtId.Text);
 
-                    resultado = _servicioBanco.ActualizarCliente(usuario);
+                    resultado = _servicioBancoApi.ActualizarCliente(usuario);
 
                     if (resultado)
                     {
                         MessageBox.Show("Cliente actualizado exitosamente", "Éxito",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        // Si hay una nueva contraseña, cambiarla
                         if (!string.IsNullOrEmpty(txtContrasena.Text))
                         {
-                            if (_servicioBanco.CambiarContrasena(usuario.IdUsuario, txtContrasena.Text))
+                            if (_servicioBancoApi.CambiarContrasena(usuario.IdUsuario, txtContrasena.Text))
                             {
                                 MessageBox.Show("Contraseña actualizada exitosamente", "Éxito",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -480,7 +448,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     }
                 }
 
-                // Recargar datos
                 if (resultado)
                 {
                     CargarDatosClientes();
@@ -506,7 +473,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        // Métodos auxiliares para validaciones
         private bool EsEmailValido(string email)
         {
             try
@@ -527,14 +493,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var clientes = _servicioBanco.ObtenerTodosLosClientes();
+                var clientes = _servicioBancoApi.ObtenerTodosLosClientes();
                 return clientes.Any(c =>
                     c.NombreUsuario != null &&
                     c.NombreUsuario.Equals(username, StringComparison.OrdinalIgnoreCase));
             }
             catch
             {
-                // Si hay error al verificar, asumimos que no existe para permitir el intento
                 return false;
             }
         }
@@ -543,19 +508,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var clientes = _servicioBanco.ObtenerTodosLosClientes();
+                var clientes = _servicioBancoApi.ObtenerTodosLosClientes();
                 return clientes.Any(c =>
                     c.Email != null &&
                     c.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             }
             catch
             {
-                // Si hay error al verificar, asumimos que no existe para permitir el intento
                 return false;
             }
         }
-        
-    
 
         private void EliminarCliente()
         {
@@ -585,7 +547,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
             try
             {
-                if (_servicioBanco.CambiarContrasena(int.Parse(txtId.Text), txtContrasena.Text))
+                if (_servicioBancoApi.CambiarContrasena(int.Parse(txtId.Text), txtContrasena.Text))
                 {
                     MessageBox.Show("Contraseña cambiada exitosamente", "Éxito", MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
@@ -616,7 +578,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 try
                 {
                     var numeroCuenta = GenerarNumeroCuenta();
-                    if (_servicioBanco.CrearCuentaBancaria(int.Parse(txtId.Text), tipoSeleccionado, numeroCuenta, 0))
+                    if (_servicioBancoApi.CrearCuentaBancaria(int.Parse(txtId.Text), tipoSeleccionado, numeroCuenta, 0))
                     {
                         MessageBox.Show($"Cuenta creada exitosamente\nNúmero: {numeroCuenta}\nTipo: {tipoSeleccionado}",
                             "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -652,7 +614,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 if (MessageBox.Show("¿Está seguro de desbloquear este usuario?", "Confirmar",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if (_servicioBanco.BloquearDesbloquearUsuario(usuarioId, false))
+                    if (_servicioBancoApi.BloquearDesbloquearUsuario(usuarioId, false))
                     {
                         MessageBox.Show("Usuario desbloqueado exitosamente", "Éxito", MessageBoxButtons.OK,
                             MessageBoxIcon.Information);
@@ -673,7 +635,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
             try
             {
-                if (_servicioBanco.CrearUsuarioAdministrador(
+                if (_servicioBancoApi.CrearUsuarioAdministrador(
                         txtAdminUsername.Text,
                         txtAdminPassword.Text,
                         txtAdminNombre.Text,
@@ -682,7 +644,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     MessageBox.Show("Administrador creado exitosamente", "Éxito", MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
 
-                    // Limpiar formulario
                     txtAdminUsername.Text = "";
                     txtAdminPassword.Text = "";
                     txtAdminNombre.Text = "";
@@ -700,7 +661,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var reporte = _servicioBanco.ObtenerReporteTransaccionesPorFecha(
+                var reporte = _servicioBancoApi.ObtenerReporteTransaccionesPorFecha(
                     dtpFechaInicio.Value,
                     dtpFechaFin.Value);
 
@@ -723,7 +684,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 try
                 {
-                    // Use API implementation
                     if (_servicioBancoApi.EjecutarResumenesDiarios())
                     {
                         MessageBox.Show("Resúmenes diarios ejecutados exitosamente", "Éxito",
@@ -751,7 +711,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         }
     }
 
-    // Clase auxiliar para diálogos de entrada
     public static class InputBox
     {
         public static object Show(string prompt, string title, object[] items)

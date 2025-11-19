@@ -1,4 +1,5 @@
 using ProyectoFinal_Software_4_y_5.Forms;
+using ProyectoFinal_Software_4_y_5.Entidades;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace ProyectoFinal_Software_4_y_5.Servicios
 {
-    // Adapter used by the WinForms UI to call the web API and return DataTable objects
+    // Adapter used by the WinForms UI to call the web API and return DataTable / app types
     public class ServicioBancoApi
     {
         private readonly ApiCliente _api;
@@ -32,6 +33,128 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
         public bool EjecutarResumenesDiarios()
         {
             return _api.EjecutarResumenesAsync().GetAwaiter().GetResult();
+        }
+
+        // New wrappers used by the UI (names match original ServicioBanco)
+        public DataTable ObtenerTransaccionesRecientes(int top = 50)
+        {
+            var items = _api.ObtenerTransaccionesRecientesAsync(top).GetAwaiter().GetResult();
+            return ToDataTable(items.Select(t => new Dictionary<string, object>
+            {
+                ["transaccion_id"] = t.transaccion_id,
+                ["fecha"] = t.fecha,
+                ["tipo_transaccion"] = t.tipo_transaccion,
+                ["estado"] = t.estado,
+                ["monto"] = t.monto,
+                ["descripcion"] = t.descripcion
+            }));
+        }
+
+        public List<Usuario> ObtenerTodosLosClientes()
+        {
+            var items = _api.ObtenerClientesAsync().GetAwaiter().GetResult();
+            var list = new List<Usuario>();
+            if (items == null) return list;
+
+            foreach (var dto in items)
+            {
+                var u = new Usuario(
+                    idUsuario: dto.usuario_id,
+                    nombreUsuario: dto.username,
+                    contraHash: null,
+                    salt: null,
+                    nombreCompleto: dto.nombre_completo,
+                    email: dto.email)
+                {
+                    Telefono = dto.telefono,
+                    Admin = dto.es_admin,
+                    EstadoCuenta = dto.bloqueado
+                };
+                list.Add(u);
+            }
+            return list;
+        }
+
+        public DataTable ObtenerAnalisisTransacciones()
+        {
+            var items = _api.ObtenerAnalisisAsync().GetAwaiter().GetResult();
+            return ToDataTable(items);
+        }
+
+        public DataTable ObtenerResumenClientes()
+        {
+            var items = _api.ObtenerResumenClientesAsync().GetAwaiter().GetResult();
+            return ToDataTable(items);
+        }
+
+        public DataTable ObtenerUsuariosBloqueados()
+        {
+            var items = _api.ObtenerUsuariosBloqueadosAsync().GetAwaiter().GetResult();
+            return ToDataTable(items);
+        }
+
+        public DataTable ObtenerNotificacionesSistema()
+        {
+            var items = _api.ObtenerNotificacionesSistemaAsync().GetAwaiter().GetResult();
+            return ToDataTable(items);
+        }
+
+        public bool CrearClienteCompleto(Usuario usuario, string password)
+        {
+            var dto = new
+            {
+                Username = usuario.NombreUsuario,
+                Nombre = usuario.NombreCompleto,
+                Email = usuario.Email,
+                Telefono = usuario.Telefono,
+                Password = password
+            };
+            return _api.PostJsonAsync<object, object>("/api/banco/clientes", dto).GetAwaiter().GetResult() != null;
+        }
+
+        public bool ActualizarCliente(Usuario usuario)
+        {
+            var dto = new
+            {
+                Nombre = usuario.NombreCompleto,
+                Email = usuario.Email,
+                Telefono = usuario.Telefono
+            };
+            return _api.PutJsonAsync<object, object>($"/api/banco/clientes/{usuario.IdUsuario}", dto).GetAwaiter().GetResult() != null;
+        }
+
+        public bool CambiarContrasena(int usuarioId, string nuevaContrasena)
+        {
+            return _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/cambiar-contrasena", new { Password = nuevaContrasena }).GetAwaiter().GetResult() != null;
+        }
+
+        public bool CrearCuentaBancaria(int clienteId, Cuenta.TipoCuenta tipo, string numeroCuenta, double saldoInicial)
+        {
+            var dto = new
+            {
+                ClienteId = clienteId,
+                Tipo = tipo.ToString(),
+                NumeroCuenta = numeroCuenta,
+                SaldoInicial = saldoInicial
+            };
+            return _api.PostJsonAsync<object, object>("/api/banco/cuentas", dto).GetAwaiter().GetResult() != null;
+        }
+
+        public bool BloquearDesbloquearUsuario(int usuarioId, bool bloquear)
+        {
+            return _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/bloquear", new { Bloquear = bloquear }).GetAwaiter().GetResult() != null;
+        }
+
+        public bool CrearUsuarioAdministrador(string username, string password, string nombreCompleto, string email)
+        {
+            var dto = new { Username = username, Password = password, Nombre = nombreCompleto, Email = email };
+            return _api.PostJsonAsync<object, object>("/api/banco/usuarios/admin", dto).GetAwaiter().GetResult() != null;
+        }
+
+        public DataTable ObtenerReporteTransaccionesPorFecha(DateTime desde, DateTime hasta)
+        {
+            var items = _api.ObtenerReporteTransaccionesPorFechaAsync(desde, hasta).GetAwaiter().GetResult();
+            return ToDataTable(items);
         }
 
         // Helper: convert a sequence of dictionary->object into a DataTable (columns = union of keys)
