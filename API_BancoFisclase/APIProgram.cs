@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using System;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +18,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: AllowLocalhostOrigins, policy =>
     {
         policy.WithOrigins(
+                "http://localhost:3000",      // <-- add this for the React dev server
                 "http://localhost:5202",
-                "https://localhost:5202",
                 "http://localhost:5000",
-                "https://localhost:5001"
+                "https://localhost:5001",
+                "https://localhost:7102"
+
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -86,7 +90,24 @@ else
     // Optional: app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Enable HTTPS redirection only when an HTTPS endpoint is configured.
+// When the app is launched without an HTTPS listener (common in some dev/debug runs),
+// calling UseHttpsRedirection produces the warning: "Failed to determine the https port for redirect."
+    // We inspect configured URLs and a few common environment/config keys to decide.
+    var hasHttpsEndpoint =
+        app.Urls.Any(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT"))
+        || !string.IsNullOrEmpty(builder.Configuration["Kestrel:Endpoints:Https:Url"]);
+
+if (hasHttpsEndpoint)
+{
+    app.UseHttpsRedirection();
+}
+else
+{
+    app.Logger.LogWarning("Skipping HTTPS redirection because no HTTPS endpoint was detected. " +
+                         "If you want HTTPS redirection enable an HTTPS URL or set ASPNETCORE_HTTPS_PORT.");
+}
 
 // Enable CORS (must be called before authentication/authorization and before MapControllers)
 app.UseCors(AllowLocalhostOrigins);

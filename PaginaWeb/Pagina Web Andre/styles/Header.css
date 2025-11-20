@@ -43,6 +43,47 @@
   color: white;
 }
 
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: help;
+}
+
+.api-status-checking {
+  color: #fbbf24;
+}
+
+.api-icon-connected {
+  color: #10b981;
+}
+
+.api-icon-disconnected {
+  color: #ef4444;
+}
+
+.api-status-text {
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.api-status-checking {
+  animation: pulse 2s ease-in-out infinite;
+}
+
 .nav-menu {
   display: flex;
   gap: 1rem;
@@ -152,6 +193,15 @@
 
   .mobile-menu-btn {
     display: block;
+  }
+
+  .api-status {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .api-status-text {
+    display: none;
   }
 
   .nav-menu {

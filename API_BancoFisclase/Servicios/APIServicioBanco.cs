@@ -243,6 +243,103 @@ ORDER BY t.fecha DESC";
             }
         }
 
+        private async Task<int?> GetCuentaIdByNumeroAsync(string numeroCuenta)
+        {
+            if (string.IsNullOrWhiteSpace(numeroCuenta)) return null;
+            const string sql = "SELECT TOP(1) cuenta_id FROM Cuenta WHERE numero_cuenta = @numero";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@numero", numeroCuenta);
+                await conn.OpenAsync().ConfigureAwait(false);
+                var val = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                if (val == null || val == DBNull.Value) return null;
+                return Convert.ToInt32(val);
+            }
+        }
+
+        // New: internal transfer
+        public async Task<(bool Success, string Message, int TransaccionId)> TransferenciaInternaAsync(string numeroCuentaOrigen, string numeroCuentaDestino, decimal monto, string descripcion, int usuarioId)
+        {
+            // Resolve origin/destination to cuenta_id if needed
+            int origenId;
+            int destinoId;
+
+            if (!int.TryParse(numeroCuentaOrigen, out origenId))
+            {
+                var maybe = await GetCuentaIdByNumeroAsync(numeroCuentaOrigen).ConfigureAwait(false);
+                if (!maybe.HasValue) return (false, "Cuenta de origen no encontrada", 0);
+                origenId = maybe.Value;
+            }
+
+            if (!int.TryParse(numeroCuentaDestino, out destinoId))
+            {
+                var maybe = await GetCuentaIdByNumeroAsync(numeroCuentaDestino).ConfigureAwait(false);
+                if (!maybe.HasValue) return (false, "Cuenta de destino no encontrada", 0);
+                destinoId = maybe.Value;
+            }
+
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand("sp_TransferenciaInterna", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@cuenta_origen_id", origenId);
+                cmd.Parameters.AddWithValue("@cuenta_destino_id", destinoId);
+                cmd.Parameters.AddWithValue("@monto", monto);
+                cmd.Parameters.AddWithValue("@descripcion", (object)descripcion ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@usuario_id", usuarioId);
+
+                var outTrans = new SqlParameter("@transaccion_id", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                var outMsg = new SqlParameter("@message", SqlDbType.NVarChar, 200) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(outTrans);
+                cmd.Parameters.Add(outMsg);
+
+                await conn.OpenAsync().ConfigureAwait(false);
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+                var tId = outTrans.Value == DBNull.Value ? 0 : Convert.ToInt32(outTrans.Value);
+                var msg = outMsg.Value == DBNull.Value ? string.Empty : (string)outMsg.Value;
+                var success = tId > 0;
+                return (success, msg, tId);
+            }
+        }
+
+        // New: external transfer
+        public async Task<(bool Success, string Message, int TransaccionId)> TransferenciaExternaAsync(string numeroCuentaOrigen, string numeroCuentaDestino, decimal monto, string descripcion, int usuarioId)
+        {
+            int origenId;
+            if (!int.TryParse(numeroCuentaOrigen, out origenId))
+            {
+                var maybe = await GetCuentaIdByNumeroAsync(numeroCuentaOrigen).ConfigureAwait(false);
+                if (!maybe.HasValue) return (false, "Cuenta de origen no encontrada", 0);
+                origenId = maybe.Value;
+            }
+
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand("sp_TransferenciaExterna", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@cuenta_origen_id", origenId);
+                cmd.Parameters.AddWithValue("@numero_cuenta_destino", numeroCuentaDestino ?? string.Empty);
+                cmd.Parameters.AddWithValue("@monto", monto);
+                cmd.Parameters.AddWithValue("@descripcion", (object)descripcion ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@usuario_id", usuarioId);
+
+                var outTrans = new SqlParameter("@transaccion_id", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                var outMsg = new SqlParameter("@message", SqlDbType.NVarChar, 200) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(outTrans);
+                cmd.Parameters.Add(outMsg);
+
+                await conn.OpenAsync().ConfigureAwait(false);
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+                var tId = outTrans.Value == DBNull.Value ? 0 : Convert.ToInt32(outTrans.Value);
+                var msg = outMsg.Value == DBNull.Value ? string.Empty : (string)outMsg.Value;
+                var success = tId > 0;
+                return (success, msg, tId);
+            }
+        }
+
         // Implementations added: handle loosely-typed cliente/cuenta/admin DTOs by serializing to JSON and reading properties.
         public async Task<bool> CrearClienteCompletoAsync(object clienteDto, string password)
         {

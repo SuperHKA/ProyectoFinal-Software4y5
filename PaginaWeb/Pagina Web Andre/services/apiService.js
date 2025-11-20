@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5202';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -93,6 +93,17 @@ const apiService = {
   // Reports
   getReporteTransacciones: (desde, hasta) => 
     apiClient.get(`/banco/reportes/transacciones?desde=${desde}&hasta=${hasta}`),
+  
+  // Connection check
+  checkConnection: async () => {
+    try {
+      await apiClient.get('/banco/health', { timeout: 5000 });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
 };
 
 export default apiService;
+export { API_BASE_URL };

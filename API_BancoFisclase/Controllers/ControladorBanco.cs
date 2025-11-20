@@ -144,6 +144,52 @@ namespace API_BancoFisclase.Controllers
             var ok = await _banco.EjecutarResumenesDiariosAsync().ConfigureAwait(false);
             return ok ? NoContent() : StatusCode(500, "Error ejecutando resúmenes");
         }
+
+        [HttpPost("transfer/internal")]
+        public async Task<IActionResult> TransferInternal([FromBody] TransferRequestDto req)
+        {
+            if (req == null || string.IsNullOrWhiteSpace(req.CuentaOrigen) || string.IsNullOrWhiteSpace(req.CuentaDestino) || req.Monto <= 0)
+                return BadRequest("invalid request");
+
+            try
+            {
+                var (success, message, transaccionId) = await _banco.TransferenciaInternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, req.UsuarioId ?? 0).ConfigureAwait(false);
+                if (success) return Ok(new { success = true, transaccionId, message });
+                return BadRequest(new { success = false, message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("transfer/external")]
+        public async Task<IActionResult> TransferExternal([FromBody] TransferRequestDto req)
+        {
+            if (req == null || string.IsNullOrWhiteSpace(req.CuentaOrigen) || string.IsNullOrWhiteSpace(req.CuentaDestino) || req.Monto <= 0)
+                return BadRequest("invalid request");
+
+            try
+            {
+                var (success, message, transaccionId) = await _banco.TransferenciaExternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, req.UsuarioId ?? 0).ConfigureAwait(false);
+                if (success) return Ok(new { success = true, transaccionId, message });
+                return BadRequest(new { success = false, message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        public class TransferRequestDto
+        {
+            public string CuentaOrigen { get; set; }
+            public string CuentaDestino { get; set; }
+            public decimal Monto { get; set; }
+            public string Descripcion { get; set; }
+            public int? UsuarioId { get; set; }
+        }
+
     }
 
     // Request DTOs (duplicate here for now; move to shared DTO project later)

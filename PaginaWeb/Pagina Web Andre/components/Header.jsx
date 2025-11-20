@@ -1,13 +1,27 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, CreditCard, ArrowLeftRight, User, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { Home, CreditCard, ArrowLeftRight, User, LogOut, Menu, X, Wifi, WifiOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import apiService, { API_BASE_URL } from '../services/apiService';
 import '../styles/Header.css';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [apiConnected, setApiConnected] = useState(null);
+
+  useEffect(() => {
+    const checkApiConnection = async () => {
+      const isConnected = await apiService.checkConnection();
+      setApiConnected(isConnected);
+    };
+
+    checkApiConnection();
+    const interval = setInterval(checkApiConnection, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -25,6 +39,22 @@ const Header = () => {
           <img src="/src/assets/logo.png" alt="Banco Fisclase" className="logo-img" />
           <span className="logo-text">Fisclase</span>
         </Link>
+
+        <div className="api-status" title={apiConnected ? `Connected to ${API_BASE_URL}` : `Disconnected from ${API_BASE_URL}`}>
+          {apiConnected === null ? (
+            <span className="api-status-checking">Checking...</span>
+          ) : apiConnected ? (
+            <>
+              <Wifi size={16} className="api-icon-connected" />
+              <span className="api-status-text">API Connected</span>
+            </>
+          ) : (
+            <>
+              <WifiOff size={16} className="api-icon-disconnected" />
+              <span className="api-status-text">API Disconnected</span>
+            </>
+          )}
+        </div>
 
         {isAuthenticated && (
           <>
