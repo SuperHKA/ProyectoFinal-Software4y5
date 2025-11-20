@@ -63,7 +63,9 @@ main{
 .cuenta{
     height: 30px;
     width: 120px;
-    background-color:#1c243d ;
+    background-color: #8de379;
+    transform: translate(-28px, 0px);
+    cursor: pointer;
 }
 
 .fount_cuenta {
@@ -78,6 +80,39 @@ main{
 
 #cuadro-opciones{
     display: none;
+    position: fixed;
+    padding: 12px 24px;
+    background-color: #8de379;
+    margin: 5px;
+    transform: translate(-36px, -19px);
+}
+
+.opcion-btn1{
+    background-color: #ff6b35;
+    color: white;
+    padding: 12px 24px;
+    margin: 4px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transform: translate(20px, -5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);
+}
+
+.opcion-btn2{
+    background-color: #ff6b35;
+    color: white;
+    padding: 12px 11px;
+    margin: 4px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transform: translate(20px, -5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);
 }
 
 .opciones{
@@ -144,13 +179,6 @@ footer a {
     float: left;
     margin-top: 25px;
 }
-
-
-
-
-
-
-
 
 
 .regis{
