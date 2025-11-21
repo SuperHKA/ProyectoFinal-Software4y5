@@ -213,11 +213,23 @@ footer a {
 .texto {
     flex: 1;
     padding-right: 20px;
-    border: 4px solid #1c253d;
     border-radius: 15px;
     margin: 60px 10px ;
+    z-index: 5;
+    position: relative;
+    background: rgba(255,255,255,0.95);
+
+
+}
+
+.texto::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 4px solid #1c253d;
     border-bottom: 4px dashed #1c253d;
-    list-style-type: none;
+    border-radius: 15px;
+    z-index: 10;
 
 }
 
@@ -227,33 +239,36 @@ footer a {
 
 .title-cont {
     position: absolute;
-
     background-color: #6c5bcd; /* Fondo blanco para el texto */
     padding: 5px;
-    border-right: 100px #6c5bcd;
     border-radius: 10px;
     font-size: 40px; /* Ajusta el tamaño según prefieras */
-    color: #ffffff; /* Color del texto */
-    margin: -10px 10px ;
+    color: #ffffff;
+    transform: translate(0px, -45px);
+
+
 }
 
 .Video{
     padding:0;
-    margin: 10px 250px ;
+    transform: translate(250px, -40px);
     border: 4px solid #1c253d;
     border-radius: 15px;
+    margin: 0 2px;
     width: 1000px;
     height: 600px;
-
 
 }
 
 .foto-banco{
-    width: 103%;
+    width: 104%;
     height: 50%;
-    border-radius: 10px;
-    margin: -1px 0px;
-    border: 4px solid #1c253d;
+    border-radius: 14px;
+
+    border-bottom: 4px dashed #1c253d;
+    transform: translate(-1px,0px);
+    z-index: 1;
+    position: relative;
 }
 
 
@@ -286,7 +301,56 @@ footer a {
     position: absolute;
     top: 25%; /* Ajusta la posición vertical */
     left: 5%; /* Ajusta la posición horizontal */
-    color: white; /* Cambia el color si lo necesitas */
-    font-size: 40px; /* Ajusta el tamaño del texto */
+    color: white;
+    font-size: 40px;
     text-align: left;
+}
+
+.link_footer ul {
+    font-size: 25px;
+    margin: 20px;
+    list-style-type: none;
+    transform: translate(-570px, 5px);
+    gap: 40px;
+}
+
+.data-container {
+    display: flex;
+    gap: 50px;
+    flex-wrap: wrap;
+    width: 1501px;
+    margin: 20px auto;
+    height: 300px;
+    background: rgba(167, 159, 221, 0.29);
+}
+
+.data-image{
+    width: 150px;
+    height: 150px;
+    border: #1c243d solid 4px;
+    padding: 20px;
+    border-radius: 100%;
+    box-sizing: border-box;
+    transform: translate(260px , 40px);
+    background: white;
+}
+
+.data-text{
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transform: translate(260px , 40px);
+}
+
+.info-data-container{
+    background: #6c5bcd;
+    width: 800px;
+    height: 60px;
+    text-align: center;
+    transform: translate(340px , 80px);
+    border-radius: 10px;
+    color: white;
+    line-height: 60px;
+    font-size: 40px;
 }
