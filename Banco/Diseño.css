@@ -63,7 +63,7 @@ main{
 .cuenta{
     height: 30px;
     width: 120px;
-    background-color: #8de379;
+    background-color: #3632ff;
     transform: translate(-28px, 0px);
     cursor: pointer;
 }
@@ -82,13 +82,13 @@ main{
     display: none;
     position: fixed;
     padding: 12px 24px;
-    background-color: #8de379;
-    margin: 5px;
+    background-color: #6c5bcd;
+    margin: 3px;
     transform: translate(-36px, -19px);
 }
 
 .opcion-btn1{
-    background-color: #ff6b35;
+    background-color: #3632ff;
     color: white;
     padding: 12px 24px;
     margin: 4px;
@@ -102,7 +102,7 @@ main{
 }
 
 .opcion-btn2{
-    background-color: #ff6b35;
+    background-color: #3632ff;
     color: white;
     padding: 12px 11px;
     margin: 4px;
@@ -300,7 +300,7 @@ footer a {
 .texto-presentacion{
     position: absolute;
     top: 25%; /* Ajusta la posición vertical */
-    left: 5%; /* Ajusta la posición horizontal */
+    left: 10%; /* Ajusta la posición horizontal */
     color: white;
     font-size: 40px;
     text-align: left;
@@ -353,4 +353,68 @@ footer a {
     color: white;
     line-height: 60px;
     font-size: 40px;
+}
+
+/* Estilos para el menú de navegación */
+.main-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 30px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajustes responsive para el menú */
+@media (max-width: 768px) {
+    .main-nav ul {
+        gap: 10px;
+    }
+    
+    .main-nav a {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}
+
+/* Ajustar el header para acomodar el menú */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #6c5bcd;
+    padding: 1px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* Ajustar el contenido del header para mejor distribución */
+.header-content {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
 }
