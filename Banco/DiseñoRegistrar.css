@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap");
+
+html, body {
+
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+
+body{
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+    padding-top: 0;
+}
+
+.inicio {
+
+    width: 100%;
+    max-width: 720px; /* Limita el tamaño máximo del formulario */
+    padding: 24px;
+    transform: translate(900px ,-350px);
+    background-color: #fff;
+    margin: -235px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.inicio h1 {
+    font-family: "Poppins", sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.inicio label {
+    font-weight: bold;
+    display: block;
+}
+
+.inicio input {
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    padding: 12px 15px;
+    width: 100%;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.inicio button{
+    margin-top: 20px;
+}
+
+/* Grid for two columns */
+.form-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 30px;
+}
+
+
+
+
+
+
+
+
+.inicio button {
+    width: 100%;
+    padding: 15px;
+    background-color: #ff0099;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+
+
+.cont-cuadro {
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100vh;
+}
+
+/* Cuadro que tendrá color y ocupa toda la altura */
+.cuadro {
+    background-color: #ff0099; /* Color de fondo */
+    width: 80%;
+    height: 100%; /* Ocupa toda la altura del contenedor */
+}
+
+.login-left{
+
+    z-index: 1;
+}
+
+.login-left {
+    position: absolute;
+    transform: translate(30px ,80px); /* Centra de forma precisa */
+    z-index: 2; /* Asegura que esté sobre el cuadro */
+    color: white; /* Texto blanco */
+    padding: 20px; /* Espaciado interno */
+    text-align: center;
+}
+
+.login-left h2{
+    font-weight: bold;
+}
+
+.login-left p{
+    font-size: 18px;
+}
+
+.login-left .logo{
+    width: 400px;
+    height: 100px;
+}
+
+.Registrar{
+    color: white;
+    width: 300px;
+    height: 50px;
+    background: none;
+    border: #ffffff solid 1px;
+    border-radius: 25px;
+    font-weight: bold;
+}

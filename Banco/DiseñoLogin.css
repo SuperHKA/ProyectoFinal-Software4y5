@@ -44,8 +44,9 @@ body{
     border: #1c253d solid 1px;
     border-radius: 25px;
     font-weight: bold;
-    background-color: #ed7e4f;
-
+    background-color: #ff0099;
+    cursor: pointer;
+    color: white;
 }
 
 /* Contenedor principal que abarcará todo el alto */

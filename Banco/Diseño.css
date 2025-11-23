@@ -1,5 +1,4 @@
 html{
-    border: 10px solid #6c5bcd;
     box-sizing: border-box;
 }
 
@@ -63,9 +62,11 @@ main{
 .cuenta{
     height: 30px;
     width: 120px;
-    background-color: #3632ff;
+    background-color: #fb0097;
     transform: translate(-28px, 0px);
     cursor: pointer;
+    
+    border-radius: 10px;
 }
 
 .fount_cuenta {
