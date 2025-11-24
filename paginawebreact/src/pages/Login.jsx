@@ -41,7 +41,13 @@ const Login = () => {
       const result = await login(formData.username, formData.password);
       
       if (result.success) {
-        navigate('/dashboard');
+        // decide destination based on server-provided role
+        const isAdmin = result.user?.isAdmin ?? result.user?.IsAdmin ?? false;
+        if (isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError(result.message || 'Credenciales incorrectas');
       }

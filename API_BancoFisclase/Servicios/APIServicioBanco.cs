@@ -18,122 +18,106 @@ namespace API_BancoFisclase.Servicios
         public APIServicioBanco(IConfiguration config)
         {
             _cs = config.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrWhiteSpace(_cs))
-                throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
+            if (string.IsNullOrWhiteSpace(_cs)) throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
         }
 
-        // Authentication (existing)
         public async Task<LoginResultDto> AuthenticateAdminAsync(string username, string password)
         {
-            const string sql = @"
-SELECT usuario_id, username, password_hash, salt, intentos_fallidos, bloqueado, es_admin
-FROM Usuario
-WHERE username = @username";
-
+            const string sql = @"SELECT usuario_id, username, password_hash, salt, intentos_fallidos, bloqueado, es_admin, cliente_id FROM Usuario WHERE username = @username";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@username", username);
                 await conn.OpenAsync().ConfigureAwait(false);
-
                 using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    if (!await reader.ReadAsync().ConfigureAwait(false))
-                    {
-                        return new LoginResultDto { Status = EstatusLogin.NotFound, Message = "Usuario no encontrado" };
-                    }
-
+                    if (!await reader.ReadAsync().ConfigureAwait(false)) return new LoginResultDto { Status = EstatusLogin.NotFound, Message = "Usuario no encontrado" };
                     var id = reader.GetInt32(reader.GetOrdinal("usuario_id"));
                     var dbHash = reader.IsDBNull(reader.GetOrdinal("password_hash")) ? null : reader.GetString(reader.GetOrdinal("password_hash"));
                     var salt = reader.IsDBNull(reader.GetOrdinal("salt")) ? string.Empty : reader.GetString(reader.GetOrdinal("salt"));
                     var bloqueado = !reader.IsDBNull(reader.GetOrdinal("bloqueado")) && reader.GetBoolean(reader.GetOrdinal("bloqueado"));
                     var esAdmin = !reader.IsDBNull(reader.GetOrdinal("es_admin")) && reader.GetBoolean(reader.GetOrdinal("es_admin"));
+                    int? clienteId = null;
+                    if (!reader.IsDBNull(reader.GetOrdinal("cliente_id"))) clienteId = reader.GetInt32(reader.GetOrdinal("cliente_id"));
 
-                    if (bloqueado)
-                        return new LoginResultDto { Status = EstatusLogin.Locked, Message = "Cuenta bloqueada" };
+                    if (bloqueado) return new LoginResultDto { Status = EstatusLogin.Locked, Message = "Cuenta bloqueada" };
 
-                    // Compute both hex and base64 forms of SHA256(password + salt) using Unicode encoding
                     var computedHex = ComputeSha256Hex(password + salt);
                     var computedBase64 = ComputeSha256Base64(password + salt);
-
-                    // Compare against DB hash, accept either hex (64 hex chars) or base64
                     bool passwordMatches = false;
                     if (!string.IsNullOrEmpty(dbHash))
                     {
-                        // hex: 64 hex characters
-                        if (dbHash.Length == 64 && Regex.IsMatch(dbHash, @"\A[0-9a-fA-F]{64}\z"))
-                        {
-                            passwordMatches = string.Equals(computedHex, dbHash, StringComparison.OrdinalIgnoreCase);
-                        }
-                        else
-                        {
-                            // treat as base64 (default)
-                            passwordMatches = string.Equals(computedBase64, dbHash, StringComparison.Ordinal);
-                        }
+                        if (dbHash.Length == 64 && Regex.IsMatch(dbHash, @"\A[0-9a-fA-F]{64}\z")) passwordMatches = string.Equals(computedHex, dbHash, StringComparison.OrdinalIgnoreCase);
+                        else passwordMatches = string.Equals(computedBase64, dbHash, StringComparison.Ordinal);
                     }
 
                     if (!passwordMatches)
                     {
-                        // increment attempts and possibly lock
                         reader.Close();
-
-                        const string sqlUpdateAttempts = @"
-UPDATE Usuario
-SET intentos_fallidos = intentos_fallidos + 1,
-    bloqueado = CASE WHEN intentos_fallidos + 1 >= 3 THEN 1 ELSE 0 END
-WHERE usuario_id = @id";
-
-                        using (var upd = new SqlCommand(sqlUpdateAttempts, conn))
-                        {
-                            upd.Parameters.AddWithValue("@id", id);
-                            await upd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
-
+                        const string sqlUpdateAttempts = @"UPDATE Usuario SET intentos_fallidos = intentos_fallidos + 1, bloqueado = CASE WHEN intentos_fallidos + 1 >= 3 THEN 1 ELSE 0 END WHERE usuario_id = @id";
+                        using (var upd = new SqlCommand(sqlUpdateAttempts, conn)) { upd.Parameters.AddWithValue("@id", id); await upd.ExecuteNonQueryAsync().ConfigureAwait(false); }
                         return new LoginResultDto { Status = EstatusLogin.BadCredentials, Message = "Credenciales incorrectas" };
                     }
 
-                    if (!esAdmin)
-                    {
-                        return new LoginResultDto { Status = EstatusLogin.Forbidden, Message = "Usuario no es administrador" };
-                    }
+                    if (!esAdmin) return new LoginResultDto { Status = EstatusLogin.Forbidden, Message = "Usuario no es administrador" };
 
-                    // success -> reset attempts and update last login
                     reader.Close();
+                    const string sqlReset = @"UPDATE Usuario SET intentos_fallidos = 0, fecha_ultimo_login = @fecha WHERE usuario_id = @id";
+                    using (var reset = new SqlCommand(sqlReset, conn)) { reset.Parameters.AddWithValue("@fecha", DateTime.Now); reset.Parameters.AddWithValue("@id", id); await reset.ExecuteNonQueryAsync().ConfigureAwait(false); }
 
-                    const string sqlReset = @"
-UPDATE Usuario
-SET intentos_fallidos = 0, fecha_ultimo_login = @fecha
-WHERE usuario_id = @id";
-
-                    using (var reset = new SqlCommand(sqlReset, conn))
-                    {
-                        reset.Parameters.AddWithValue("@fecha", DateTime.Now);
-                        reset.Parameters.AddWithValue("@id", id);
-                        await reset.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
-
-                    return new LoginResultDto
-                    {
-                        Status = EstatusLogin.Success,
-                        Message = "Login exitoso",
-                        User = new UserDto { Id = id, Username = username }
-                    };
+                    return new LoginResultDto { Status = EstatusLogin.Success, Message = "Login exitoso", User = new UserDto { Id = id, Username = username, ClienteId = clienteId, IsAdmin = esAdmin } };
                 }
             }
         }
 
-        // Read-only implementations using ExecuteQueryAsync
+        public async Task<LoginResultDto> AuthenticateUserAsync(string username, string password)
+        {
+            const string sql = @"SELECT usuario_id, username, password_hash, salt, intentos_fallidos, bloqueado, es_admin, cliente_id FROM Usuario WHERE username = @username";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                await conn.OpenAsync().ConfigureAwait(false);
+                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    if (!await reader.ReadAsync().ConfigureAwait(false)) return new LoginResultDto { Status = EstatusLogin.NotFound, Message = "Usuario no encontrado" };
+                    var id = reader.GetInt32(reader.GetOrdinal("usuario_id"));
+                    var dbHash = reader.IsDBNull(reader.GetOrdinal("password_hash")) ? null : reader.GetString(reader.GetOrdinal("password_hash"));
+                    var salt = reader.IsDBNull(reader.GetOrdinal("salt")) ? string.Empty : reader.GetString(reader.GetOrdinal("salt"));
+                    var bloqueado = !reader.IsDBNull(reader.GetOrdinal("bloqueado")) && reader.GetBoolean(reader.GetOrdinal("bloqueado"));
+                    int? clienteId = null; if (!reader.IsDBNull(reader.GetOrdinal("cliente_id"))) clienteId = reader.GetInt32(reader.GetOrdinal("cliente_id"));
+
+                    if (bloqueado) return new LoginResultDto { Status = EstatusLogin.Locked, Message = "Cuenta bloqueada" };
+
+                    var computedHex = ComputeSha256Hex(password + salt);
+                    var computedBase64 = ComputeSha256Base64(password + salt);
+                    bool passwordMatches = false;
+                    if (!string.IsNullOrEmpty(dbHash))
+                    {
+                        if (dbHash.Length == 64 && Regex.IsMatch(dbHash, @"\A[0-9a-fA-F]{64}\z")) passwordMatches = string.Equals(computedHex, dbHash, StringComparison.OrdinalIgnoreCase);
+                        else passwordMatches = string.Equals(computedBase64, dbHash, StringComparison.Ordinal);
+                    }
+
+                    if (!passwordMatches)
+                    {
+                        reader.Close();
+                        const string sqlUpdateAttempts = @"UPDATE Usuario SET intentos_fallidos = intentos_fallidos + 1, bloqueado = CASE WHEN intentos_fallidos + 1 >= 3 THEN 1 ELSE 0 END WHERE usuario_id = @id";
+                        using (var upd = new SqlCommand(sqlUpdateAttempts, conn)) { upd.Parameters.AddWithValue("@id", id); await upd.ExecuteNonQueryAsync().ConfigureAwait(false); }
+                        return new LoginResultDto { Status = EstatusLogin.BadCredentials, Message = "Credenciales incorrectas" };
+                    }
+
+                    reader.Close();
+                    const string sqlReset = @"UPDATE Usuario SET intentos_fallidos = 0, fecha_ultimo_login = @fecha WHERE usuario_id = @id";
+                    using (var reset = new SqlCommand(sqlReset, conn)) { reset.Parameters.AddWithValue("@fecha", DateTime.Now); reset.Parameters.AddWithValue("@id", id); await reset.ExecuteNonQueryAsync().ConfigureAwait(false); }
+
+                    return new LoginResultDto { Status = EstatusLogin.Success, Message = "Login exitoso", User = new UserDto { Id = id, Username = username, ClienteId = clienteId, IsAdmin = false } };
+                }
+            }
+        }
+
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerEstadisticasGeneralesAsync()
         {
-            const string sql = @"
-SELECT 
-    (SELECT COUNT(*) FROM Cliente WHERE activo = 1) as total_clientes,
-    (SELECT COUNT(*) FROM Cuenta WHERE activa = 1) as total_cuentas,
-    (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 0) as usuarios_activos,
-    (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 1) as usuarios_bloqueados,
-    (SELECT ISNULL(SUM(saldo), 0) FROM Cuenta WHERE activa = 1) as saldo_total_sistema,
-    (SELECT COUNT(*) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as transacciones_hoy,
-    (SELECT ISNULL(SUM(monto), 0) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as monto_total_hoy";
+            const string sql = @"SELECT (SELECT COUNT(*) FROM Cliente WHERE activo = 1) as total_clientes, (SELECT COUNT(*) FROM Cuenta WHERE activa = 1) as total_cuentas, (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 0) as usuarios_activos, (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 1) as usuarios_bloqueados, (SELECT ISNULL(SUM(saldo), 0) FROM Cuenta WHERE activa = 1) as saldo_total_sistema, (SELECT COUNT(*) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as transacciones_hoy, (SELECT ISNULL(SUM(monto), 0) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as monto_total_hoy";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
@@ -145,43 +129,31 @@ SELECT
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerClientesAsync()
         {
-            const string sql = @"
-SELECT u.usuario_id, u.cliente_id, u.username, c.nombre AS nombre_completo, c.email, c.telefono, u.es_admin, u.bloqueado
-FROM Usuario u
-LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id
-ORDER BY u.usuario_id";
+            const string sql = @"SELECT u.usuario_id, u.cliente_id, u.username, c.nombre AS nombre_completo, c.email, c.telefono, u.es_admin, u.bloqueado FROM Usuario u LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id ORDER BY u.usuario_id";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerTransaccionesRecientesAsync(int limit = 20)
         {
-            const string sqlTemplate = @"
-SELECT TOP(@limit) t.transaccion_id, t.fecha, tt.nombre AS tipo_transaccion, et.nombre AS estado, t.monto, t.descripcion
-FROM Transaccion t
-LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id
-LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id
-ORDER BY t.fecha DESC";
+            const string sqlTemplate = @"SELECT TOP(@limit) t.transaccion_id, t.fecha, tt.nombre AS tipo_transaccion, et.nombre AS estado, t.monto, t.descripcion FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id ORDER BY t.fecha DESC";
             return await ExecuteQueryAsync(sqlTemplate, ("@limit", limit)).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerAnalisisTransaccionesAsync()
         {
-            const string sql = @"SELECT * FROM vw_AnalisisTransacciones";
+            const string sql = "SELECT * FROM vw_AnalisisTransacciones";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerResumenClientesAsync()
         {
-            const string sql = @"SELECT * FROM vw_ResumenCliente";
+            const string sql = "SELECT * FROM vw_ResumenCliente";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerUsuariosBloqueadosAsync()
         {
-            const string sql = @"SELECT u.usuario_id, u.username, u.intentos_fallidos, u.bloqueado, c.nombre as cliente_nombre
-FROM Usuario u
-LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id
-WHERE u.bloqueado = 1";
+            const string sql = @"SELECT u.usuario_id, u.username, u.intentos_fallidos, u.bloqueado, c.nombre as cliente_nombre FROM Usuario u LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id WHERE u.bloqueado = 1";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
@@ -193,44 +165,16 @@ WHERE u.bloqueado = 1";
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerReporteTransaccionesPorFechaAsync(DateTime desde, DateTime hasta)
         {
-            const string sql = @"
-SELECT t.transaccion_id, tt.nombre AS tipo_transaccion, t.monto, et.nombre AS estado, t.descripcion, t.fecha, t.usuario_id
-FROM Transaccion t
-LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id
-LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id
-WHERE t.fecha BETWEEN @desde AND @hasta
-ORDER BY t.fecha DESC";
+            const string sql = @"SELECT t.transaccion_id, tt.nombre AS tipo_transaccion, t.monto, et.nombre AS estado, t.descripcion, t.fecha, t.usuario_id FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id WHERE t.fecha BETWEEN @desde AND @hasta ORDER BY t.fecha DESC";
             return await ExecuteQueryAsync(sql, ("@desde", desde), ("@hasta", hasta)).ConfigureAwait(false);
         }
 
-        // Diagnostics
-        public async Task<IEnumerable<IDictionary<string, object>>> DiagnosticarTablasAsync()
+        public async Task<IEnumerable<IDictionary<string, object>>> ObtenerCuentasPorClienteAsync(int clienteId)
         {
-            const string sql = @"SELECT TABLE_NAME AS tabla_nombre, TABLE_TYPE AS tipo FROM INFORMATION_SCHEMA.TABLES ORDER BY TABLE_NAME";
-            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            const string sql = @"SELECT c.cuenta_id, c.numero_cuenta, tc.nombre AS tipo, c.saldo, c.activa FROM Cuenta c LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id WHERE c.cliente_id = @clienteId AND c.activa = 1 ORDER BY c.cuenta_id";
+            return await ExecuteQueryAsync(sql, ("@clienteId", clienteId)).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<IDictionary<string, object>>> DiagnosticarVistasAsync()
-        {
-            const string sql = @"SELECT TABLE_NAME AS vista_nombre FROM INFORMATION_SCHEMA.VIEWS ORDER BY TABLE_NAME";
-            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
-        }
-
-        public async Task<string> ProbarConsultaBasicaAsync()
-        {
-            try
-            {
-                const string sql = "SELECT TOP(1) 1 as ok";
-                var result = await ExecuteQueryAsync(sql).ConfigureAwait(false);
-                return "OK";
-            }
-            catch (Exception ex)
-            {
-                return "Error: " + ex.Message;
-            }
-        }
-
-        // Actions / writes
         public async Task<bool> EjecutarResumenesDiariosAsync()
         {
             using (var conn = new SqlConnection(_cs))
@@ -258,20 +202,16 @@ ORDER BY t.fecha DESC";
             }
         }
 
-        // New: internal transfer
         public async Task<(bool Success, string Message, int TransaccionId)> TransferenciaInternaAsync(string numeroCuentaOrigen, string numeroCuentaDestino, decimal monto, string descripcion, int usuarioId)
         {
-            // Resolve origin/destination to cuenta_id if needed
             int origenId;
             int destinoId;
-
             if (!int.TryParse(numeroCuentaOrigen, out origenId))
             {
                 var maybe = await GetCuentaIdByNumeroAsync(numeroCuentaOrigen).ConfigureAwait(false);
                 if (!maybe.HasValue) return (false, "Cuenta de origen no encontrada", 0);
                 origenId = maybe.Value;
             }
-
             if (!int.TryParse(numeroCuentaDestino, out destinoId))
             {
                 var maybe = await GetCuentaIdByNumeroAsync(numeroCuentaDestino).ConfigureAwait(false);
@@ -300,11 +240,12 @@ ORDER BY t.fecha DESC";
                 var tId = outTrans.Value == DBNull.Value ? 0 : Convert.ToInt32(outTrans.Value);
                 var msg = outMsg.Value == DBNull.Value ? string.Empty : (string)outMsg.Value;
                 var success = tId > 0;
+
+                try { await LogAuditAsync("TransferenciaInterna", usuarioId, $"origen={origenId},destino={destinoId},monto={monto},transaccionId={tId},mensaje={msg}").ConfigureAwait(false); } catch { }
                 return (success, msg, tId);
             }
         }
 
-        // New: external transfer
         public async Task<(bool Success, string Message, int TransaccionId)> TransferenciaExternaAsync(string numeroCuentaOrigen, string numeroCuentaDestino, decimal monto, string descripcion, int usuarioId)
         {
             int origenId;
@@ -336,15 +277,15 @@ ORDER BY t.fecha DESC";
                 var tId = outTrans.Value == DBNull.Value ? 0 : Convert.ToInt32(outTrans.Value);
                 var msg = outMsg.Value == DBNull.Value ? string.Empty : (string)outMsg.Value;
                 var success = tId > 0;
+
+                try { await LogAuditAsync("TransferenciaExterna", usuarioId, $"origen={origenId},numero_destino={numeroCuentaDestino},monto={monto},transaccionId={tId},mensaje={msg}").ConfigureAwait(false); } catch { }
                 return (success, msg, tId);
             }
         }
 
-        // Implementations added: handle loosely-typed cliente/cuenta/admin DTOs by serializing to JSON and reading properties.
         public async Task<bool> CrearClienteCompletoAsync(object clienteDto, string password)
         {
             if (clienteDto == null) throw new ArgumentNullException(nameof(clienteDto));
-
             using (var conn = new SqlConnection(_cs))
             using (var cmd = conn.CreateCommand())
             {
@@ -356,37 +297,25 @@ ORDER BY t.fecha DESC";
                     {
                         var doc = JsonDocument.Parse(JsonSerializer.Serialize(clienteDto));
                         var root = doc.RootElement;
-
                         var nombre = GetString(root, "Nombre") ?? GetString(root, "nombre") ?? throw new ArgumentException("Nombre is required");
                         var email = GetString(root, "Email") ?? GetString(root, "email") ?? throw new ArgumentException("Email is required");
                         var telefono = GetString(root, "Telefono") ?? GetString(root, "telefono");
                         var username = GetString(root, "Username") ?? GetString(root, "username") ?? throw new ArgumentException("Username is required");
-
-                        // password param or inside DTO
                         var pwd = string.IsNullOrEmpty(password) ? (GetString(root, "Password") ?? GetString(root, "password")) : password;
                         if (string.IsNullOrEmpty(pwd)) throw new ArgumentException("Password is required");
 
-                        // Insert Cliente
-                        cmd.CommandText = @"
-INSERT INTO Cliente (nombre, email, telefono, activo)
-VALUES (@nombre, @email, @telefono, 1);
-SELECT SCOPE_IDENTITY();";
+                        cmd.CommandText = @"INSERT INTO Cliente (nombre, email, telefono, activo) VALUES (@nombre, @email, @telefono, 1); SELECT SCOPE_IDENTITY();";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@nombre", nombre);
                         cmd.Parameters.AddWithValue("@email", email);
                         cmd.Parameters.AddWithValue("@telefono", (object)telefono ?? DBNull.Value);
-
                         var clienteIdObj = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                         var clienteId = Convert.ToInt32(clienteIdObj);
 
-                        // Create salt + hash
                         var salt = GenerateSalt();
                         var hash = ComputeSha256Base64(pwd + salt);
 
-                        // Insert Usuario
-                        cmd.CommandText = @"
-INSERT INTO Usuario (cliente_id, username, password_hash, salt, es_admin)
-VALUES (@clienteId, @username, @passwordHash, @salt, 0)";
+                        cmd.CommandText = @"INSERT INTO Usuario (cliente_id, username, password_hash, salt, es_admin) VALUES (@clienteId, @username, @passwordHash, @salt, 0)";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@clienteId", clienteId);
                         cmd.Parameters.AddWithValue("@username", username);
@@ -395,6 +324,7 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 0)";
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
 
                         tx.Commit();
+                        try { await LogAuditAsync("CrearCliente", null, $"clienteId={clienteId},username={username},email={email}").ConfigureAwait(false); } catch { }
                         return true;
                     }
                     catch
@@ -409,16 +339,11 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 0)";
         public async Task<bool> ActualizarClienteAsync(int id, object clienteDto)
         {
             if (clienteDto == null) throw new ArgumentNullException(nameof(clienteDto));
-
             var json = JsonSerializer.Serialize(clienteDto);
             var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-
             using (var conn = new SqlConnection(_cs))
-            using (var cmd = new SqlCommand(@"
-UPDATE Cliente
-SET nombre = @nombre, email = @email, telefono = @telefono, calle = @calle, numero = @numero, ciudad = @ciudad, estado_provincia = @estado_provincia, codigo_postal = @codigo_postal, pais = @pais
-WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId)", conn))
+            using (var cmd = new SqlCommand(@"UPDATE Cliente SET nombre = @nombre, email = @email, telefono = @telefono, calle = @calle, numero = @numero, ciudad = @ciudad, estado_provincia = @estado_provincia, codigo_postal = @codigo_postal, pais = @pais WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId)", conn))
             {
                 cmd.Parameters.AddWithValue("@usuarioId", id);
                 cmd.Parameters.AddWithValue("@nombre", (object)GetString(root, "Nombre") ?? DBNull.Value);
@@ -430,7 +355,6 @@ WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId
                 cmd.Parameters.AddWithValue("@estado_provincia", (object)GetString(root, "EstadoProvincia") ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@codigo_postal", (object)GetString(root, "CodigoPostal") ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@pais", (object)GetString(root, "Pais") ?? DBNull.Value);
-
                 await conn.OpenAsync().ConfigureAwait(false);
                 var rows = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 return rows > 0;
@@ -440,10 +364,8 @@ WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId
         public async Task<bool> CambiarContrasenaAsync(int usuarioId, string nuevaContrasena)
         {
             if (string.IsNullOrEmpty(nuevaContrasena)) throw new ArgumentNullException(nameof(nuevaContrasena));
-
             var salt = GenerateSalt();
             var hash = ComputeSha256Base64(nuevaContrasena + salt);
-
             const string sql = @"UPDATE Usuario SET password_hash = @hash, salt = @salt WHERE usuario_id = @id";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
@@ -453,7 +375,9 @@ WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId
                 cmd.Parameters.AddWithValue("@id", usuarioId);
                 await conn.OpenAsync().ConfigureAwait(false);
                 var rows = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                return rows > 0;
+                var ok = rows > 0;
+                if (ok) { try { await LogAuditAsync("CambiarContrasena", usuarioId, $"usuarioId={usuarioId}").ConfigureAwait(false); } catch { } }
+                return ok;
             }
         }
 
@@ -462,17 +386,11 @@ WHERE cliente_id = (SELECT cliente_id FROM Usuario WHERE usuario_id = @usuarioId
             if (cuentaDto == null) throw new ArgumentNullException(nameof(cuentaDto));
             var doc = JsonDocument.Parse(JsonSerializer.Serialize(cuentaDto));
             var root = doc.RootElement;
-
-            if (!TryGetInt(root, "ClienteId", out var clienteId) && !TryGetInt(root, "clienteId", out clienteId))
-                throw new ArgumentException("ClienteId is required");
-
+            if (!TryGetInt(root, "ClienteId", out var clienteId) && !TryGetInt(root, "clienteId", out clienteId)) throw new ArgumentException("ClienteId is required");
             var tipo = GetString(root, "Tipo") ?? GetString(root, "tipo") ?? throw new ArgumentException("Tipo is required");
             var numero = GetString(root, "NumeroCuenta") ?? GetString(root, "numeroCuenta") ?? GetString(root, "Numero") ?? GetString(root, "numero") ?? throw new ArgumentException("NumeroCuenta is required");
             var saldoInicial = TryGetDouble(root, "SaldoInicial", out var temp) || TryGetDouble(root, "saldoInicial", out temp) ? temp : 0.0;
-
-            const string sql = @"
-INSERT INTO Cuenta (cliente_id, tipo_cuenta_id, numero_cuenta, saldo, activa)
-VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo), @numero, @saldo)";
+            const string sql = @"INSERT INTO Cuenta (cliente_id, tipo_cuenta_id, numero_cuenta, saldo, activa) VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo), @numero, @saldo)";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -482,7 +400,9 @@ VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo)
                 cmd.Parameters.AddWithValue("@saldo", Convert.ToDecimal(saldoInicial));
                 await conn.OpenAsync().ConfigureAwait(false);
                 var rows = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                return rows > 0;
+                var ok = rows > 0;
+                if (ok) { try { await LogAuditAsync("CrearCuenta", null, $"clienteId={clienteId},tipo={tipo},numero={numero},saldoInicial={saldoInicial}").ConfigureAwait(false); } catch { } }
+                return ok;
             }
         }
 
@@ -496,22 +416,21 @@ VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo)
                 cmd.Parameters.AddWithValue("@id", usuarioId);
                 await conn.OpenAsync().ConfigureAwait(false);
                 var rows = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                return rows > 0;
+                var ok = rows > 0;
+                if (ok) { try { await LogAuditAsync("BloquearDesbloquearUsuario", usuarioId, $"usuarioId={usuarioId},bloquear={blocking}").ConfigureAwait(false); } catch { } }
+                return ok;
             }
         }
 
         public async Task<bool> CrearUsuarioAdministradorAsync(object adminDto)
         {
             if (adminDto == null) throw new ArgumentNullException(nameof(adminDto));
-
             var doc = JsonDocument.Parse(JsonSerializer.Serialize(adminDto));
             var root = doc.RootElement;
-
             var username = GetString(root, "Username") ?? GetString(root, "username") ?? throw new ArgumentException("Username required");
             var password = GetString(root, "Password") ?? GetString(root, "password") ?? throw new ArgumentException("Password required");
             var nombre = GetString(root, "Nombre") ?? GetString(root, "nombre") ?? throw new ArgumentException("Nombre required");
             var email = GetString(root, "Email") ?? GetString(root, "email") ?? throw new ArgumentException("Email required");
-
             using (var conn = new SqlConnection(_cs))
             using (var cmd = conn.CreateCommand())
             {
@@ -521,30 +440,23 @@ VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo)
                     cmd.Transaction = tx;
                     try
                     {
-                        cmd.CommandText = @"
-INSERT INTO Cliente (nombre, email, activo)
-VALUES (@nombre, @email, 1);
-SELECT SCOPE_IDENTITY();";
+                        cmd.CommandText = @"INSERT INTO Cliente (nombre, email, activo) VALUES (@nombre, @email, 1); SELECT SCOPE_IDENTITY();";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@nombre", nombre);
                         cmd.Parameters.AddWithValue("@email", email);
                         var clienteIdObj = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                         var clienteId = Convert.ToInt32(clienteIdObj);
-
                         var salt = GenerateSalt();
                         var hash = ComputeSha256Base64(password + salt);
-
-                        cmd.CommandText = @"
-INSERT INTO Usuario (cliente_id, username, password_hash, salt, es_admin)
-VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
+                        cmd.CommandText = @"INSERT INTO Usuario (cliente_id, username, password_hash, salt, es_admin) VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@clienteId", clienteId);
                         cmd.Parameters.AddWithValue("@username", username);
                         cmd.Parameters.AddWithValue("@passwordHash", hash);
                         cmd.Parameters.AddWithValue("@salt", salt);
-
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                         tx.Commit();
+                        try { await LogAuditAsync("CrearAdmin", null, $"clienteId={clienteId},username={username},email={email}").ConfigureAwait(false); } catch { }
                         return true;
                     }
                     catch
@@ -556,43 +468,145 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
             }
         }
 
-        // Reuse ExecuteQueryAsync helper for the SQL-based read methods
-        private async Task<IEnumerable<IDictionary<string, object>>> ExecuteQueryAsync(string sql, params (string name, object value)[] parameters)
+        public async Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerClientesPaginadoAsync(int page, int pageSize, string search)
         {
-            var result = new List<IDictionary<string, object>>();
-
+            var offset = (page - 1) * pageSize;
+            var where = string.IsNullOrWhiteSpace(search) ? string.Empty : "WHERE (c.nombre LIKE @search OR c.email LIKE @search)";
+            var sql = $@"SELECT c.cliente_id, c.nombre as nombre_completo, c.email, c.telefono, u.usuario_id, u.username, u.es_admin, u.bloqueado FROM Cliente c LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id {where} ORDER BY c.cliente_id OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
-                foreach (var p in parameters)
-                {
-                    cmd.Parameters.AddWithValue(p.name, p.value ?? DBNull.Value);
-                }
-
+                if (!string.IsNullOrWhiteSpace(search)) cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@pageSize", pageSize);
                 await conn.OpenAsync().ConfigureAwait(false);
-
+                var items = new List<IDictionary<string, object>>();
                 using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         var row = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                        for (var i = 0; i < reader.FieldCount; i++)
-                        {
-                            var name = reader.GetName(i);
-                            var val = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i);
-                            row[name] = val;
-                        }
+                        for (var i = 0; i < reader.FieldCount; i++) { var name = reader.GetName(i); row[name] = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i); }
+                        items.Add(row);
+                    }
+                }
+                var countSql = "SELECT COUNT(*) FROM Cliente" + (string.IsNullOrWhiteSpace(search) ? "" : " WHERE (nombre LIKE @search OR email LIKE @search)");
+                using (var cnt = new SqlCommand(countSql, conn)) { if (!string.IsNullOrWhiteSpace(search)) cnt.Parameters.AddWithValue("@search", "%" + search + "%"); var total = Convert.ToInt32(await cnt.ExecuteScalarAsync().ConfigureAwait(false)); return (items, total); }
+            }
+        }
+
+        public async Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerTransaccionesPaginadasAsync(int page, int pageSize, DateTime? desde, DateTime? hasta, string q)
+        {
+            var offset = (page - 1) * pageSize;
+            var whereClauses = new List<string>();
+            if (desde.HasValue) whereClauses.Add("CAST(t.fecha AS DATE) >= @desde");
+            if (hasta.HasValue) whereClauses.Add("CAST(t.fecha AS DATE) <= @hasta");
+            if (!string.IsNullOrWhiteSpace(q)) whereClauses.Add("(t.descripcion LIKE @q OR tt.nombre LIKE @q)");
+            var where = whereClauses.Count > 0 ? "WHERE " + string.Join(" AND ", whereClauses) : string.Empty;
+            var sql = $@"SELECT t.transaccion_id, t.fecha, tt.nombre AS tipo_transaccion, et.nombre AS estado, t.monto, t.descripcion FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id {where} ORDER BY t.fecha DESC OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                if (desde.HasValue) cmd.Parameters.AddWithValue("@desde", desde.Value);
+                if (hasta.HasValue) cmd.Parameters.AddWithValue("@hasta", hasta.Value);
+                if (!string.IsNullOrWhiteSpace(q)) cmd.Parameters.AddWithValue("@q", "%" + q + "%");
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@pageSize", pageSize);
+                await conn.OpenAsync().ConfigureAwait(false);
+                var items = new List<IDictionary<string, object>>();
+                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        var row = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                        for (var i = 0; i < reader.FieldCount; i++) { var name = reader.GetName(i); row[name] = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i); }
+                        items.Add(row);
+                    }
+                }
+                var countSql = $"SELECT COUNT(*) FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id {where}";
+                using (var cnt = new SqlCommand(countSql, conn))
+                {
+                    if (desde.HasValue) cnt.Parameters.AddWithValue("@desde", desde.Value);
+                    if (hasta.HasValue) cnt.Parameters.AddWithValue("@hasta", hasta.Value);
+                    if (!string.IsNullOrWhiteSpace(q)) cnt.Parameters.AddWithValue("@q", "%" + q + "%");
+                    var total = Convert.ToInt32(await cnt.ExecuteScalarAsync().ConfigureAwait(false));
+                    return (items, total);
+                }
+            }
+        }
+
+        private async Task<IEnumerable<IDictionary<string, object>>> ExecuteQueryAsync(string sql, params (string name, object value)[] parameters)
+        {
+            var result = new List<IDictionary<string, object>>();
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                foreach (var p in parameters) cmd.Parameters.AddWithValue(p.name, p.value ?? DBNull.Value);
+                await conn.OpenAsync().ConfigureAwait(false);
+                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        var row = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                        for (var i = 0; i < reader.FieldCount; i++) { var name = reader.GetName(i); var val = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i); row[name] = val; }
                         result.Add(row);
                     }
                 }
             }
-
             return result;
+        }
+
+        public async Task<bool> IsUsernameAdminAsync(string username)
+        {
+            const string sql = "SELECT TOP(1) es_admin FROM Usuario WHERE username = @username";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                await conn.OpenAsync().ConfigureAwait(false);
+                var val = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                if (val == null || val == DBNull.Value) return false;
+                return Convert.ToBoolean(val);
+            }
+        }
+
+        public async Task<int?> GetClienteIdByUsernameAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return null;
+            const string sql = "SELECT TOP(1) cliente_id FROM Usuario WHERE username = @username";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                await conn.OpenAsync().ConfigureAwait(false);
+                var val = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                if (val == null || val == DBNull.Value) return null;
+                return Convert.ToInt32(val);
+            }
+        }
+
+        private async Task LogAuditAsync(string accion, int? usuarioId, string detalle)
+        {
+            const string sql = @"INSERT INTO AuditLog (accion, usuario_id, detalle, fecha) VALUES (@accion, @usuarioId, @detalle, @fecha)";
+            try
+            {
+                using (var conn = new SqlConnection(_cs))
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@accion", accion ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@usuarioId", usuarioId.HasValue ? (object)usuarioId.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@detalle", (object)detalle ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fecha", DateTime.UtcNow);
+                    await conn.OpenAsync().ConfigureAwait(false);
+                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+            catch { }
         }
 
         private static string ComputeSha256Hex(string input)
         {
-            var bytes = Encoding.Unicode.GetBytes(input); // <-- Unicode (match SQL NVARCHAR)
+            var bytes = Encoding.Unicode.GetBytes(input);
             var hash = SHA256.HashData(bytes);
             var sb = new StringBuilder(hash.Length * 2);
             foreach (var b in hash) sb.AppendFormat("{0:x2}", b);
@@ -601,7 +615,7 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
 
         private static string ComputeSha256Base64(string input)
         {
-            var bytes = Encoding.Unicode.GetBytes(input); // <-- Unicode (match SQL NVARCHAR)
+            var bytes = Encoding.Unicode.GetBytes(input);
             var hash = SHA256.HashData(bytes);
             return Convert.ToBase64String(hash);
         }
@@ -612,13 +626,9 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
             return Convert.ToBase64String(bytes);
         }
 
-        // JSON helpers
         private static string GetString(JsonElement root, string name)
         {
-            if (root.TryGetProperty(name, out var prop) && prop.ValueKind != JsonValueKind.Null)
-            {
-                return prop.GetString();
-            }
+            if (root.TryGetProperty(name, out var prop) && prop.ValueKind != JsonValueKind.Null) return prop.GetString();
             return null;
         }
 
@@ -628,8 +638,7 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
             if (root.TryGetProperty(name, out var prop) && prop.ValueKind != JsonValueKind.Null)
             {
                 if (prop.ValueKind == JsonValueKind.Number && prop.TryGetInt32(out value)) return true;
-                int tmp;
-                if (int.TryParse(prop.GetString(), out tmp)) { value = tmp; return true; }
+                int tmp; if (int.TryParse(prop.GetString(), out tmp)) { value = tmp; return true; }
             }
             return false;
         }
@@ -640,10 +649,35 @@ VALUES (@clienteId, @username, @passwordHash, @salt, 1)";
             if (root.TryGetProperty(name, out var prop) && prop.ValueKind != JsonValueKind.Null)
             {
                 if (prop.ValueKind == JsonValueKind.Number && prop.TryGetDouble(out value)) return true;
-                double tmp;
-                if (double.TryParse(prop.GetString(), out tmp)) { value = tmp; return true; }
+                double tmp; if (double.TryParse(prop.GetString(), out tmp)) { value = tmp; return true; }
             }
             return false;
+        }
+
+        public async Task<IEnumerable<IDictionary<string, object>>> DiagnosticarTablasAsync()
+        {
+            const string sql = @"SELECT TABLE_NAME AS tabla_nombre, TABLE_TYPE AS tipo FROM INFORMATION_SCHEMA.TABLES ORDER BY TABLE_NAME";
+            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<IDictionary<string, object>>> DiagnosticarVistasAsync()
+        {
+            const string sql = @"SELECT TABLE_NAME AS vista_nombre FROM INFORMATION_SCHEMA.VIEWS ORDER BY TABLE_NAME";
+            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+        }
+
+        public async Task<string> ProbarConsultaBasicaAsync()
+        {
+            try
+            {
+                const string sql = "SELECT TOP(1) 1 as ok";
+                await ExecuteQueryAsync(sql).ConfigureAwait(false);
+                return "OK";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
         }
     }
 }

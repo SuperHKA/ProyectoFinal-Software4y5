@@ -21,6 +21,10 @@ namespace API_BancoFisclase.Servicios
     {
         public int Id { get; set; }
         public string Username { get; set; }
+        // ClienteId: the customer id associated to this user (if any)
+        public int? ClienteId { get; set; }
+        // IsAdmin flag reflected from DB
+        public bool IsAdmin { get; set; }
     }
 
     public class LoginRequestDto

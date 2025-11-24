@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import apiService from '../services/apiService';
@@ -6,6 +7,7 @@ import { CreditCard, Plus, Eye, EyeOff } from 'lucide-react';
 import '../styles/Accounts.css';
 
 const Accounts = () => {
+  const navigate = useNavigate();
   const [cuentas, setCuentas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showBalances, setShowBalances] = useState({});
@@ -15,21 +17,25 @@ const Accounts = () => {
   }, []);
 
   const normalizeAccount = (r) => ({
-    Tipo: r.tipo ?? r.Tipo ?? r.tipo_transaccion ?? '',
-    NumCuenta: r.numero_cuenta ?? r.NumCuenta ?? r.numero ?? r.NumCuenta ?? '****-****',
-    Saldo: r.saldo_total ?? r.saldo ?? r.Saldo ?? 0,
+    Tipo: r.tipo ?? r.Tipo ?? r.nombre ?? r.tipo_transaccion ?? '',
+    NumCuenta: r.numero_cuenta ?? r.NumCuenta ?? r.numero ?? r.NumeroCuenta ?? '****-****',
+    Saldo: r.saldo ?? r.Saldo ?? r.saldo_total ?? 0,
     NombreCliente: r.nombre ?? r.NombreCliente ?? r.Nombre ?? 'Cliente',
-    Activo: r.activo ?? r.Activo ?? true
+    Activo: r.activa ?? r.Activo ?? true,
+    Raw: r
   });
 
   const loadAccounts = async () => {
     try {
-      const response = await apiService.getResumenClientes();
+      // Use getCuentasPorCliente without id to fetch the logged-in client's accounts
+      const response = await apiService.getCuentasPorCliente();
       const raw = response.data || [];
       const normalized = raw.map(normalizeAccount);
       setCuentas(normalized);
     } catch (error) {
       console.error('Error loading accounts:', error);
+      // fallback: empty list
+      setCuentas([]);
     } finally {
       setLoading(false);
     }
@@ -50,6 +56,38 @@ const Accounts = () => {
       'DEBITO': 'orange'
     };
     return colors[tipo] || 'gray';
+  };
+
+  const handleCreateAccount = async () => {
+    try {
+      const tipo = window.prompt('Tipo de cuenta (AHORRO, CORRIENTE, CREDITO, DEBITO)', 'AHORRO');
+      if (!tipo) return;
+      const saldoStr = window.prompt('Saldo inicial (numérico)', '0');
+      if (saldoStr === null) return;
+      const saldo = parseFloat(saldoStr) || 0;
+      // generate simple account number
+      const numeroCuenta = String(Math.floor(Math.random() * 1e10)).padStart(10, '0');
+
+      const payload = {
+        ClienteId: undefined, // apiService will use stored user clienteId when omitted if implemented; include null to be explicit
+        Tipo: tipo.toUpperCase(),
+        NumeroCuenta: numeroCuenta,
+        SaldoInicial: saldo
+      };
+
+      await apiService.crearCuentaBancaria(payload);
+      alert('Cuenta creada: ' + numeroCuenta);
+      loadAccounts();
+    } catch (err) {
+      console.error('create account error', err);
+      alert('Error al crear cuenta: ' + (err?.response?.data ?? err.message ?? err));
+    }
+  };
+
+  const handleViewTransactions = (cuenta) => {
+    // navigate to Transactions and store filter in session so page can read it
+    try { sessionStorage.setItem('filterCuenta', cuenta.NumCuenta); } catch {}
+    navigate('/transactions');
   };
 
   if (loading) {
@@ -75,7 +113,7 @@ const Accounts = () => {
             <h1>Mis Cuentas</h1>
             <p>Gestiona todas tus cuentas bancarias</p>
           </div>
-          <button className="btn-add-account">
+          <button className="btn-add-account" onClick={handleCreateAccount}>
             <Plus size={20} />
             <span>Nueva Cuenta</span>
           </button>
@@ -102,7 +140,7 @@ const Accounts = () => {
                   <div className="balance-row">
                     <h2>
                       {showBalances[index] 
-                        ? `$${cuenta.Saldo?.toLocaleString() || '0.00'}` 
+                        ? `$${Number(cuenta.Saldo || 0).toLocaleString()}` 
                         : '••••••'
                       }
                     </h2>
@@ -120,6 +158,9 @@ const Accounts = () => {
                   <p className={`account-status ${cuenta.Activo ? 'active' : 'inactive'}`}>
                     {cuenta.Activo ? 'Activa' : 'Inactiva'}
                   </p>
+                  <div style={{ marginTop: 8 }}>
+                    <button onClick={() => handleViewTransactions(cuenta)}>Ver Movimientos</button>
+                  </div>
                 </div>
               </div>
             ))
@@ -128,7 +169,7 @@ const Accounts = () => {
               <CreditCard size={64} />
               <h2>No tienes cuentas registradas</h2>
               <p>Solicita tu primera cuenta para comenzar</p>
-              <button className="btn-primary">Solicitar Cuenta</button>
+              <button className="btn-primary" onClick={handleCreateAccount}>Solicitar Cuenta</button>
             </div>
           )}
         </div>

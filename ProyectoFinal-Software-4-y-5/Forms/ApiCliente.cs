@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace ProyectoFinal_Software_4_y_5.Forms
 {
+    /*
+     Cliente HTTP que consume el API del banco.
+
+     Breve descripción:
+     - Encapsula llamadas HTTP al API REST del banco.
+     - Provee métodos para obtener datos, autenticar usuarios y ejecutar acciones remotas.
+     - Diseñado para uso por la capa de UI WinForms (adapter ligero).
+    */
     public class ApiCliente
     {
         private readonly HttpClient _http;
@@ -41,7 +49,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        // Made public so callers in other classes/assemblies can use it
+        // Método público para POST con JSON (uso general desde la UI)
         public async Task<TResponse> PostJsonAsync<TRequest, TResponse>(string url, TRequest payload)
         {
             var json = JsonConvert.SerializeObject(payload);
@@ -54,7 +62,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        // Implemented PutJsonAsync to match usage in ServicioBancoApi
+        // Implementado PutJsonAsync para uso en ServicioBancoApi
         public async Task<TResponse> PutJsonAsync<TRequest, TResponse>(string url, TRequest payload)
         {
             var json = JsonConvert.SerializeObject(payload);
@@ -67,6 +75,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
+        // Autenticar administrador
         public async Task<LoginResultDto> AutenticarAdministradorAsync(string username, string password)
         {
             var req = new { Username = username, Password = password };
@@ -87,7 +96,28 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        // Health check method
+        // Autenticar usuario general (clientes)
+        public async Task<LoginResultDto> AutenticarUsuarioAsync(string username, string password)
+        {
+            var req = new { Username = username, Password = password };
+            var json = JsonConvert.SerializeObject(req);
+            using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
+            using (var res = await _http.PostAsync("/api/banco/login", content).ConfigureAwait(false))
+            {
+                var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    var dto = JsonConvert.DeserializeObject<LoginResultDto>(body);
+                    return dto ?? new LoginResultDto { Status = EstatusLogin.Error, Message = "Empty response" };
+                }
+                catch
+                {
+                    return new LoginResultDto { Status = EstatusLogin.Error, Message = $"HTTP {(int)res.StatusCode}: {body}" };
+                }
+            }
+        }
+
+        // Health check
         public async Task<bool> HealthAsync()
         {
             try
@@ -117,7 +147,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        // Typed endpoints returning DTO collections
+        // Endpoints tipados que devuelven colecciones DTO
         public async Task<IEnumerable<ClienteDto>> ObtenerClientesAsync()
             => await GetJsonAsync<IEnumerable<ClienteDto>>("/api/banco/clientes").ConfigureAwait(false);
 
@@ -137,7 +167,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/notificaciones-sistema").ConfigureAwait(false);
 
         public async Task<IEnumerable<Dictionary<string, object>>> ObtenerReporteTransaccionesPorFechaAsync(DateTime desde, DateTime hasta)
-            => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>($"/api/banco/reporte?desde={Uri.EscapeDataString(desde.ToString("o"))}&hasta={Uri.EscapeDataString(hasta.ToString("o"))}").ConfigureAwait(false);
+            => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
+                $"/api/banco/reporte?desde={Uri.EscapeDataString(desde.ToString("o"))}&hasta={Uri.EscapeDataString(hasta.ToString("o"))}").ConfigureAwait(false);
+
+        // Nuevo: obtener cuentas por cliente
+        public async Task<IEnumerable<Dictionary<string, object>>> ObtenerCuentasPorClienteAsync(int clienteId)
+            => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
+                $"/api/banco/clientes/{clienteId}/cuentas").ConfigureAwait(false);
 
         // DTOs
         public class ClienteDto
@@ -163,7 +199,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         }
     }
 
-    // DTOs must match API DTO shapes
+    // DTOs deben coincidir con las formas devueltas por la API
     public enum EstatusLogin { Success, NotFound, Locked, BadCredentials, Forbidden, Error }
 
     public class LoginResultDto
@@ -177,5 +213,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
     {
         public int Id { get; set; }
         public string Username { get; set; }
+        // ClienteId: the customer id associated to this user (if any)
+        public int? ClienteId { get; set; }
+        // IsAdmin flag reflected from DB
+        public bool IsAdmin { get; set; }
     }
 }

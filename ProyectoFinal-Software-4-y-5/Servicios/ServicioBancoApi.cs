@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProyectoFinal_Software_4_y_5.Servicios
 {
@@ -18,28 +19,28 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
             _api = new ApiCliente(baseUrl, allowInvalidSsl);
         }
 
-        public DataTable ObtenerEstadisticasGenerales()
+        public async Task<DataTable> ObtenerEstadisticasGeneralesAsync()
         {
-            var items = _api.ObtenerEstadisticasAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerEstadisticasAsync().ConfigureAwait(false);
+            return ToDataTable(items.Select(d => d));
+        }
+
+        public async Task<DataTable> ObtenerMovimientosDelDiaAsync()
+        {
+            var items = await _api.ObtenerMovimientosDelDiaAsync().ConfigureAwait(false);
             return ToDataTable(items);
         }
 
-        public DataTable ObtenerMovimientosDelDia()
+        public async Task<bool> EjecutarResumenesDiariosAsync()
         {
-            var items = _api.ObtenerMovimientosDelDiaAsync().GetAwaiter().GetResult();
-            return ToDataTable(items);
-        }
-
-        public bool EjecutarResumenesDiarios()
-        {
-            return _api.EjecutarResumenesAsync().GetAwaiter().GetResult();
+            return await _api.EjecutarResumenesAsync().ConfigureAwait(false);
         }
 
         // New wrappers used by the UI (names match original ServicioBanco)
-        public DataTable ObtenerTransaccionesRecientes(int top = 50)
+        public async Task<DataTable> ObtenerTransaccionesRecientesAsync(int top = 50)
         {
-            var items = _api.ObtenerTransaccionesRecientesAsync(top).GetAwaiter().GetResult();
-            return ToDataTable(items.Select(t => new Dictionary<string, object>
+            var items = await _api.ObtenerTransaccionesRecientesAsync(top).ConfigureAwait(false);
+            var list = items.Select(t => new Dictionary<string, object>
             {
                 ["transaccion_id"] = t.transaccion_id,
                 ["fecha"] = t.fecha,
@@ -47,12 +48,13 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
                 ["estado"] = t.estado,
                 ["monto"] = t.monto,
                 ["descripcion"] = t.descripcion
-            }));
+            });
+            return ToDataTable(list);
         }
 
-        public List<Usuario> ObtenerTodosLosClientes()
+        public async Task<List<Usuario>> ObtenerTodosLosClientesAsync()
         {
-            var items = _api.ObtenerClientesAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerClientesAsync().ConfigureAwait(false);
             var list = new List<Usuario>();
             if (items == null) return list;
 
@@ -75,31 +77,31 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
             return list;
         }
 
-        public DataTable ObtenerAnalisisTransacciones()
+        public async Task<DataTable> ObtenerAnalisisTransaccionesAsync()
         {
-            var items = _api.ObtenerAnalisisAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerAnalisisAsync().ConfigureAwait(false);
             return ToDataTable(items);
         }
 
-        public DataTable ObtenerResumenClientes()
+        public async Task<DataTable> ObtenerResumenClientesAsync()
         {
-            var items = _api.ObtenerResumenClientesAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerResumenClientesAsync().ConfigureAwait(false);
             return ToDataTable(items);
         }
 
-        public DataTable ObtenerUsuariosBloqueados()
+        public async Task<DataTable> ObtenerUsuariosBloqueadosAsync()
         {
-            var items = _api.ObtenerUsuariosBloqueadosAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerUsuariosBloqueadosAsync().ConfigureAwait(false);
             return ToDataTable(items);
         }
 
-        public DataTable ObtenerNotificacionesSistema()
+        public async Task<DataTable> ObtenerNotificacionesSistemaAsync()
         {
-            var items = _api.ObtenerNotificacionesSistemaAsync().GetAwaiter().GetResult();
+            var items = await _api.ObtenerNotificacionesSistemaAsync().ConfigureAwait(false);
             return ToDataTable(items);
         }
 
-        public bool CrearClienteCompleto(Usuario usuario, string password)
+        public async Task<bool> CrearClienteCompletoAsync(Usuario usuario, string password)
         {
             var dto = new
             {
@@ -109,10 +111,11 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
                 Telefono = usuario.Telefono,
                 Password = password
             };
-            return _api.PostJsonAsync<object, object>("/api/banco/clientes", dto).GetAwaiter().GetResult() != null;
+            var res = await _api.PostJsonAsync<object, object>("/api/banco/clientes", dto).ConfigureAwait(false);
+            return res != null;
         }
 
-        public bool ActualizarCliente(Usuario usuario)
+        public async Task<bool> ActualizarClienteAsync(Usuario usuario)
         {
             var dto = new
             {
@@ -120,15 +123,17 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
                 Email = usuario.Email,
                 Telefono = usuario.Telefono
             };
-            return _api.PutJsonAsync<object, object>($"/api/banco/clientes/{usuario.IdUsuario}", dto).GetAwaiter().GetResult() != null;
+            var res = await _api.PutJsonAsync<object, object>($"/api/banco/clientes/{usuario.IdUsuario}", dto).ConfigureAwait(false);
+            return res != null;
         }
 
-        public bool CambiarContrasena(int usuarioId, string nuevaContrasena)
+        public async Task<bool> CambiarContrasenaAsync(int usuarioId, string nuevaContrasena)
         {
-            return _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/cambiar-contrasena", new { Password = nuevaContrasena }).GetAwaiter().GetResult() != null;
+            var res = await _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/cambiar-contrasena", new { Password = nuevaContrasena }).ConfigureAwait(false);
+            return res != null;
         }
 
-        public bool CrearCuentaBancaria(int clienteId, Cuenta.TipoCuenta tipo, string numeroCuenta, double saldoInicial)
+        public async Task<bool> CrearCuentaBancariaAsync(int clienteId, Cuenta.TipoCuenta tipo, string numeroCuenta, double saldoInicial)
         {
             var dto = new
             {
@@ -137,23 +142,26 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
                 NumeroCuenta = numeroCuenta,
                 SaldoInicial = saldoInicial
             };
-            return _api.PostJsonAsync<object, object>("/api/banco/cuentas", dto).GetAwaiter().GetResult() != null;
+            var res = await _api.PostJsonAsync<object, object>("/api/banco/cuentas", dto).ConfigureAwait(false);
+            return res != null;
         }
 
-        public bool BloquearDesbloquearUsuario(int usuarioId, bool bloquear)
+        public async Task<bool> BloquearDesbloquearUsuarioAsync(int usuarioId, bool bloquear)
         {
-            return _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/bloquear", new { Bloquear = bloquear }).GetAwaiter().GetResult() != null;
+            var res = await _api.PostJsonAsync<object, object>($"/api/banco/usuarios/{usuarioId}/bloquear", new { Bloquear = bloquear }).ConfigureAwait(false);
+            return res != null;
         }
 
-        public bool CrearUsuarioAdministrador(string username, string password, string nombreCompleto, string email)
+        public async Task<bool> CrearUsuarioAdministradorAsync(string username, string password, string nombreCompleto, string email)
         {
             var dto = new { Username = username, Password = password, Nombre = nombreCompleto, Email = email };
-            return _api.PostJsonAsync<object, object>("/api/banco/usuarios/admin", dto).GetAwaiter().GetResult() != null;
+            var res = await _api.PostJsonAsync<object, object>("/api/banco/usuarios/admin", dto).ConfigureAwait(false);
+            return res != null;
         }
 
-        public DataTable ObtenerReporteTransaccionesPorFecha(DateTime desde, DateTime hasta)
+        public async Task<DataTable> ObtenerReporteTransaccionesPorFechaAsync(DateTime desde, DateTime hasta)
         {
-            var items = _api.ObtenerReporteTransaccionesPorFechaAsync(desde, hasta).GetAwaiter().GetResult();
+            var items = await _api.ObtenerReporteTransaccionesPorFechaAsync(desde, hasta).ConfigureAwait(false);
             return ToDataTable(items);
         }
 

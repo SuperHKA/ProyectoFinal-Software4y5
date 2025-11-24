@@ -1,5 +1,6 @@
 ﻿using ProyectoFinal_Software_4_y_5.Servicios;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -31,40 +32,55 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 var username = txtUsuario.Text?.Trim();
                 var password = txtPassword.Text ?? string.Empty;
 
-                var result = await _apiCliente.AutenticarAdministradorAsync(username, password).ConfigureAwait(false);
-
-                // back to UI thread
-                this.Invoke((Action)(() =>
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
                 {
-                    switch (result.Status)
+                    MessageBox.Show("Usuario y contraseña son obligatorios", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                try
+                {
+                    // Strict admin authentication
+                    var result = await _apiCliente.AutenticarAdministradorAsync(username, password).ConfigureAwait(false);
+
+                    // Switch back to UI thread
+                    this.BeginInvoke((Action)(() =>
                     {
-                        case EstatusLogin.Success:
-                            // set local session if you want, open admin panel
-                            var panel = new PanelAdministrativo();
-                            panel.Show();
-                            this.Hide();
-                            break;
-                        case EstatusLogin.NotFound:
-                            MessageBox.Show("Usuario no encontrado", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-                        case EstatusLogin.Locked:
-                            MessageBox.Show("Cuenta bloqueada", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            break;
-                        case EstatusLogin.BadCredentials:
-                            MessageBox.Show("Credenciales incorrectas", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-                        case EstatusLogin.Forbidden:
-                            MessageBox.Show("No es administrador", "Login", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                            break;
-                        default:
-                            MessageBox.Show("Error de autenticación: " + result.Message, "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            break;
-                    }
-                }));
+                        switch (result.Status)
+                        {
+                            case EstatusLogin.Success:
+                                // Only allow admins
+                                var panel = new PanelAdministrativo();
+                                panel.Show();
+                                this.Hide();
+                                break;
+                            case EstatusLogin.NotFound:
+                                MessageBox.Show("Usuario no encontrado", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+                            case EstatusLogin.Locked:
+                                MessageBox.Show("Cuenta bloqueada", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                break;
+                            case EstatusLogin.BadCredentials:
+                                MessageBox.Show("Credenciales incorrectas", "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+                            case EstatusLogin.Forbidden:
+                                // Explicit message for non-admins
+                                MessageBox.Show("No es administrador. Acceso denegado.", "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                break;
+                            default:
+                                MessageBox.Show("Error de autenticación: " + result.Message, "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                break;
+                        }
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error comunicándose con la API: {ex.Message}", "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             finally
             {
-                this.Invoke((Action)(() => btnLogin.Enabled = true));
+                this.BeginInvoke((Action)(() => btnLogin.Enabled = true));
             }
         }
 
