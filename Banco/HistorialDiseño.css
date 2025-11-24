@@ -1,0 +1,182 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap");
+
+body {
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+    padding-top: 0;
+}
+
+
+h1{
+    font-weight: bold;
+    font-size: 30px;
+    margin: 50px;
+    text-align: center;
+    transform: translate(0px, 40px);
+}
+
+.nom-cuenta{
+    font-weight: bold;
+    font-size: 20px;
+    text-align: left;
+}
+
+.num-Cuenta{
+    font-size: 20px;
+    text-align: left;
+}
+
+.tarjeta {
+    position: relative;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 880px;
+    text-align: center;
+    max-height: 150px;
+    transform: translate(20px , -5px);
+}
+
+.tarjeta::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -12px; /* Ajuste para que quede justo en la parte inferior */
+    height: 20%; /* Ajuste relativo para mantener proporción */
+    background: #ff0099;
+    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.titulo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    transform: translate(150px , -100px);
+}
+
+.titulo2{
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    transform: translate(126px , -160px);
+}
+
+.saldo {
+    font-size: 24px;
+    color: #4CAF50; /* Verde para el saldo */
+    font-weight: 600;
+    transform: translate(280px , -155px);
+}
+
+.saldo2{
+    font-size: 24px;
+    color: #4CAF50; /* Verde para el saldo */
+    font-weight: 600;
+    transform: translate(280px , -215px);
+}
+
+
+
+.fondo{
+    width: 80%;
+    max-width: 1000px;
+    margin: 40px auto; /* centra horizontalmente y separa del contenido superior */
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: rgba(225, 221, 221, 0.67);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+}
+.encabezado{
+    font-size: 15px;
+    background-color: #6c5bcc;
+    color: white;
+    text-align: left;
+}
+
+
+.transaccion{
+    text-align: left;
+
+}
+.transaccion td{
+    padding: 20px;
+    border: none;
+}
+
+.encabezado th{
+    padding: 5px;
+    background-color: #6c5bcc;
+    border: none;
+}
+table {
+    width: 100%; /* ocupa todo el ancho del contenedor .fondo */
+    border-collapse: collapse;
+    border-radius: 8px;
+    margin: 0; /* eliminado transform; ahora se centra por .fondo */
+}
+
+table tr{
+    border: 1px solid #1c253d;
+
+}
+table, th, td {
+    border: 1px solid #1c253d;
+    background: white;
+}
+
+.mas{
+    width: 9%;
+    padding: 10px;
+    background-color: #ff0099;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+
+.saldo {
+    font-weight: bold;
+}
+.total-saldo {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+.grafico {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 6px;
+    border-bottom: 1px solid rgba(28, 37, 61, 0.06);
+    width: 100%; /* Asegura que no se desborde del contenedor */
+    box-sizing: border-box; /* Previene que el padding haga que se salga del fondo */
+
+}
+
+.contener{
+    background: white;
+    border-bottom: 1px solid rgba(28, 37, 61, 0.06);
+    border-radius: 12px;
+
+}
+
+
+
+
+
+
