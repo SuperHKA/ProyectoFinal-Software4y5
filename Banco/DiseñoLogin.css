@@ -18,6 +18,13 @@ body{
     transform: translate(150px, -50px);
 }
 
+.fondo{
+    width: 100%;
+    display: flex;
+    justify-content: left; /* Centra las tarjetas horizontalmente */
+    margin: 10px 0;
+}
+
 .inicio{
     transform: translate(80px, -40px);
     margin: 201px 0px;
@@ -28,7 +35,7 @@ body{
     border: none;
     padding: 17px 15px;
     margin: 18px;
-    width: 30%;
+    width: 100%;
     border-radius: 20px;
 }
 
@@ -51,48 +58,46 @@ body{
 
 /* Contenedor principal que abarcará todo el alto */
 .cont-cuadro {
-    position: fixed; /* Lo fija en la pantalla */
+    position: fixed; /* Fija el cuadro en la pantalla */
     top: 0;
     right: 0;
     width: 50%;
     height: 100vh;
+    overflow: hidden; /* Evita que el contenido dentro del cuadro se desplace */
 }
 
-/* Cuadro que tendrá color y ocupa toda la altura */
-.cuadro {
-    background-color: #6c5bcc; /* Color de fondo */
-    width: 100%;
-    height: 100%; /* Ocupa toda la altura del contenedor */
-}
 
-.login-left{
 
-    z-index: 1;
-}
 
 .login-left {
     position: absolute;
-    transform: translate(880px ,80px); /* Centra de forma precisa */
-    z-index: 2; /* Asegura que esté sobre el cuadro */
+    transform: translate(880px ,10px); /* Centra de forma precisa */
+    z-index: 999; /* Asegura que esté sobre el cuadro */
     color: white; /* Texto blanco */
     padding: 20px; /* Espaciado interno */
     text-align: center;
+    background: #6c5bcc;
+    height: 820px;
+    width: 6000px;
 }
 
-.login-left h2{
+.login-left h2 {
     font-weight: bold;
+    transform: translate(-2700px ,70px);
 }
 
-.login-left p{
+.login-left p {
     font-size: 18px;
+    transform: translate(-2700px ,100px);
 }
 
-.login-left .logo{
+.login-left .logo {
     width: 400px;
     height: 100px;
+    transform: translate(-2700px ,60px);
 }
 
-.Registrar{
+.Registrar {
     color: white;
     width: 300px;
     height: 50px;
@@ -100,4 +105,5 @@ body{
     border: #ffffff solid 1px;
     border-radius: 25px;
     font-weight: bold;
+    transform: translate(-2700px ,120px);
 }

@@ -16,35 +16,46 @@ h1{
     transform: translate(0px, 40px);
 }
 
-.notificacion1 {
-    background-color: #ffcc00;  /* Color de fondo de la notificación */
+
+
+.fondo {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    margin: 10px 0;
+}
+
+.tarjeta {
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    background:none;
+    width: 700px;  /* Ajusta el ancho de las tarjetas */
+    max-width: 100%;  /* Hace que las tarjetas sean responsivas */
+}
+
+.notificacion1, .notificacion2, .notificacion3 {
     padding: 15px;
     border-radius: 15px;
-    margin: 20px;
+    margin: 30px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 1000px;
-    transform: translate(400px ,0px);
+    width: 100%;
+}
+
+.notificacion1 {
+    background-color: #ffcc00;  /* Color de fondo de la notificación */
 }
 
 .notificacion2 {
     background-color: #da616b;  /* Color de fondo de la notificación */
-    padding: 15px;
-    border-radius: 15px;
-    margin: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 1000px;
-    transform: translate(400px ,0px);
 }
 
 .notificacion3 {
     background-color: #8de379;  /* Color de fondo de la notificación */
-    padding: 15px;
-    border-radius: 15px;
-    margin: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 1000px;
-    transform: translate(400px ,0px);
 }
+
+
+
+
+
 
 .titulo {
     font-weight: bold;
