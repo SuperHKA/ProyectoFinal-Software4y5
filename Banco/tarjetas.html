@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarjetas - FisClase</title>
+    <link rel="stylesheet" href="tarjetas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container logo">
+            <img class="Titulo" src="src/noname-cutout.png" alt="FisClase">
+        </div>
+        
+        <nav class="main-nav">
+            <ul>
+                <li><a href="Pagina_Principal.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">Quienes Somos</a></li>
+                <li><a href="contactenos.html">Contactenos</a></li>
+            </ul>
+        </nav>
+        
+        <div class="user-info">
+            <div class="user-avatar">JS</div>
+            <span>Juan Sánchez</span>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <h3>Menú Principal</h3>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" class="active"><i class="fas fa-credit-card"></i> Tarjetas</a></li>
+                <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </aside>
+
+        <main class="cards-content">
+            <section class="welcome-banner">
+                <h1>Mis Tarjetas</h1>
+                <p>Gestiona tus tarjetas de crédito y débito de forma segura</p>
+            </section>
+
+            <div class="cards-grid">
+                <!-- Tarjetas Activas -->
+                <section class="active-cards-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-credit-card"></i> Tarjetas Activas</h2>
+                        <button class="btn-primary" onclick="openRequestCardModal()">
+                            <i class="fas fa-plus"></i> Solicitar Tarjeta
+                        </button>
+                    </div>
+                    
+                    <div class="cards-container">
+                        <!-- Tarjeta de Crédito -->
+                        <div class="credit-card visa">
+                            <div class="card-header">
+                                <div class="card-type">Crédito</div>
+                                <div class="card-status active">Activa</div>
+                            </div>
+                            <div class="card-chip">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="card-number">
+                                <span>****</span>
+                                <span>****</span>
+                                <span>****</span>
+                                <span>4582</span>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-holder">
+                                    <span class="label">Titular</span>
+                                    <span class="value">JUAN SÁNCHEZ</span>
+                                </div>
+                                <div class="card-expiry">
+                                    <span class="label">Válida hasta</span>
+                                    <span class="value">08/26</span>
+                                </div>
+                            </div>
+                            <div class="card-logo">
+                                <i class="fab fa-cc-visa"></i>
+                            </div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="Bloquear">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                                <button class="card-action-btn" title="Configurar">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="card-action-btn" title="Detalles">
+                                    <i class="fas fa-info"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta de Débito -->
+                        <div class="debit-card mastercard">
+                            <div class="card-header">
+                                <div class="card-type">Débito</div>
+                                <div class="card-status active">Activa</div>
+                            </div>
+                            <div class="card-chip">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="card-number">
+                                <span>****</span>
+                                <span>****</span>
+                                <span>****</span>
+                                <span>7821</span>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-holder">
+                                    <span class="label">Titular</span>
+                                    <span class="value">JUAN SÁNCHEZ</span>
+                                </div>
+                                <div class="card-expiry">
+                                    <span class="label">Válida hasta</span>
+                                    <span class="value">12/25</span>
+                                </div>
+                            </div>
+                            <div class="card-logo">
+                                <i class="fab fa-cc-mastercard"></i>
+                            </div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="Bloquear">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                                <button class="card-action-btn" title="Configurar">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="card-action-btn" title="Detalles">
+                                    <i class="fas fa-info"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta Virtual -->
+                        <div class="virtual-card americanexpress">
+                            <div class="card-header">
+                                <div class="card-type">Virtual</div>
+                                <div class="card-status active">Activa</div>
+                            </div>
+                            <div class="card-chip">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="card-number">
+                                <span>****</span>
+                                <span>****</span>
+                                <span>****</span>
+                                <span>9157</span>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-holder">
+                                    <span class="label">Titular</span>
+                                    <span class="value">JUAN SÁNCHEZ</span>
+                                </div>
+                                <div class="card-expiry">
+                                    <span class="label">Válida hasta</span>
+                                    <span class="value">05/27</span>
+                                </div>
+                            </div>
+                            <div class="card-logo">
+                                <i class="fab fa-cc-amex"></i>
+                            </div>
+                            <div class="card-actions">
+                                <button class="card-action-btn" title="Regenerar">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                                <button class="card-action-btn" title="Configurar">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                                <button class="card-action-btn" title="Detalles">
+                                    <i class="fas fa-info"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Resumen de Tarjetas -->
+                <section class="cards-summary">
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-icon credit">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="summary-info">
+                                <h3>Límite de Crédito</h3>
+                                <span class="summary-amount">$8,000.00</span>
+                                <span class="summary-used">Usado: $2,458.75</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon debit">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="summary-info">
+                                <h3>Saldo Disponible</h3>
+                                <span class="summary-amount">$12,458.75</span>
+                                <span class="summary-used">Débito Principal</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon payment">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="summary-info">
+                                <h3>Próximo Pago</h3>
+                                <span class="summary-amount">$458.75</span>
+                                <span class="summary-used">Vence: 15 Nov</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon points">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <div class="summary-info">
+                                <h3>Puntos Acumulados</h3>
+                                <span class="summary-amount">12,458</span>
+                                <span class="summary-used">Disponibles</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Movimientos Recientes -->
+                <section class="recent-transactions">
+                    <div class="section-header">
+                        <h2><i class="fas fa-receipt"></i> Movimientos Recientes</h2>
+                        <button class="btn-outline">Ver Todos</button>
+                    </div>
+                    
+                    <div class="transactions-list">
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span class="transaction-description">Amazon Marketplace</span>
+                                <span class="transaction-date">Hoy, 14:30 - Crédito ****4582</span>
+                            </div>
+                            <div class="transaction-amount negative">-$89.99</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span class="transaction-description">Estación de Servicio Shell</span>
+                                <span class="transaction-date">Ayer, 18:15 - Débito ****7821</span>
+                            </div>
+                            <div class="transaction-amount negative">-$45.50</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span class="transaction-description">Restaurante Italiano</span>
+                                <span class="transaction-date">12 Oct, 20:30 - Crédito ****4582</span>
+                            </div>
+                            <div class="transaction-amount negative">-$125.80</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-sync"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span class="transaction-description">Pago de Tarjeta</span>
+                                <span class="transaction-date">10 Oct, 09:00 - Débito ****7821</span>
+                            </div>
+                            <div class="transaction-amount positive">+$1,200.00</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Configuraciones de Seguridad -->
+                <section class="security-settings">
+                    <div class="section-header">
+                        <h2><i class="fas fa-shield-alt"></i> Configuraciones de Seguridad</h2>
+                    </div>
+                    
+                    <div class="security-grid">
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h4>Compras Online</h4>
+                                <p>Habilitar/Deshabilitar compras por internet</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h4>Compras Internacionales</h4>
+                                <p>Permitir transacciones en el extranjero</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h4>Notificaciones SMS</h4>
+                                <p>Alertas por transacciones</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h4>Límite de Compras</h4>
+                                <p>Establecer límite diario</p>
+                            </div>
+                            <button class="btn-outline">Configurar</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Solicitar Tarjeta -->
+    <div id="requestCardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Solicitar Nueva Tarjeta</h3>
+                <button class="close-modal" onclick="closeRequestCardModal()">&times;</button>
+            </div>
+            <form class="card-request-form">
+                <div class="form-group">
+                    <label for="cardType">Tipo de Tarjeta</label>
+                    <select id="cardType" class="form-control" required>
+                        <option value="">Selecciona un tipo</option>
+                        <option value="credit">Tarjeta de Crédito</option>
+                        <option value="debit">Tarjeta de Débito</option>
+                        <option value="virtual">Tarjeta Virtual</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cardDesign">Diseño de Tarjeta</label>
+                    <div class="card-designs">
+                        <label class="design-option">
+                            <input type="radio" name="design" value="classic" checked>
+                            <div class="design-preview classic"></div>
+                            <span>Clásica</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="design" value="premium">
+                            <div class="design-preview premium"></div>
+                            <span>Premium</span>
+                        </label>
+                        <label class="design-option">
+                            <input type="radio" name="design" value="gold">
+                            <div class="design-preview gold"></div>
+                            <span>Oro</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deliveryAddress">Dirección de Entrega</label>
+                    <select id="deliveryAddress" class="form-control" required>
+                        <option value="">Selecciona dirección</option>
+                        <option value="home">Casa - Av. Principal #123</option>
+                        <option value="office">Oficina - Centro Empresarial</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeRequestCardModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Solicitar Tarjeta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="link_footer">
+            <ul>
+                <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
+                <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                <li><a href="https://www.X.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="tarjetas.js"></script>
+</body>
+</html>
