@@ -149,7 +149,27 @@ const apiService = {
     }
   },
 
-  // Statistics and Dashboard
+  // NEW: Get client dashboard data (use for non-admin users)
+  getDashboardCliente: async (username) => {
+    if (!username) return Promise.reject(new Error('username required'));
+    try {
+      return await apiClient.get('/api/banco/dashboard/usuario', { params: { username } });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // NEW: Get client transactions (use for non-admin users)
+  getTransaccionesCliente: async (username, limit = 20) => {
+    if (!username) return Promise.reject(new Error('username required'));
+    try {
+      return await apiClient.get('/api/banco/transacciones/usuario', { params: { username, limit } });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // Statistics and Dashboard (ADMIN ONLY)
   getEstadisticas: () => 
       apiClient.get('/api/banco/estadisticas'),
   
@@ -219,6 +239,24 @@ const apiService = {
       return false;
     }
   },
+
+  // NEW: Debug endpoint
+  debugUser: async (username) => {
+    if (!username) return Promise.reject(new Error('username required'));
+    try {
+      return await apiClient.get('/api/banco/debug/user', { params: { username } });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // NEW: Get all accounts for transfer dropdowns
+  getCuentas: () => 
+      apiClient.get('/api/banco/cuentas'),
+
+  // NEW: Get all clients for transfer dropdowns
+  getClientesParaTransferencia: () => 
+      apiClient.get('/api/banco/clientes-transferencia'),
 };
 
 // add transfer methods

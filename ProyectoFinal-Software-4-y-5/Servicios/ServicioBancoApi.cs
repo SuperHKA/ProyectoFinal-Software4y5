@@ -11,12 +11,12 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
     // Adapter used by the WinForms UI to call the web API and return DataTable / app types
     public class ServicioBancoApi
     {
-        private readonly ApiCliente _api;
+        private readonly ApiAdmin _api;
 
         // Default to the HTTP endpoint your API exposes on port 5202 (per console)
         public ServicioBancoApi(string baseUrl = "http://localhost:5202", bool allowInvalidSsl = false)
         {
-            _api = new ApiCliente(baseUrl, allowInvalidSsl);
+            _api = new ApiAdmin(baseUrl, allowInvalidSsl);
         }
 
         public async Task<DataTable> ObtenerEstadisticasGeneralesAsync()

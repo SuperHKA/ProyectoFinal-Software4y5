@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import apiService from '../services/apiService';
@@ -7,14 +8,19 @@ import { CreditCard, Plus, Eye, EyeOff } from 'lucide-react';
 import '../styles/Accounts.css';
 
 const Accounts = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [cuentas, setCuentas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showBalances, setShowBalances] = useState({});
 
   useEffect(() => {
-    loadAccounts();
-  }, []);
+    if (user?.username) {
+      loadAccounts();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   const normalizeAccount = (r) => ({
     Tipo: r.tipo ?? r.Tipo ?? r.nombre ?? r.tipo_transaccion ?? '',
@@ -26,11 +32,22 @@ const Accounts = () => {
   });
 
   const loadAccounts = async () => {
+    if (!user?.username) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Use getCuentasPorCliente without id to fetch the logged-in client's accounts
-      const response = await apiService.getCuentasPorCliente();
+      console.log('Loading accounts for user:', user.username); // Debug
+
+      // Use getCuentasPorUsuario which uses username to find accounts
+      const response = await apiService.getCuentasPorUsuario(user.username);
+      console.log('Accounts response:', response); // Debug
+      
       const raw = response.data || [];
       const normalized = raw.map(normalizeAccount);
+      console.log('Normalized accounts:', normalized); // Debug
+      
       setCuentas(normalized);
     } catch (error) {
       console.error('Error loading accounts:', error);
@@ -55,10 +72,15 @@ const Accounts = () => {
       'CREDITO': 'purple',
       'DEBITO': 'orange'
     };
-    return colors[tipo] || 'gray';
+    return colors[tipo?.toUpperCase()] || 'gray';
   };
 
   const handleCreateAccount = async () => {
+    if (!user?.clienteId) {
+      alert('No se puede crear cuenta: información de cliente no disponible');
+      return;
+    }
+
     try {
       const tipo = window.prompt('Tipo de cuenta (AHORRO, CORRIENTE, CREDITO, DEBITO)', 'AHORRO');
       if (!tipo) return;
@@ -69,7 +91,7 @@ const Accounts = () => {
       const numeroCuenta = String(Math.floor(Math.random() * 1e10)).padStart(10, '0');
 
       const payload = {
-        ClienteId: undefined, // apiService will use stored user clienteId when omitted if implemented; include null to be explicit
+        ClienteId: user.clienteId, // Use the logged-in user's clienteId
         Tipo: tipo.toUpperCase(),
         NumeroCuenta: numeroCuenta,
         SaldoInicial: saldo
@@ -89,6 +111,18 @@ const Accounts = () => {
     try { sessionStorage.setItem('filterCuenta', cuenta.NumCuenta); } catch {}
     navigate('/transactions');
   };
+
+  if (!user) {
+    return (
+      <div className="accounts-page">
+        <Header />
+        <div className="loading-container">
+          <p>Debes iniciar sesión para ver tus cuentas.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -154,7 +188,7 @@ const Accounts = () => {
                 </div>
                 
                 <div className="account-footer">
-                  <p className="account-holder">{cuenta.NombreCliente || 'Cliente'}</p>
+                  <p className="account-holder">{user?.username || 'Cliente'}</p>
                   <p className={`account-status ${cuenta.Activo ? 'active' : 'inactive'}`}>
                     {cuenta.Activo ? 'Activa' : 'Inactiva'}
                   </p>

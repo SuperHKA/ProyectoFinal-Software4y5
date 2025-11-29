@@ -85,6 +85,7 @@ namespace API_BancoFisclase.Servicios
                     var dbHash = reader.IsDBNull(reader.GetOrdinal("password_hash")) ? null : reader.GetString(reader.GetOrdinal("password_hash"));
                     var salt = reader.IsDBNull(reader.GetOrdinal("salt")) ? string.Empty : reader.GetString(reader.GetOrdinal("salt"));
                     var bloqueado = !reader.IsDBNull(reader.GetOrdinal("bloqueado")) && reader.GetBoolean(reader.GetOrdinal("bloqueado"));
+                    var esAdmin = !reader.IsDBNull(reader.GetOrdinal("es_admin")) && reader.GetBoolean(reader.GetOrdinal("es_admin"));
                     int? clienteId = null; if (!reader.IsDBNull(reader.GetOrdinal("cliente_id"))) clienteId = reader.GetInt32(reader.GetOrdinal("cliente_id"));
 
                     if (bloqueado) return new LoginResultDto { Status = EstatusLogin.Locked, Message = "Cuenta bloqueada" };
@@ -110,7 +111,7 @@ namespace API_BancoFisclase.Servicios
                     const string sqlReset = @"UPDATE Usuario SET intentos_fallidos = 0, fecha_ultimo_login = @fecha WHERE usuario_id = @id";
                     using (var reset = new SqlCommand(sqlReset, conn)) { reset.Parameters.AddWithValue("@fecha", DateTime.Now); reset.Parameters.AddWithValue("@id", id); await reset.ExecuteNonQueryAsync().ConfigureAwait(false); }
 
-                    return new LoginResultDto { Status = EstatusLogin.Success, Message = "Login exitoso", User = new UserDto { Id = id, Username = username, ClienteId = clienteId, IsAdmin = false } };
+                    return new LoginResultDto { Status = EstatusLogin.Success, Message = "Login exitoso", User = new UserDto { Id = id, Username = username, ClienteId = clienteId, IsAdmin = esAdmin } };
                 }
             }
         }
@@ -173,6 +174,37 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"SELECT c.cuenta_id, c.numero_cuenta, tc.nombre AS tipo, c.saldo, c.activa FROM Cuenta c LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id WHERE c.cliente_id = @clienteId AND c.activa = 1 ORDER BY c.cuenta_id";
             return await ExecuteQueryAsync(sql, ("@clienteId", clienteId)).ConfigureAwait(false);
+        }
+
+        // NEW: Obtener transacciones específicas de un cliente
+        public async Task<IEnumerable<IDictionary<string, object>>> ObtenerTransaccionesClienteAsync(int clienteId, int limit = 20)
+        {
+            const string sql = @"
+                SELECT TOP(@limit) 
+                    t.transaccion_id, 
+                    t.fecha, 
+                    tt.nombre AS tipo_transaccion, 
+                    et.nombre AS estado, 
+                    t.monto, 
+                    t.descripcion,
+                    co.numero_cuenta AS cuenta_origen,
+                    cd.numero_cuenta AS cuenta_destino
+                FROM Transaccion t 
+                LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id 
+                LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
+                LEFT JOIN Cuenta co ON t.cuenta_origen_id = co.cuenta_id
+                LEFT JOIN Cuenta cd ON t.cuenta_destino_id = cd.cuenta_id
+                WHERE (co.cliente_id = @clienteId OR cd.cliente_id = @clienteId)
+                ORDER BY t.fecha DESC";
+            
+            Console.WriteLine($"DEBUG: ObtenerTransaccionesClienteAsync - clienteId: {clienteId}, limit: {limit}");
+            
+            var result = await ExecuteQueryAsync(sql, ("@limit", limit), ("@clienteId", clienteId)).ConfigureAwait(false);
+            var resultList = result.ToList();
+            
+            Console.WriteLine($"DEBUG: ObtenerTransaccionesClienteAsync - Found {resultList.Count} transactions for clienteId {clienteId}");
+            
+            return resultList;
         }
 
         public async Task<bool> EjecutarResumenesDiariosAsync()
@@ -471,8 +503,25 @@ namespace API_BancoFisclase.Servicios
         public async Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerClientesPaginadoAsync(int page, int pageSize, string search)
         {
             var offset = (page - 1) * pageSize;
-            var where = string.IsNullOrWhiteSpace(search) ? string.Empty : "WHERE (c.nombre LIKE @search OR c.email LIKE @search)";
-            var sql = $@"SELECT c.cliente_id, c.nombre as nombre_completo, c.email, c.telefono, u.usuario_id, u.username, u.es_admin, u.bloqueado FROM Cliente c LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id {where} ORDER BY c.cliente_id OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+            var where = string.IsNullOrWhiteSpace(search) ? string.Empty : "WHERE (c.nombre LIKE @search OR c.email LIKE @search OR u.username LIKE @search)";
+            
+            // Improved query to handle nulls better and ensure we get valid data
+            var sql = $@"
+                SELECT 
+                    ISNULL(c.cliente_id, 0) as cliente_id, 
+                    c.nombre as nombre_completo, 
+                    c.email, 
+                    c.telefono, 
+                    ISNULL(u.usuario_id, 0) as usuario_id, 
+                    ISNULL(u.username, '') as username, 
+                    ISNULL(u.es_admin, 0) as es_admin, 
+                    ISNULL(u.bloqueado, 0) as bloqueado 
+                FROM Cliente c 
+                LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id 
+                {where} 
+                ORDER BY c.cliente_id 
+                OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+            
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -486,12 +535,32 @@ namespace API_BancoFisclase.Servicios
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         var row = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                        for (var i = 0; i < reader.FieldCount; i++) { var name = reader.GetName(i); row[name] = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i); }
+                        for (var i = 0; i < reader.FieldCount; i++) 
+                        { 
+                            var name = reader.GetName(i); 
+                            var val = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i);
+                            // Ensure critical fields are never null
+                            if (name == "usuario_id" && (val == null || val == DBNull.Value))
+                            {
+                                val = 0;
+                            }
+                            if (name == "cliente_id" && (val == null || val == DBNull.Value))
+                            {
+                                val = 0;
+                            }
+                            row[name] = val;
+                        }
                         items.Add(row);
                     }
                 }
-                var countSql = "SELECT COUNT(*) FROM Cliente" + (string.IsNullOrWhiteSpace(search) ? "" : " WHERE (nombre LIKE @search OR email LIKE @search)");
-                using (var cnt = new SqlCommand(countSql, conn)) { if (!string.IsNullOrWhiteSpace(search)) cnt.Parameters.AddWithValue("@search", "%" + search + "%"); var total = Convert.ToInt32(await cnt.ExecuteScalarAsync().ConfigureAwait(false)); return (items, total); }
+                
+                var countSql = $@"SELECT COUNT(*) FROM Cliente c LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id {(string.IsNullOrWhiteSpace(search) ? "" : "WHERE (c.nombre LIKE @search OR c.email LIKE @search OR u.username LIKE @search)")}";
+                using (var cnt = new SqlCommand(countSql, conn)) 
+                { 
+                    if (!string.IsNullOrWhiteSpace(search)) cnt.Parameters.AddWithValue("@search", "%" + search + "%"); 
+                    var total = Convert.ToInt32(await cnt.ExecuteScalarAsync().ConfigureAwait(false)); 
+                    return (items, total); 
+                }
             }
         }
 
@@ -533,6 +602,39 @@ namespace API_BancoFisclase.Servicios
                     return (items, total);
                 }
             }
+        }
+
+        // NEW: Métodos para dropdowns de transferencias
+        public async Task<IEnumerable<IDictionary<string, object>>> ObtenerTodasLasCuentasAsync()
+        {
+            const string sql = @"
+                SELECT 
+                    c.cuenta_id, 
+                    c.numero_cuenta, 
+                    tc.nombre AS tipo, 
+                    c.saldo, 
+                    cl.nombre AS nombre_cliente,
+                    c.cliente_id
+                FROM Cuenta c 
+                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
+                LEFT JOIN Cliente cl ON c.cliente_id = cl.cliente_id
+                WHERE c.activa = 1 
+                ORDER BY c.numero_cuenta";
+            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<IDictionary<string, object>>> ObtenerTodosLosClientesParaTransferenciaAsync()
+        {
+            const string sql = @"
+                SELECT DISTINCT
+                    c.cliente_id,
+                    c.nombre AS nombre_cliente,
+                    c.email
+                FROM Cliente c
+                INNER JOIN Cuenta cu ON c.cliente_id = cu.cliente_id
+                WHERE c.activo = 1 AND cu.activa = 1
+                ORDER BY c.nombre";
+            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         private async Task<IEnumerable<IDictionary<string, object>>> ExecuteQueryAsync(string sql, params (string name, object value)[] parameters)
@@ -580,6 +682,10 @@ namespace API_BancoFisclase.Servicios
                 cmd.Parameters.AddWithValue("@username", username);
                 await conn.OpenAsync().ConfigureAwait(false);
                 var val = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                
+                // Debug logging
+                Console.WriteLine($"DEBUG: GetClienteIdByUsernameAsync - username: {username}, result: {val ?? "NULL"}");
+                
                 if (val == null || val == DBNull.Value) return null;
                 return Convert.ToInt32(val);
             }

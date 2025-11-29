@@ -74,6 +74,7 @@
     <Compile Include="Entidades\Cuenta.cs" />
     <Compile Include="Entidades\Transaccion.cs" />
     <Compile Include="Entidades\Usuario.cs" />
+    <Compile Include="Forms\ApiAdmin.cs" />
     <Compile Include="Forms\ApiCliente.cs" />
     <Compile Include="Forms\FormLogin.cs">
       <SubType>Form</SubType>

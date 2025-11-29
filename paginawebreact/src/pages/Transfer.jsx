@@ -20,6 +20,33 @@ const Transfer = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [toasts, setToasts] = useState([]);
   const [success, setSuccess] = useState(null);
+  
+  // NEW: State for dropdown data
+  const [cuentas, setCuentas] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
+
+  // NEW: Load accounts and clients on component mount
+  useEffect(() => {
+    const loadDropdownData = async () => {
+      setLoadingData(true);
+      try {
+        const [cuentasRes, clientesRes] = await Promise.all([
+          apiService.getCuentas(),
+          apiService.getClientesParaTransferencia()
+        ]);
+        setCuentas(cuentasRes.data || []);
+        setClientes(clientesRes.data || []);
+      } catch (error) {
+        console.error('Error loading dropdown data:', error);
+        pushToast('Error cargando datos', 'error');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    loadDropdownData();
+  }, []);
 
   useEffect(() => {
     // auto-dismiss toasts after 4s
@@ -33,34 +60,31 @@ const Transfer = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    setFieldErrors(prev => ({ ...prev, [e.target.name]: null }));
+    const { name, value } = e.target;
+    
+    // If transfer type changes, clear the destination field since options change
+    if (name === 'tipo') {
+      setFormData({
+        ...formData,
+        [name]: value,
+        cuentaDestino: '' // Clear destination when type changes
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+    
+    setFieldErrors(prev => ({ ...prev, [name]: null }));
     setSuccess(null);
-  };
-
-  // Accept either numeric id, 10-digit account number or grouped with dashes (4-4-4 etc)
-  const isValidAccountIdentifier = (value) => {
-    if (!value) return false;
-    const trimmed = value.trim();
-    // numeric id
-    if (/^\d+$/.test(trimmed)) return true;
-    // 10 digits
-    if (/^\d{10}$/.test(trimmed)) return true;
-    // groups like 4-4-4 or 4-4-4-2 etc
-    if (/^\d{2,4}(-\d{2,4})+$/.test(trimmed)) return true;
-    return false;
   };
 
   const validate = () => {
     const errs = {};
     if (!formData.cuentaOrigen) errs.cuentaOrigen = 'Cuenta de origen requerida';
-    else if (!isValidAccountIdentifier(formData.cuentaOrigen)) errs.cuentaOrigen = 'Formato de cuenta inválido';
 
     if (!formData.cuentaDestino) errs.cuentaDestino = 'Cuenta de destino requerida';
-    else if (!isValidAccountIdentifier(formData.cuentaDestino)) errs.cuentaDestino = 'Formato de cuenta inválido';
 
     if (!formData.monto) errs.monto = 'Monto requerido';
     else if (isNaN(parseFloat(formData.monto)) || parseFloat(formData.monto) <= 0) errs.monto = 'Monto debe ser mayor a 0';
@@ -84,7 +108,9 @@ const Transfer = () => {
     try {
       const payload = {
         CuentaOrigen: formData.cuentaOrigen.trim(),
-        CuentaDestino: formData.cuentaDestino.trim(),
+        CuentaDestino: formData.tipo === 'internal' 
+          ? formData.cuentaDestino.trim() 
+          : formData.cuentaDestino, // For external, this is now a client ID
         Monto: parseFloat(formData.monto),
         Descripcion: formData.concepto,
         UsuarioId: user?.id ?? null
@@ -140,6 +166,7 @@ const Transfer = () => {
           <form onSubmit={handleSubmit} className="transfer-form" noValidate>
             {fieldErrors.form && <div className="error-message">{fieldErrors.form}</div>}
             {success && <div className="success-message">{success}</div>}
+            {loadingData && <div className="info-message">Cargando datos...</div>}
 
             <div className="form-group">
               <label>Tipo de transferencia</label>
@@ -151,32 +178,81 @@ const Transfer = () => {
 
             <div className="form-group">
               <label htmlFor="cuentaOrigen">Cuenta de Origen *</label>
-              <input
-                id="cuentaOrigen"
-                name="cuentaOrigen"
-                value={formData.cuentaOrigen}
-                onChange={handleChange}
-                placeholder="Número o Id de cuenta origen"
-                required
-                disabled={loading}
-                aria-invalid={!!fieldErrors.cuentaOrigen}
-              />
+              {formData.tipo === 'internal' ? (
+                <select
+                  id="cuentaOrigen"
+                  name="cuentaOrigen"
+                  value={formData.cuentaOrigen}
+                  onChange={handleChange}
+                  required
+                  disabled={loading || loadingData}
+                  aria-invalid={!!fieldErrors.cuentaOrigen}
+                >
+                  <option value="">Selecciona una cuenta</option>
+                  {cuentas.map(cuenta => (
+                    <option key={cuenta.cuenta_id} value={cuenta.numero_cuenta}>
+                      {cuenta.numero_cuenta} - {cuenta.nombre_cliente} - ${parseFloat(cuenta.saldo || 0).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  id="cuentaOrigen"
+                  name="cuentaOrigen"
+                  value={formData.cuentaOrigen}
+                  onChange={handleChange}
+                  required
+                  disabled={loading || loadingData}
+                  aria-invalid={!!fieldErrors.cuentaOrigen}
+                >
+                  <option value="">Selecciona una cuenta</option>
+                  {cuentas.map(cuenta => (
+                    <option key={cuenta.cuenta_id} value={cuenta.numero_cuenta}>
+                      {cuenta.numero_cuenta} - {cuenta.nombre_cliente} - ${parseFloat(cuenta.saldo || 0).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              )}
               {fieldErrors.cuentaOrigen && <div className="field-error">{fieldErrors.cuentaOrigen}</div>}
             </div>
 
             <div className="form-group">
               <label htmlFor="cuentaDestino">Cuenta de Destino *</label>
-              <input
-                type="text"
-                id="cuentaDestino"
-                name="cuentaDestino"
-                value={formData.cuentaDestino}
-                onChange={handleChange}
-                placeholder="Número o Id de cuenta destino"
-                required
-                disabled={loading}
-                aria-invalid={!!fieldErrors.cuentaDestino}
-              />
+              {formData.tipo === 'internal' ? (
+                <select
+                  id="cuentaDestino"
+                  name="cuentaDestino"
+                  value={formData.cuentaDestino}
+                  onChange={handleChange}
+                  required
+                  disabled={loading || loadingData}
+                  aria-invalid={!!fieldErrors.cuentaDestino}
+                >
+                  <option value="">Selecciona una cuenta</option>
+                  {cuentas.map(cuenta => (
+                    <option key={cuenta.cuenta_id} value={cuenta.numero_cuenta}>
+                      {cuenta.numero_cuenta} - {cuenta.nombre_cliente} - ${parseFloat(cuenta.saldo || 0).toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  id="cuentaDestino"
+                  name="cuentaDestino"
+                  value={formData.cuentaDestino}
+                  onChange={handleChange}
+                  required
+                  disabled={loading || loadingData}
+                  aria-invalid={!!fieldErrors.cuentaDestino}
+                >
+                  <option value="">Selecciona un cliente</option>
+                  {clientes.map(cliente => (
+                    <option key={cliente.cliente_id} value={cliente.cliente_id}>
+                      {cliente.nombre_cliente} - {cliente.email}
+                    </option>
+                  ))}
+                </select>
+              )}
               {fieldErrors.cuentaDestino && <div className="field-error">{fieldErrors.cuentaDestino}</div>}
             </div>
 

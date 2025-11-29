@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import apiService from '../services/apiService';
@@ -8,22 +9,27 @@ import '../styles/Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [estadisticas, setEstadisticas] = useState(null);
   const [movimientos, setMovimientos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Si el usuario es admin, redirigir al AdminDashboard
+    if (user?.isAdmin) {
+      navigate('/admin-dashboard');
+      return;
+    }
+    
     loadDashboardData();
-  }, []);
+  }, [user, navigate]);
 
-  const normalizeStats = (raw = {}) => {
-    return {
-      SaldoTotal: Number(raw.saldo_total_sistema ?? raw.saldo_total ?? raw.SaldoTotal ?? 0),
-      TransaccionesHoy: Number(raw.transacciones_hoy ?? raw.transaccionesHoy ?? raw.TransaccionesHoy ?? 0),
-      ClientesActivos: Number(raw.total_clientes ?? raw.clientes_activos ?? raw.ClientesActivos ?? 0),
-      CuentasTotales: Number(raw.total_cuentas ?? raw.cuentas_totales ?? raw.CuentasTotales ?? 0)
-    };
-  };
+  const normalizeStats = (raw = {}) => ({
+    SaldoTotal: Number(raw.saldo_total ?? raw.SaldoTotal ?? 0),
+    TransaccionesHoy: Number(raw.transacciones_hoy ?? raw.TransaccionesHoy ?? 0),
+    ClientesActivos: 1, // El cliente mismo
+    CuentasTotales: Number(raw.total_cuentas ?? raw.CuentasTotales ?? 0)
+  });
 
   const normalizeMovimiento = (m) => ({
     Tipo: m.tipo_transaccion ?? m.tipo ?? m.Tipo ?? '',
@@ -34,11 +40,21 @@ const Dashboard = () => {
   });
 
   const loadDashboardData = async () => {
+    if (!user?.username) {
+      setLoading(false);
+      return;
+    }
+
     try {
+      console.log('Loading dashboard for user:', user); // Debug
+
+      // Cliente: cargar datos específicos del cliente
       const [estadisticasRes, movimientosRes] = await Promise.all([
-        apiService.getEstadisticas(),
-        apiService.getMovimientosDelDia()
+        apiService.getDashboardCliente(user.username),
+        apiService.getTransaccionesCliente(user.username, 10) // Últimas 10 transacciones
       ]);
+
+      console.log('Dashboard data received:', { estadisticasRes, movimientosRes }); // Debug
 
       const rawStats = (estadisticasRes?.data && estadisticasRes.data[0]) ? estadisticasRes.data[0] : {};
       setEstadisticas(normalizeStats(rawStats));
@@ -47,6 +63,13 @@ const Dashboard = () => {
       setMovimientos(rawMov.map(normalizeMovimiento));
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      // Para clientes sin datos, mostrar valores por defecto
+      setEstadisticas({
+        SaldoTotal: 0,
+        TransaccionesHoy: 0,
+        ClientesActivos: 1,
+        CuentasTotales: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -72,7 +95,7 @@ const Dashboard = () => {
       <main className="dashboard-content">
         <div className="dashboard-header">
           <h1>Bienvenido, {user?.username}</h1>
-          <p>Panel de Control</p>
+          <p>Mi Panel Personal</p>
         </div>
 
         <div className="stats-grid">
@@ -81,7 +104,7 @@ const Dashboard = () => {
               <DollarSign size={32} />
             </div>
             <div className="stat-info">
-              <h3>Saldo Total</h3>
+              <h3>Mi Saldo Total</h3>
               <p className="stat-value">${estadisticas?.SaldoTotal?.toLocaleString() || '0.00'}</p>
             </div>
           </div>
@@ -91,7 +114,7 @@ const Dashboard = () => {
               <TrendingUp size={32} />
             </div>
             <div className="stat-info">
-              <h3>Transacciones Hoy</h3>
+              <h3>Mis Transacciones Hoy</h3>
               <p className="stat-value">{estadisticas?.TransaccionesHoy || 0}</p>
             </div>
           </div>
@@ -101,8 +124,8 @@ const Dashboard = () => {
               <Users size={32} />
             </div>
             <div className="stat-info">
-              <h3>Clientes Activos</h3>
-              <p className="stat-value">{estadisticas?.ClientesActivos || 0}</p>
+              <h3>Mi Perfil</h3>
+              <p className="stat-value">Activo</p>
             </div>
           </div>
 
@@ -111,7 +134,7 @@ const Dashboard = () => {
               <Activity size={32} />
             </div>
             <div className="stat-info">
-              <h3>Cuentas Totales</h3>
+              <h3>Mis Cuentas</h3>
               <p className="stat-value">{estadisticas?.CuentasTotales || 0}</p>
             </div>
           </div>
@@ -119,7 +142,7 @@ const Dashboard = () => {
 
         <div className="dashboard-sections">
           <section className="recent-transactions">
-            <h2>Movimientos del Día</h2>
+            <h2>Mis Últimas Transacciones</h2>
             <div className="transactions-list">
               {movimientos.length > 0 ? (
                 movimientos.map((mov, index) => (
@@ -134,7 +157,7 @@ const Dashboard = () => {
                   </div>
                 ))
               ) : (
-                <p className="no-data">No hay movimientos registrados hoy</p>
+                <p className="no-data">No tienes transacciones recientes</p>
               )}
             </div>
           </section>

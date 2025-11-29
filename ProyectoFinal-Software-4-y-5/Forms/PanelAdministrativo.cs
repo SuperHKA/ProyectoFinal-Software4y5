@@ -21,7 +21,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
         // Use the API adapter exclusively
         private readonly ServicioBancoApi _servicioBancoApi;
-        private readonly ApiCliente _apiCliente;
+        private readonly ApiAdmin _apiCliente;
 
         public PanelAdministrativo()
         {
@@ -30,7 +30,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 InitializeComponent();
 
                 // Use API adapter (single instance)
-                _apiCliente = new ApiCliente("http://localhost:5202", allowInvalidSsl: false);
+                _apiCliente = new ApiAdmin("http://localhost:5202", allowInvalidSsl: false);
                 _servicioBancoApi = new ServicioBancoApi("http://localhost:5202", allowInvalidSsl: false);
 
                 // Crear formulario de cliente dinámicamente
@@ -165,7 +165,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        private void PopulateClientesGridFromDto(System.Collections.Generic.IEnumerable<ApiCliente.ClienteDto> clientes)
+        private void PopulateClientesGridFromDto(System.Collections.Generic.IEnumerable<ApiAdmin.ClienteDto> clientes)
         {
             try
             {
@@ -188,17 +188,17 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 foreach (var cliente in clientes)
                 {
-                    var clienteIdVal = cliente.cliente_id.HasValue ? cliente.cliente_id.Value : (cliente.usuario_id > 0 ? (int?)cliente.usuario_id : null);
+                    // Handle potential null values safely
                     var usuarioIdVal = cliente.usuario_id;
-                    var displayId = clienteIdVal?.ToString() ?? usuarioIdVal.ToString();
-                    var nombre = cliente.nombre_completo ?? cliente.username ?? "N/A";
+                    var clienteIdVal = cliente.cliente_id ?? 0; // Use 0 if null
+                    var displayId = clienteIdVal > 0 ? clienteIdVal.ToString() : usuarioIdVal.ToString();
 
                     var row = dt.NewRow();
                     row["ID"] = displayId;
                     row["UsuarioId"] = usuarioIdVal;
-                    row["ClienteId"] = clienteIdVal ?? 0;
-                    row["Usuario"] = cliente.username ?? "N/A";
-                    row["Nombre"] = nombre;
+                    row["ClienteId"] = clienteIdVal;
+                    row["Usuario"] = cliente.username ?? "N/A";  // Nombre de usuario (username)
+                    row["Nombre"] = cliente.nombre_completo ?? "N/A";  // Nombre completo
                     row["Email"] = cliente.email ?? "N/A";
                     row["Teléfono"] = cliente.telefono ?? "N/A";
                     row["Estado"] = cliente.bloqueado ? "Bloqueado" : "Activo";
@@ -417,31 +417,47 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             if (tablaClientes.SelectedRows.Count > 0)
             {
                 var row = tablaClientes.SelectedRows[0];
-                // txtId should hold cliente_id (for account creation) - read from hidden ClienteId column
-                var clienteIdObj = row.Cells["ClienteId"].Value;
-                if (clienteIdObj != null && int.TryParse(clienteIdObj.ToString(), out var cid) && cid > 0)
+                
+                try
                 {
-                    txtId.Text = cid.ToString();
-                }
-                else
-                {
-                    // fallback to UsuarioId if ClienteId not present
+                    // txtId should hold cliente_id (for account creation) - read from hidden ClienteId column
+                    var clienteIdObj = row.Cells["ClienteId"].Value;
                     var usuarioIdObj = row.Cells["UsuarioId"].Value;
-                    txtId.Text = usuarioIdObj?.ToString() ?? "";
+                    
+                    // Use ClienteId if available and > 0, otherwise use UsuarioId
+                    if (clienteIdObj != null && clienteIdObj != DBNull.Value && 
+                        int.TryParse(clienteIdObj.ToString(), out var cid) && cid > 0)
+                    {
+                        txtId.Text = cid.ToString();
+                    }
+                    else if (usuarioIdObj != null && usuarioIdObj != DBNull.Value)
+                    {
+                        txtId.Text = usuarioIdObj.ToString();
+                    }
+                    else
+                    {
+                        txtId.Text = "";
+                    }
+
+                    txtUsuario.Text = row.Cells["Usuario"].Value?.ToString() ?? "";
+                    txtNombre.Text = row.Cells["Nombre"].Value?.ToString() ?? "";
+                    txtEmail.Text = row.Cells["Email"].Value?.ToString() ?? "";
+                    txtTelefono.Text = row.Cells["Teléfono"].Value?.ToString() ?? "";
+
+                    // clear address fields -- API DTO does not include address in current contract
+                    txtCalle.Text = "";
+                    txtNumero.Text = "";
+                    txtCiudad.Text = "";
+                    txtEstado.Text = "";
+                    txtCodigoPostal.Text = "";
+                    txtPais.Text = "";
                 }
-
-                txtUsuario.Text = row.Cells["Usuario"].Value?.ToString() ?? "";
-                txtNombre.Text = row.Cells["Nombre"].Value?.ToString() ?? "";
-                txtEmail.Text = row.Cells["Email"].Value?.ToString() ?? "";
-                txtTelefono.Text = row.Cells["Teléfono"].Value?.ToString() ?? "";
-
-                // clear address fields -- API DTO does not include address in current contract
-                txtCalle.Text = "";
-                txtNumero.Text = "";
-                txtCiudad.Text = "";
-                txtEstado.Text = "";
-                txtCodigoPostal.Text = "";
-                txtPais.Text = "";
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cargar cliente seleccionado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Clear all fields on error
+                    LimpiarFormulario();
+                }
             }
         }
 

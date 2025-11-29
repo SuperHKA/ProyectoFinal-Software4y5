@@ -7,7 +7,7 @@ namespace API_BancoFisclase.Servicios
     /*
      Servicio que define las operaciones disponibles del API del banco.
 
-     Breve descripción:
+     Descripción:
      - Define métodos para autenticación, consultas de lectura y operaciones de escritura.
      - Incluye métodos para transferencias internas y externas.
      - Sirve como contrato para las implementaciones del servicio de datos.
@@ -33,6 +33,11 @@ namespace API_BancoFisclase.Servicios
         Task<IEnumerable<IDictionary<string, object>>> ObtenerCuentasPorClienteAsync(int clienteId);
         Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerClientesPaginadoAsync(int page, int pageSize, string search);
         Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerTransaccionesPaginadasAsync(int page, int pageSize, DateTime? desde, DateTime? hasta, string q);
+        Task<IEnumerable<IDictionary<string, object>>> ObtenerTransaccionesClienteAsync(int clienteId, int limit = 20);
+
+        // Métodos para dropdowns de transferencias
+        Task<IEnumerable<IDictionary<string, object>>> ObtenerTodasLasCuentasAsync();
+        Task<IEnumerable<IDictionary<string, object>>> ObtenerTodosLosClientesParaTransferenciaAsync();
 
         // Diagnósticos
         Task<IEnumerable<IDictionary<string, object>>> DiagnosticarTablasAsync();

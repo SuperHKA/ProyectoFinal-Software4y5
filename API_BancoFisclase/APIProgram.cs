@@ -1,24 +1,36 @@
 using API_BancoFisclase.Servicios;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Agregar servicios al contenedor
 builder.Services.AddControllers();
 
-// Register CORS policy (adjust origins for your clients)
+// Configuración de Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new()
+    { 
+        Title = "API Banco Fisclase", 
+        Version = "v1",
+        Description = "API REST para el sistema bancario universitario Fisclase"
+    });
+});
+
+// Registrar política CORS (ajustar orígenes para tus clientes)
 var AllowLocalhostOrigins = "_AllowLocalhostOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowLocalhostOrigins, policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000",      // <-- add this for the React dev server
+                "http://localhost:3000",      // Para el servidor de desarrollo React (EN PRUEBA)
                 "http://localhost:5202",
                 "http://localhost:5000",
                 "https://localhost:5001",
@@ -27,30 +39,34 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
-            // .AllowCredentials(); // enable if you need cookies/credentials
+            // .AllowCredentials(); // habilitar si necesitas cookies/credenciales
     });
 });
 
-// Register our Banco service (uses IConfiguration to read connection string)
-// Note: register the actual implementation type `APIServicioBanco`.
+// Registrar nuestro servicio Banco (usa IConfiguration para leer la cadena de conexión)
+// Nota: registrar el tipo de implementación real `APIServicioBanco`.
 builder.Services.AddSingleton<IServicioBanco, APIServicioBanco>();
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Global exception handling middleware (runs for all requests)
-// - In Development keep DeveloperExceptionPage for full stack traces.
-// - In non-Development use a safe JSON response and map some common exceptions.
+// Middleware global de manejo de excepciones (ejecuta para todas las solicitudes)
+// - En Desarrollo mantiene DeveloperExceptionPage para stack traces completos.
+// - En no-Desarrollo usa una respuesta JSON segura y mapea algunas excepciones comunes.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.MapOpenApi();
+    
+    // Habilitar Swagger en desarrollo
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Banco Fisclase v1");
+        c.RoutePrefix = string.Empty; // Swagger UI en la raíz: http://localhost:5202/
+    });
 }
 else
 {
-    // Keep a lightweight, explicit middleware for mapping exceptions to status codes
+    // Mantener un middleware liviano y explícito para mapear excepciones a códigos de estado
     app.Use(async (context, next) =>
     {
         try
@@ -59,10 +75,10 @@ else
         }
         catch (Exception ex)
         {
-            // Log the exception
-            app.Logger.LogError(ex, "Unhandled exception");
+            // Registrar la excepción
+            app.Logger.LogError(ex, "Excepción no manejada");
 
-            // Map common exception types to HTTP status codes
+            // Mapear tipos comunes de excepción a códigos de estado HTTP
             var statusCode = ex switch
             {
                 ArgumentException => StatusCodes.Status400BadRequest,
@@ -76,28 +92,27 @@ else
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
-            // Do not expose sensitive details in production
+            // No exponer detalles sensibles en producción
             var payload = JsonSerializer.Serialize(new
             {
                 error = statusCode == StatusCodes.Status500InternalServerError
-                    ? "An unexpected error occurred."
+                    ? "Ocurrió un error inesperado."
                     : ex.Message
             });
 
             await context.Response.WriteAsync(payload).ConfigureAwait(false);
         }
     });
-    // Optional: app.UseHsts();
 }
 
-// Enable HTTPS redirection only when an HTTPS endpoint is configured.
-// When the app is launched without an HTTPS listener (common in some dev/debug runs),
-// calling UseHttpsRedirection produces the warning: "Failed to determine the https port for redirect."
-    // We inspect configured URLs and a few common environment/config keys to decide.
-    var hasHttpsEndpoint =
-        app.Urls.Any(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-        || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT"))
-        || !string.IsNullOrEmpty(builder.Configuration["Kestrel:Endpoints:Https:Url"]);
+// Habilitar redirección HTTPS solo cuando un endpoint HTTPS esté configurado.
+// Cuando la aplicación se lanza sin un listener HTTPS (común en algunas ejecuciones dev/debug),
+// llamar UseHttpsRedirection produce la advertencia: "Falló al determinar el puerto https para redirección."
+// Inspeccionamos URLs configuradas y algunas claves comunes de entorno/config para decidir.
+var hasHttpsEndpoint =
+    app.Urls.Any(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+    || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT"))
+    || !string.IsNullOrEmpty(builder.Configuration["Kestrel:Endpoints:Https:Url"]);
 
 if (hasHttpsEndpoint)
 {
@@ -105,11 +120,11 @@ if (hasHttpsEndpoint)
 }
 else
 {
-    app.Logger.LogWarning("Skipping HTTPS redirection because no HTTPS endpoint was detected. " +
-                         "If you want HTTPS redirection enable an HTTPS URL or set ASPNETCORE_HTTPS_PORT.");
+    app.Logger.LogWarning("Omitiendo redirección HTTPS porque no se detectó un endpoint HTTPS. " +
+                         "Si quieres redirección HTTPS habilita una URL HTTPS o configura ASPNETCORE_HTTPS_PORT.");
 }
 
-// Enable CORS (must be called before authentication/authorization and before MapControllers)
+// Habilitar CORS (debe llamarse antes de authentication/authorization y antes de MapControllers)
 app.UseCors(AllowLocalhostOrigins);
 
 app.UseAuthorization();

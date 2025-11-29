@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminClients from './pages/AdminClients';
 import AdminAccounts from './pages/AdminAccounts';
+import Debug from './pages/Debug';
 
 function App() {
   // allow deploying under a subpath by using VITE_BASE_URL or default '/'
@@ -28,6 +29,16 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* Debug page */}
+          <Route
+            path="/debug"
+            element={
+              <ProtectedRoute>
+                <Debug />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Client routes */}
           <Route
@@ -78,6 +89,16 @@ function App() {
           {/* Admin routes */}
           <Route
             path="/admin"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* NEW: Admin Dashboard accessible from /admin-dashboard */}
+          <Route
+            path="/admin-dashboard"
             element={
               <ProtectedRoute requireAdmin={true}>
                 <AdminDashboard />

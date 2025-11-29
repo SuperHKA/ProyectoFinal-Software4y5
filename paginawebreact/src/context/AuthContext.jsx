@@ -126,24 +126,28 @@ export const AuthProvider = ({ children }) => {
         isAdmin = !!(u.IsAdmin ?? u.isAdmin ?? u.es_admin);
         userId = u.Id ?? u.id ?? u.usuario_id;
         clienteId = u.ClienteId ?? u.clienteId ?? u.cliente_id ?? null;
-      } else {
-        // fallback: call isAdmin endpoint
-        try {
-          isAdmin = await apiService.isAdmin(credentials.Username);
-        } catch (e) {
-          console.warn('isAdmin check failed after login, treating as non-admin', e);
-          isAdmin = false;
-        }
+      }
+
+      // ALWAYS call isAdmin endpoint to ensure we have the correct admin status
+      try {
+        const adminCheck = await apiService.isAdmin(credentials.Username);
+        isAdmin = adminCheck; // Override with server response
+      } catch (e) {
+        console.warn('isAdmin check failed after login, treating as non-admin', e);
+        isAdmin = false;
       }
 
       // If clienteId is still missing, try to resolve it by fetching clients list and matching username
-      if (clienteId == null) {
+      if (clienteId == null && !isAdmin) { // Only for non-admin users
         try {
-          const clientsRes = await apiService.getClientes();
-          const list = clientsRes?.data ?? [];
-          const match = list.find(c => (c.username ?? c.Username ?? '').toString().toLowerCase() === credentials.Username.toString().toLowerCase());
-          if (match) {
-            clienteId = match.cliente_id ?? match.ClienteId ?? match.clienteId ?? null;
+          console.log('Trying to resolve clienteId for non-admin user:', credentials.Username);
+          const clienteIdRes = await apiService.getCuentasPorUsuario(credentials.Username);
+          console.log('getCuentasPorUsuario response:', clienteIdRes);
+          
+          // This endpoint should work, but let's also try a direct approach
+          if (!clienteId && data && data.User && data.User.ClienteId) {
+            clienteId = data.User.ClienteId;
+            console.log('Using clienteId from server User data:', clienteId);
           }
         } catch (e) {
           // ignore - leave clienteId null
@@ -154,6 +158,9 @@ export const AuthProvider = ({ children }) => {
       const userInfo = { username: credentials.Username.trim(), isAdmin, id: userId, clienteId };
       setUser(userInfo);
       try { localStorage.setItem('user', JSON.stringify(userInfo)); } catch { }
+
+      // Debug logging
+      console.log('Login successful:', { userInfo, serverData: data });
 
       // if API returned a token include it
       if (data && (data.token || data.Token)) {

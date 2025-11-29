@@ -11,7 +11,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
     {
         private ServicioBancoApi servicioBanco;
         // Use the API scheme+port the server actually exposes (HTTP on 5202 per your logs)
-        private readonly ApiCliente _apiCliente = new ApiCliente("http://localhost:5202"); // use your API URL
+        private readonly ApiAdmin _apiCliente = new ApiAdmin("http://localhost:5202"); // use your API URL
 
         public FormLogin()
         {
