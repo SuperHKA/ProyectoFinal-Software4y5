@@ -1,0 +1,622 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
+/* ==================== RESET Y BASE ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f5f7fa;
+    color: #1c253d;
+    line-height: 1.6;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c5bcd;
+    font-weight: bold;
+}
+
+.user-info:hover {
+    background-color: rgba(220, 220, 220, 0.18); /* Oscurece el fondo cuando se pasa el ratón */
+}
+
+a {
+    text-decoration: none; /* Elimina el subrayado */
+    color: inherit; /* Mantiene el color del texto original */
+}
+
+
+/* ==================== DASHBOARD CONTAINER ==================== */
+.dashboard-container {
+    display: flex;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 100px auto 40px;
+    padding: 0 20px;
+    min-height: calc(100vh - 200px);
+}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 120px;
+}
+
+.sidebar h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #555;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.sidebar-menu a:hover {
+    background-color: #e8e5f5;
+    color: #6c5bcd;
+}
+
+.sidebar-menu a.active {
+    background-color: #6c5bcd;
+    color: white;
+}
+
+.sidebar-menu i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* ==================== ÁREA DE CONTENIDO ==================== */
+.content-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.content-area h1 {
+    font-weight: 700;
+    font-size: 32px;
+    margin: 0 0 30px 0;
+    text-align: center;
+    color: #1c253d;
+}
+
+/* ==================== RESUMEN DEL MES ==================== */
+.resumen-mes {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.resumen-mes h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1c253d;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.resumen-mes h2 i {
+    color: #6c5bcd;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.saldo-actual {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.stat-card.ingresos {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.stat-card.egresos {
+    background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+}
+
+.stat-card.transacciones {
+    background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    font-weight: 400;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* ==================== TARJETA DE CUENTA ==================== */
+.seccion-tarjeta {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tarjeta-cuenta {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 30px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(108, 91, 205, 0.3);
+}
+
+.tarjeta-header {
+    margin-bottom: 25px;
+}
+
+.nom-cuenta {
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.num-cuenta {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.saldo-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.saldo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.titulo {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.saldo {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* ==================== ÚLTIMAS TRANSACCIONES ==================== */
+.seccion-transacciones {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-transacciones h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1c253d;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.seccion-transacciones h2 i {
+    color: #6c5bcd;
+}
+
+.transacciones-lista {
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.transaccion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.transaccion-item:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.transaccion-item:last-child {
+    border-bottom: none;
+}
+
+.transaccion-info {
+    flex: 1;
+}
+
+.merchant {
+    font-weight: 600;
+    font-size: 16px;
+    color: #1c253d;
+    margin-bottom: 4px;
+}
+
+.fecha {
+    font-size: 14px;
+    color: #666;
+}
+
+.monto {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.monto.positivo {
+    color: #4CAF50;
+}
+
+.monto.negativo {
+    color: #ff6b6b;
+}
+
+/* ==================== HISTORIAL GENERAL ==================== */
+.seccion-historial {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-historial h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1c253d;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.seccion-historial h2 i {
+    color: #6c5bcd;
+}
+
+.tabla-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.historial-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.historial-tabla thead {
+    background-color: #6c5bcd;
+    color: white;
+}
+
+.historial-tabla th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.historial-tabla td {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+}
+
+.historial-tabla tbody tr {
+    transition: all 0.2s ease;
+}
+
+.historial-tabla tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.historial-tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.monto-positivo {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.monto-negativo {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+.btn-ver-mas {
+    padding: 12px 30px;
+    background-color: #ff0099;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-ver-mas:hover {
+    background-color: #e0008a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 0, 153, 0.3);
+}
+
+/* ==================== GRÁFICO ==================== */
+.seccion-grafico {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-grafico h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1c253d;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.seccion-grafico h2 i {
+    color: #6c5bcd;
+}
+
+#graficoTransacciones {
+    max-height: 400px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablets (hasta 1024px) */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px;
+        min-width: 240px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-area h1 {
+        font-size: 28px;
+    }
+}
+
+/* Tablets pequeñas (hasta 768px) */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+        padding: 0 15px;
+        margin-top: 80px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+        margin-bottom: 20px;
+    }
+
+    .sidebar-menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 0;
+    }
+
+    .content-area h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .saldo-info {
+        grid-template-columns: 1fr;
+    }
+
+    .saldo {
+        font-size: 28px;
+    }
+}
+
+/* Móviles (hasta 480px) */
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 0 10px;
+        margin-top: 70px;
+    }
+
+    .sidebar {
+        padding: 15px;
+    }
+
+    .sidebar-menu {
+        grid-template-columns: 1fr;
+    }
+
+    .content-area h1 {
+        font-size: 22px;
+        margin-bottom: 15px;
+    }
+
+    .resumen-mes,
+    .seccion-tarjeta,
+    .seccion-transacciones,
+    .seccion-historial,
+    .seccion-grafico {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .resumen-mes h2,
+    .seccion-transacciones h2,
+    .seccion-historial h2,
+    .seccion-grafico h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .tarjeta-cuenta {
+        padding: 20px;
+    }
+
+    .nom-cuenta {
+        font-size: 18px;
+    }
+
+    .num-cuenta {
+        font-size: 14px;
+    }
+
+    .saldo {
+        font-size: 24px;
+    }
+
+    .transaccion-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .monto {
+        align-self: flex-end;
+        font-size: 18px;
+    }
+
+    .historial-tabla {
+        font-size: 12px;
+    }
+
+    .historial-tabla th,
+    .historial-tabla td {
+        padding: 10px 8px;
+    }
+
+    .btn-ver-mas {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+/* Móviles muy pequeños (hasta 360px) */
+@media (max-width: 360px) {
+    .content-area h1 {
+        font-size: 20px;
+    }
+
+    .resumen-mes h2,
+    .seccion-transacciones h2,
+    .seccion-historial h2,
+    .seccion-grafico h2 {
+        font-size: 16px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .nom-cuenta {
+        font-size: 16px;
+    }
+
+    .saldo {
+        font-size: 20px;
+    }
+
+    .merchant {
+        font-size: 14px;
+    }
+
+    .monto {
+        font-size: 16px;
+    }
+}
