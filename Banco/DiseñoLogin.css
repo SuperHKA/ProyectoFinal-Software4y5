@@ -1,262 +1,109 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap");
 
 html, body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    min-height: 100vh;
+
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-body {
+
+body{
     font-family: "Poppins", sans-serif;
     box-sizing: border-box;
 }
 
-
-
-/* Asegurar que el header no deje espacio blanco */
-.site-header {
-    position: relative;
-    z-index: 100;
-    margin: 0;
-
-}
-
-/* Contenedor principal que mantiene todo junto */
-.login-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-    margin-top: 0;
-}
-
-/* Sección izquierda - Formulario de login */
-.form-container {
-    width: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    background-color: #f9f9f9;
-    flex-shrink: 0;
-}
-
-.inicio {
-    width: 100%;
-    max-width: 450px;
-    padding: 40px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.inicio h1 {
+.inicio h1{
     font-family: "Poppins", sans-serif;
     font-weight: bold;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    margin: 0 0 10px 0;
-    color: #333;
-    text-align: center;
+    margin: 0;
+    transform: translate(150px, -50px);
 }
 
-.inicio > p {
-    text-align: center;
-    color: #666;
-    margin: 0 0 30px 0;
-    font-size: clamp(0.9rem, 1.5vw, 1rem);
-}
-
-.inicio form {
+.fondo{
     width: 100%;
+    display: flex;
+    justify-content: left; /* Centra las tarjetas horizontalmente */
+    margin: 10px 0;
 }
 
+.inicio{
+    transform: translate(80px, -40px);
+    margin: 201px 0px;
+}
 .inicio input {
-    background: #f4f4f4;
-    border: 1px solid #ddd;
-    padding: 15px 20px;
-    margin: 10px 0;
+
+    background: #eee;
+    border: none;
+    padding: 17px 15px;
+    margin: 18px;
     width: 100%;
     border-radius: 20px;
-    box-sizing: border-box;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
 }
 
-.inicio input:focus {
-    outline: none;
-    border-color: #ff0099;
+.inicio p{
+    margin: 20px 100px;
 }
 
-.inicio form > p {
-    margin: 15px 0;
-    text-align: center;
-}
 
-.inicio form > p a {
-    color: #ff0099;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-.inicio form > p a:hover {
-    color: #cc0077;
-    text-decoration: underline;
-}
-
-.inicio button[type="submit"] {
-    margin: 20px 0 0 0;
-    width: 100%;
+.inicio button{
+    margin: 20px 100px;
+    width: 300px;
     height: 50px;
-    border: none;
+    border: #1c253d solid 1px;
     border-radius: 25px;
     font-weight: bold;
     background-color: #ff0099;
     cursor: pointer;
     color: white;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
 }
 
-.inicio button[type="submit"]:hover {
-    background-color: #cc0077;
-}
-
-/* Sección derecha - Info y cuadro morado */
+/* Contenedor principal que abarcará todo el alto */
 .cont-cuadro {
-    position: relative;
+    position: fixed; /* Fija el cuadro en la pantalla */
+    top: 0;
+    right: 0;
     width: 50%;
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    height: 100vh;
+    overflow: hidden; /* Evita que el contenido dentro del cuadro se desplace */
 }
 
-.cuadro {
-    background-color: #6c5bcc;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
+
+
 
 .login-left {
-    position: relative;
-    z-index: 2;
-    color: white;
-    padding: 40px;
+    position: absolute;
+    transform: translate(880px ,10px); /* Centra de forma precisa */
+    z-index: 999; /* Asegura que esté sobre el cuadro */
+    color: white; /* Texto blanco */
+    padding: 20px; /* Espaciado interno */
     text-align: center;
-    max-width: 500px;
-}
-
-.login-left .logo {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    margin-bottom: 20px;
+    background: #6c5bcc;
+    height: 820px;
+    width: 6000px;
 }
 
 .login-left h2 {
     font-weight: bold;
-    font-size: clamp(1.2rem, 2vw, 1.8rem);
-    margin: 20px 0;
+    transform: translate(-2700px ,70px);
 }
 
 .login-left p {
-    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-    line-height: 1.6;
-    margin: 10px 0;
+    font-size: 18px;
+    transform: translate(-2700px ,100px);
 }
 
-.login-left .botom-info {
-    margin-top: 40px;
+.login-left .logo {
+    width: 400px;
+    height: 100px;
+    transform: translate(-2700px ,60px);
 }
 
 .Registrar {
     color: white;
-    width: 100%;
-    max-width: 300px;
+    width: 300px;
     height: 50px;
     background: none;
-    border: #ffffff solid 2px;
+    border: #ffffff solid 1px;
     border-radius: 25px;
     font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 20px;
-}
-
-.Registrar:hover {
-    background-color: white;
-    color: #6c5bcc;
-}
-
-/* Responsivo para tablets */
-@media screen and (max-width: 1024px) {
-    .login-left {
-        padding: 30px 20px;
-    }
-
-    .inicio {
-        padding: 30px 25px;
-        max-width: 400px;
-    }
-}
-
-/* Responsivo para móviles */
-@media screen and (max-width: 768px) {
-    .login-container {
-        flex-direction: column;
-    }
-
-    .form-container {
-        width: 100%;
-        padding: 30px 15px;
-        order: 2;
-    }
-
-    .cont-cuadro {
-        width: 100%;
-        min-height: 400px;
-        order: 1;
-    }
-
-    .login-left {
-        padding: 30px 20px;
-    }
-
-    .login-left .logo {
-        max-width: 250px;
-    }
-
-    .Registrar {
-        max-width: 250px;
-    }
-
-    .inicio {
-        padding: 30px 20px;
-        max-width: 100%;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .login-left {
-        padding: 20px 15px;
-    }
-
-    .inicio {
-        padding: 25px 15px;
-    }
-
-    .inicio h1 {
-        font-size: 1.5rem;
-    }
-
-    .inicio button[type="submit"] {
-        height: 45px;
-        font-size: 15px;
-    }
+    transform: translate(-2700px ,120px);
 }

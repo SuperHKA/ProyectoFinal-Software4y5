@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FisClase - Construimos tu futuro</title>
+    <title>FisClase - Notificaciones</title>
     <link rel="stylesheet" href="Diseño.css">
     <link rel="stylesheet" href="NotificacionDiseño.css">
     <script src="Opciones.js"></script>
@@ -39,6 +39,14 @@
 <div id="cuadro-opciones" class="opciones" >
     <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
     <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
+</div>
+
+<!-- Botón de Regresar -->
+<div class="back-button-container">
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Regresar
+    </button>
 </div>
 
 <h1>Notificaciones</h1>
@@ -80,8 +88,6 @@
 
 
 
-
-
 <footer>
     <div class="link_footer">
         <ul>
@@ -93,6 +99,18 @@
         </ul>
     </div>
 </footer>
+
+<script>
+    // Función para regresar a la página anterior
+    function goBack() {
+        // Intenta regresar al dashboard, si no existe, regresa a la página principal
+        if (document.referrer.includes('dashboard') || document.referrer.includes('Login')) {
+            window.location.href = 'dashboard.html';
+        } else {
+            window.history.back();
+        }
+    }
+</script>
 
 </body>
 </html>

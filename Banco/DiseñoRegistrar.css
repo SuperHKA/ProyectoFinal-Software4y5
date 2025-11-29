@@ -1,174 +1,75 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap");
 
-
 html, body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    min-height: 100vh;
+
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-body {
+
+
+
+body{
     font-family: "Poppins", sans-serif;
     box-sizing: border-box;
+    padding-top: 0;
 }
 
-/* Asegurar que el header no deje espacio blanco */
-.site-header {
-    position: relative;
-    z-index: 100;
-    margin: 0;
-}
 
-/* Contenedor principal que mantiene todo junto */
-.register-container {
-    display: flex;
-    min-height: 100vh;
-    position: relative;
-    margin-top: 0; /* Sin espacio entre header y contenido */
-}
-
-/* Sección izquierda - Info y cuadro rosa */
-.cont-cuadro {
-    position: relative;
-    width: 50%;
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0; /* Evita que se encoja */
-}
-
-.cuadro {
-    background-color: #6c5bcc;
-    width: 100%;
-    height: 115%;
-    position: absolute;
-    top:-15%;
-    left: 0;
-
-}
-
-.login-left {
-    position: relative;
-    z-index: 2;
-    color: white;
-    padding: 40px;
-    text-align: center;
-    max-width: 500px;
-}
-
-.login-left .logo {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    margin-bottom: 20px;
-}
-
-.login-left h2 {
-    font-weight: bold;
-    font-size: clamp(1.2rem, 2vw, 1.8rem);
-    margin: 20px 0;
-}
-
-.login-left p {
-    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-    line-height: 1.6;
-    margin: 10px 0;
-}
-
-.Registrar {
-    color: white;
-    width: 100%;
-    max-width: 300px;
-    height: 50px;
-    background: none;
-    border: #ffffff solid 2px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 20px;
-}
-
-.Registrar:hover {
-    background-color: white;
-    color: #ff0099;
-}
-
-/* Sección derecha - Formulario */
-.form-container {
-    width: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    background-color: #f9f9f9;
-    flex-shrink: 0; /* Evita que se encoja */
-}
 
 .inicio {
     width: 100%;
-    max-width: 600px;
-    padding: 40px 30px;
+    max-width: 720px;
+    padding: 24px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+
+    position: absolute; /* Se mueve con el contenido */
+    top: 20%; /* Ajusta la posición según lo necesites */
+    left: 50%;
+    transform: translateX(-10%); /* Centrado horizontal */
+    z-index: 999;
 }
 
 .inicio h1 {
     font-family: "Poppins", sans-serif;
     font-weight: bold;
     text-align: center;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    margin-bottom: 30px;
-    color: #333;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px 24px;
-    margin-bottom: 20px;
+.inicio label {
+    font-weight: bold;
+    display: block;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label,
-.form-full label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 14px;
-}
-
-.form-group input,
-.form-full input {
+.inicio input {
     background: #f4f4f4;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     padding: 12px 15px;
     width: 100%;
     border-radius: 8px;
     box-sizing: border-box;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
 }
 
-.form-group input:focus,
-.form-full input:focus {
-    outline: none;
-    border-color: #6c5bcc;
+.inicio button{
+    margin-top: 20px;
 }
 
-.form-full {
-    margin-bottom: 20px;
+/* Grid for two columns */
+.form-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 30px;
 }
 
-.inicio button[type="submit"] {
+
+
+
+
+
+
+
+.inicio button {
     width: 100%;
     padding: 15px;
     background-color: #ff0099;
@@ -178,78 +79,62 @@ body {
     font-weight: bold;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
 }
 
-.inicio button[type="submit"]:hover {
-    background-color: #cc0077;
+
+
+
+.cont-cuadro {
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100vh;
 }
 
-/* Responsivo para tablets */
-@media screen and (max-width: 1024px) {
-    .login-left {
-        padding: 30px 20px;
-    }
+/* Cuadro que tendrá color y ocupa toda la altura */
+.cuadro {
+    background-color: #ff0099; /* Color de fondo */
+    width: 80%;
+    height: 100%; /* Ocupa toda la altura del contenedor */
 
-    .inicio {
-        padding: 30px 20px;
-    }
-
-    .form-grid {
-        gap: 16px 20px;
-    }
 }
 
-/* Responsivo para móviles */
-@media screen and (max-width: 768px) {
-    .register-container {
-        flex-direction: column;
-        margin-top: 60px;
-    }
+.login-left{
 
-    .cont-cuadro {
-        width: 100%;
-        min-height: 400px;
-    }
-
-    .login-left {
-        padding: 30px 20px;
-    }
-
-    .login-left .logo {
-        max-width: 250px;
-    }
-
-    .Registrar {
-        max-width: 250px;
-    }
-
-    .form-container {
-        width: 100%;
-        padding: 30px 15px;
-    }
-
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .inicio {
-        padding: 30px 20px;
-    }
+    z-index: 1;
 }
 
-@media screen and (max-width: 480px) {
-    .login-left {
-        padding: 20px 15px;
-    }
-
-    .inicio {
-        padding: 25px 15px;
-    }
-
-    .inicio h1 {
-        font-size: 1.5rem;
-    }
+.login-left {
+    position: absolute;
+    transform: translate(30px ,80px); /* Centra de forma precisa */
+    z-index: 2; /* Asegura que esté sobre el cuadro */
+    color: white; /* Texto blanco */
+    padding: 20px; /* Espaciado interno */
+    text-align: center;
 }
+
+.login-left h2{
+    font-weight: bold;
+}
+
+.login-left p{
+    font-size: 18px;
+}
+
+.login-left .logo{
+    width: 400px;
+    height: 100px;
+}
+
+.Registrar{
+    color: white;
+    width: 300px;
+    height: 50px;
+    background: none;
+    border: #ffffff solid 1px;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+
+
