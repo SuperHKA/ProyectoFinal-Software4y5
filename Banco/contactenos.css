@@ -1,32 +1,6 @@
-/*Modificar el encabezado*/
 
-.site-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #6c5bcd;
-    padding: 1px 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
 
-.header-content{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-}
 
-.site-header .Titulo{
-    width: auto;
-    height: 48px;
-    margin: 0;
-}
 
 /* Estilos para el menú de navegación */
 .main-nav {

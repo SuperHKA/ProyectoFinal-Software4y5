@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FisClase - Construimos tu futuro</title>
     <link rel="stylesheet" href="Diseño.css">
     <link rel="stylesheet" href="DiseñoLogin.css">
     <script src="Opciones.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
 <header class="site-header">
@@ -15,7 +15,6 @@
         <img class="Titulo" src="src/noname-cutout.png" alt="Descripción de la imagen">
     </div>
 
-    <!-- Menú de navegación agregado aquí -->
     <nav class="main-nav">
         <ul>
             <li><a href="Pagina_Principal.html">Inicio</a></li>
@@ -35,41 +34,39 @@
     </div>
 </header>
 
-
-<div id="cuadro-opciones" class="opciones" >
+<div id="cuadro-opciones" class="opciones">
     <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
     <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
 </div>
 
-<div class="fondo">
-<div class="inicio">
-    <h1>Iniciar Sesión</h1>
-    <p>Ingresa tus credenciales para continuar</p>
-    <form action="/login" method="POST">
-        <input type="email" id="email" placeholder="Email" required>
-        <br>
+<!-- Contenedor principal que mantiene todo junto -->
+<div class="login-container">
+    <!-- Sección izquierda con formulario de login -->
+    <div class="form-container">
+        <div class="inicio">
+            <h1>Iniciar Sesión</h1>
+            <p>Ingresa tus credenciales para continuar</p>
+            <form action="/login" method="POST">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <p><a href="URL_DE_RECUPERACION_DE_CONTRASEÑA">¿Olvidaste tu contraseña? Recuperar</a></p>
+                <button type="submit" onclick="window.location.href='dashboard.html'">Iniciar Sesión </button>
+            </form>
+        </div>
+    </div>
 
-        <input type="password" id="password" placeholder="Password" required>
-
-        <br>
-        <p><a href="URL_DE_RECUPERACION_DE_CONTRASEÑA">Olvidaste tu contraseña? Recuperar</a></p>
-        <button type="submit">Iniciar Sesión</button>
-    </form>
-</div>
-</div>
-
-<div class="login-left">
-    <img class="logo" src="src/noname-cutout.png" alt="Descripción de la imagen">
-    <h2>Sistema de Administración Bancaria</h2>
-    <p>Gestiona todas las operaciones de tu institución <br>financiera desde un solo lugar, seguro, rápido y confiable.</p>
-    <br>
-    <h2 class="botom-info">Crear Cuenta</h2>
-    <br>
-    <button type="button" class="Registrar" onclick="moverLoginIzquierda()">Ingresar</button>
-</div>
-
-<div class="cont-cuadro">
-    <div class="cuadro"></div>
+    <!-- Sección derecha con cuadro morado e información -->
+    <div class="cont-cuadro">
+        <div class="cuadro"></div>
+        <div class="login-left">
+            <img class="logo" src="src/noname-cutout.png" alt="Descripción de la imagen">
+            <h2>Sistema de Administración Bancaria</h2>
+            <p>Gestiona todas las operaciones de tu institución</p>
+            <p>financiera desde un solo lugar, seguro, rápido y confiable.</p>
+            <h2 class="botom-info">¿No tienes cuenta?</h2>
+            <button type="button" class="Registrar" onclick="window.location.href='dashboard.html'">Crear Cuenta</button>
+        </div>
+    </div>
 </div>
 
 <footer>

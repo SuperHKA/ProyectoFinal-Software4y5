@@ -1,63 +1,9 @@
-/*Modificar el encabezado*/
-
-.site-header{
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #6c5bcd;
-    padding: 1px 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-
-.header-content{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-}
-
-.site-header .Titulo{
-    width: auto;
-    height: 48px;
-    margin: 0;
-}
-
-/* Estilos para el menú de navegación */
-.main-nav {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.main-nav ul {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 30px;
-}
-
-.main-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 8px 16px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
 /* Estilos para la sección Quienes Somos */
+
 .quienes-somos-section {
-    background: linear-gradient(135deg, #6c5bcd 0%, #3632ff 100%);
+    background-color: #6c5bcd;
     padding: 80px 20px;
-    margin: 40px 0;
+    height: 100%;
     color: white;
     font-family: Arial, sans-serif;
 }
@@ -105,15 +51,15 @@
 }
 
 .mision, .vision {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255, 255, 255);
     padding: 25px;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255, 0, 153);
 }
 
 .mision h4, .vision h4 {
-    color: #fff;
+    color: #000000;
     font-size: 20px;
     margin-bottom: 15px;
     display: flex;
@@ -126,18 +72,19 @@
     font-size: 16px;
     line-height: 1.5;
     margin: 0;
+    color: black;
 }
 
 .valores {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255, 255, 255);
     padding: 25px;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255, 0, 153);
 }
 
 .valores h4 {
-    color: #fff;
+    color: #000000;
     font-size: 20px;
     margin-bottom: 15px;
     display: flex;
@@ -150,21 +97,26 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    color: #000000;
+
 }
 
 .valores li {
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgb(0, 0, 0);
     font-size: 16px;
     line-height: 1.5;
+
 }
 
 .valores li:last-child {
     border-bottom: none;
+    color: #000000;
+
 }
 
 .valores strong {
-    color: #fff;
+    color: #000000;
 }
 
 .quienes-somos-image {

@@ -1,145 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FisClase - Construimos tu futuro</title>
+    <title>Historial - FisClase</title>
     <link rel="stylesheet" href="Diseño.css">
     <link rel="stylesheet" href="HistorialDiseño.css">
-    <script src="Opciones.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
 <header class="site-header">
     <div class="container logo">
-        <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
+        <img class="Titulo" src="src/noname-cutout.png" alt="Logo FisClase">
     </div>
-    
-    <!-- Menú de navegación agregado aquí -->
+
     <nav class="main-nav">
         <ul>
             <li><a href="Pagina_Principal.html">Inicio</a></li>
-            <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
-            <li><a href="contactenos.html">Contactenos</a></li>
+            <li><a href="quienes-somos.html">¿Quiénes Somos?</a></li>
+            <li><a href="contactenos.html">Contáctenos</a></li>
         </ul>
     </nav>
-    
-    <div class="header-content">
-        <div class="boton_cuenta">
-            <form action="">
-                <button type="button" class="cuenta" onclick="aparecerCuadro()">
-                    <p class="fount_cuenta">Cuenta</p>
-                </button>
-            </form>
+    <a href="Profile.html">
+        <div class="user-info">
+            <div class="user-avatar">JS</div>
+            <span>Juan Sánchez</span>
         </div>
-    </div>
+    </a>
+
 </header>
- 
-
-<div id="cuadro-opciones" class="opciones" >
-    <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
-    <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
-</div>
-
-<h1>Historial de Transacciones Bancarias</h1>
-
-<!-- Muestra el saldo total -->
 
 
-<div class="fondo">
-    <div class="tarjeta">
-        <p class="nom-cuenta">Cuenta de Ricardo Perez</p>
-        <p class="num-Cuenta">12345678</p>
-        <p class="titulo">Saldo Total :</p>
+<div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h3>Menú Principal</h3>
+        <ul class="sidebar-menu">
+            <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
+            <li><a href="dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+            <li><a href="notificaciones.html"><i class="fas fa-bell"></i>Notificaciones</a></li>
+            <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i>Transacciones</a></li>
+            <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i>Transferencias</a></li>
+            <li><a href="Historial.html" class="active"><i class="fas fa-history"></i>Historial</a></li>
+            <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</a></li>
+        </ul>
+    </aside>
 
-        <p class="saldo"><span id="saldoTotal">1,500.00 USD</span></p>
-        <p class="titulo2">Saldo Disponible :</p>
-        <p class="saldo2"><span id="saldoDisponible">1,000.00 USD</span></p>
+    <!-- ÁREA DE CONTENIDO -->
+    <main class="content-area">
+        <h1>Historial de Transacciones Bancarias</h1>
 
-        <div class="parte-inferior"></div>
-
-    </div>
-</div>
-
-<div class="fondo">
-    <h2> Ultimas transacciones</h2>
-    <div class="contener">
-        <div class="item">
-            <div class="info">
-                <div class="merchant">Tienda ABC</div>
-                <div class="date">2025-11-05</div>
+        <!-- RESUMEN DEL MES -->
+        <section class="resumen-mes">
+            <h2><i class="fas fa-chart-line"></i> Resumen del Mes - Noviembre 2025</h2>
+            <div class="stats-grid">
+                <div class="stat-card saldo-actual">
+                    <div class="stat-label">Saldo Actual</div>
+                    <div class="stat-value">$1,500.00</div>
+                </div>
+                <div class="stat-card ingresos">
+                    <div class="stat-label">Ingresos del Mes</div>
+                    <div class="stat-value">+$2,300.00</div>
+                </div>
+                <div class="stat-card egresos">
+                    <div class="stat-label">Egresos del Mes</div>
+                    <div class="stat-value">-$800.00</div>
+                </div>
+                <div class="stat-card transacciones">
+                    <div class="stat-label">Total Transacciones</div>
+                    <div class="stat-value">15</div>
+                </div>
             </div>
-            <div class="amount">-200.00 USD</div>
-        </div>
-        <div class="item">
-            <div class="info">
-                <div class="merchant">Cafetería XYZ</div>
-                <div class="date">2025-11-10</div>
+        </section>
+
+        <!-- TARJETA DE SALDO -->
+        <section class="seccion-tarjeta">
+            <div class="tarjeta-cuenta">
+                <div class="tarjeta-header">
+                    <h3 class="nom-cuenta">Cuenta de Ricardo Pérez</h3>
+                    <p class="num-cuenta">12345678</p>
+                </div>
+                <div class="saldo-info">
+                    <div class="saldo-item">
+                        <span class="titulo">Saldo Total:</span>
+                        <span class="saldo">1,500.00 USD</span>
+                    </div>
+                    <div class="saldo-item">
+                        <span class="titulo">Saldo Disponible:</span>
+                        <span class="saldo">1,000.00 USD</span>
+                    </div>
+                </div>
             </div>
-            <div class="amount">-5.50 USD</div>
-        </div>
-        <div class="item">
-            <div class="info">
-                <div class="merchant">Supermercado 24/7</div>
-                <div class="date">2025-11-15</div>
+        </section>
+
+        <!-- ÚLTIMAS TRANSACCIONES -->
+        <section class="seccion-transacciones">
+            <h2><i class="fas fa-clock"></i> Últimas Transacciones</h2>
+            <div class="transacciones-lista">
+                <div class="transaccion-item">
+                    <div class="transaccion-info">
+                        <div class="merchant">Tienda ABC</div>
+                        <div class="fecha">2025-11-05</div>
+                    </div>
+                    <div class="monto negativo">-200.00 USD</div>
+                </div>
+                <div class="transaccion-item">
+                    <div class="transaccion-info">
+                        <div class="merchant">Depósito de Nómina</div>
+                        <div class="fecha">2025-11-01</div>
+                    </div>
+                    <div class="monto positivo">+1,500.00 USD</div>
+                </div>
+                <div class="transaccion-item">
+                    <div class="transaccion-info">
+                        <div class="merchant">Cafetería XYZ</div>
+                        <div class="fecha">2025-11-10</div>
+                    </div>
+                    <div class="monto negativo">-5.50 USD</div>
+                </div>
+                <div class="transaccion-item">
+                    <div class="transaccion-info">
+                        <div class="merchant">Supermercado 24/7</div>
+                        <div class="fecha">2025-11-15</div>
+                    </div>
+                    <div class="monto negativo">-42.30 USD</div>
+                </div>
             </div>
-            <div class="amount">-42.30 USD</div>
-        </div>
-    </div>
+        </section>
+
+        <!-- HISTORIAL GENERAL -->
+        <section class="seccion-historial">
+            <h2><i class="fas fa-list"></i> Historial General</h2>
+            <div class="tabla-wrapper">
+                <table class="historial-tabla">
+                    <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Monto</th>
+                        <th>Saldo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>2025-11-01</td>
+                        <td>Depósito de sueldo</td>
+                        <td class="monto-positivo">+1,500.00 USD</td>
+                        <td>1,500.00 USD</td>
+                    </tr>
+                    <tr>
+                        <td>2025-11-05</td>
+                        <td>Compra en tienda</td>
+                        <td class="monto-negativo">-200.00 USD</td>
+                        <td>1,300.00 USD</td>
+                    </tr>
+                    <tr>
+                        <td>2025-11-10</td>
+                        <td>Transferencia a cuenta externa</td>
+                        <td class="monto-negativo">-500.00 USD</td>
+                        <td>800.00 USD</td>
+                    </tr>
+                    <tr>
+                        <td>2025-11-15</td>
+                        <td>Pago de factura</td>
+                        <td class="monto-negativo">-100.00 USD</td>
+                        <td>700.00 USD</td>
+                    </tr>
+                    <tr>
+                        <td>2025-11-18</td>
+                        <td>Depósito ATM</td>
+                        <td class="monto-positivo">+800.00 USD</td>
+                        <td>1,500.00 USD</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-ver-mas">Ver más</button>
+        </section>
+
+
+    </main>
 </div>
-
-<div class="fondo">
-    <h2>Historial General</h2>
-<table class="historial-bancario">
-    <thead class="tabla-cabecera">
-    <tr class="encabezado">
-        <th>Fecha</th>
-        <th>Descripción</th>
-        <th>Monto</th>
-        <th>Saldo</th>
-    </tr>
-    </thead>
-    <tbody class="tabla-cuerpo">
-    <tr class="transaccion">
-        <td>2025-11-01</td>
-        <td>Depósito de sueldo</td>
-        <td>1,500.00 USD</td>
-        <td>1,500.00 USD</td>
-    </tr>
-    <tr class="transaccion">
-        <td>2025-11-05</td>
-        <td>Compra en tienda</td>
-        <td>-200.00 USD</td>
-        <td>1,300.00 USD</td>
-    </tr>
-    <tr class="transaccion">
-        <td>2025-11-10</td>
-        <td>Transferencia a cuenta externa</td>
-        <td>-500.00 USD</td>
-        <td>800.00 USD</td>
-    </tr>
-    <tr class="transaccion">
-        <td >2025-11-15</td>
-        <td>Pago de factura</td>
-        <td >-100.00 USD</td>
-        <td >700.00 USD</td>
-    </tr>
-    </tbody>
-
-</table>
-    <br>
-    <button type="button" class="mas" onclick="window.location.href='Register.html'">Ver mas</button>
-</div>
-
-
-
-
-<!-- Gráfico -->
-<div class="grafico">
-    <canvas id="graficoTransacciones"></canvas>
-</div>
-
-
 
 <footer>
     <div class="link_footer">
@@ -147,11 +188,13 @@
             <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
             <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
             <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
-            <li><a href="https://www.X.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+            <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
             <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
         </ul>
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="Opciones.js"></script>
 </body>
 </html>
