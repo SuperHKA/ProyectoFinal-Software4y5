@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;1,300&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: #f5f5f5;
+}
+
+
+
+
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c5bcd;
+    font-weight: bold;
+}
+
+.user-info:hover {
+    background-color: rgba(220, 220, 220, 0.18); /* Oscurece el fondo cuando se pasa el ratón */
+}
+
+a {
+    text-decoration: none; /* Elimina el subrayado */
+    color: inherit; /* Mantiene el color del texto original */
+}
+
+
+/* ==================== DASHBOARD CONTAINER ==================== */
+.dashboard-container {
+    margin-top: 90px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar {
+    width: 250px;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    height: fit-content;
+    position: sticky;
+    top: 110px;
+}
+
+.sidebar h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #555;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.sidebar-menu a:hover {
+    background-color: #e8e5f5;
+    color: #6c5bcd;
+}
+
+.sidebar-menu a.active {
+    background-color: #6c5bcd;
+    color: white;
+}
+
+.sidebar-menu i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+    flex: 1;
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* ==================== NOTIFICACIONES ==================== */
+.notificaciones-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notificacion1, .notificacion2, .notificacion3 {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.notificacion1:hover, .notificacion2:hover, .notificacion3:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Notificación de advertencia (amarillo) */
+.notificacion1 {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffcc00;
+}
+
+/* Notificación de error/urgente (rojo) */
+.notificacion2 {
+    background-color: #f8d7da;
+    border-left: 4px solid #da616b;
+}
+
+/* Notificación de éxito (verde) */
+.notificacion3 {
+    background-color: #d4edda;
+    border-left: 4px solid #8de379;
+}
+
+.titulo {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.mensaje {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+        margin-top: 70px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        margin-bottom: 20px;
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .site-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px 20px;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .notificacion1, .notificacion2, .notificacion3 {
+        padding: 15px;
+    }
+
+    .opciones {
+        right: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .notificacion1, .notificacion2, .notificacion3 {
+        padding: 12px;
+    }
+
+    .titulo {
+        font-size: 14px;
+    }
+
+    .mensaje {
+        font-size: 13px;
+    }
+
+    .sidebar-menu a {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+}
+
+
+

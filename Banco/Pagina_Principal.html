@@ -2,15 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>FisClase - Construimos tu futuro</title>
     <link rel="stylesheet" href="Diseño.css">
     <script src="Opciones.js"></script>
+    <script src="ModoOscuro.js"defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <header class="site-header">
     <div class="container logo">
         <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
     </div>
+
+    <!-- Menú de navegación agregado aquí -->
+    <nav class="main-nav">
+        <ul>
+            <li><a href="Pagina_Principal.html">Inicio</a></li>
+            <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
+            <li><a href="contactenos.html">Contactenos</a></li>
+        </ul>
+    </nav>
+
     <div class="header-content">
         <div class="boton_cuenta">
             <form action="">
@@ -19,10 +32,9 @@
                 </button>
             </form>
         </div>
-       
     </div>
 </header>
- 
+
 <!-- Sección de presentación: imagen bajo el header -->
 <section class="presentacion">
     <img src="src/dinero-en-su-banco.jpg" alt="Dinero en su banco" class="imagen-presentacion">
@@ -34,12 +46,8 @@
 </section>
 
 <div id="cuadro-opciones" class="opciones" >
-    <ul>
-        <li><a href="#">Iniciar sesión</a></li>
-        <li><a href="#">Registrarse</a></li>
-        <li><a href="#">Otras opciones</a></li>
-    </ul>
-</div>
+    <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
+    <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
 </div>
 
 
@@ -84,22 +92,53 @@
 
 <div class="Video">
     <h2 class="title-cont">Ahorra para el futuro</h2>
-    <video width="854" height="480" controls autoplay loop>
+    <video width="854" height="480" controls autoplay loop muted>
         <source src="src\La importancia del ahorro.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
 
     </video>
 </div>
 
+<H2 class="info-data-container">
+    Nuestro banco ofrece
+</H2>
+
+<section class="data-container">
+
+    <div class="data-item">
+        <img src="src/4703650.png" alt="Imagen 1" class="data-image">
+        <p class="data-text">Plataforma confiable <br> y fácil de usar</p>
+    </div>
+    <div class="data-item">
+        <img src="src/3141991.png" alt="Imagen 2" class="data-image">
+        <p class="data-text">Transacciones rápidas <br> y seguras</p>
+    </div>
+    <div class="data-item">
+        <img src="src/393140c13ded6abdd322098d2d02a6d7-ilustracion-del-planeta-tierra.webp" alt="Imagen 3" class="data-image">
+        <p class="data-text">Accesibilidad desde <br> cualquier lugar</p>
+    </div>
+    <div class="data-item">
+        <img src="src/76cc00e3681f38ed4956be2394cccd38.svg" alt="Imagen 4" class="data-image">
+        <p class="data-text">Asistencia 24/7</p>
+    </div>
+    <div class="data-item">
+        <img src="src/3208690.png" alt="Imagen 5" class="data-image">
+        <p class="data-text">Seguridad sobre <br> sus datos</p>
+    </div>
+</section>
+
+
 <footer>
     <div class="link_footer">
         <ul>
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#acerca">Acerca de</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-            <li><a href="#privacidad">Política de Privacidad</a></li>
+            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
+            <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
+            <li><a href="https://www.X.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+            <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
         </ul>
     </div>
 </footer>
+
 </body>
 </html>
