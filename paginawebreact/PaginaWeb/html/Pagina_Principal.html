@@ -2,174 +2,141 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <title>Title</title>
+    <title>FisClase - Construimos tu futuro</title>
     <link rel="stylesheet" href="css/Diseño.css">
     <script src="js/Opciones.js"></script>
-
-    <title>FisClase - Construimos tu futuro</title>
-    <link rel="stylesheet" href="Diseño.css">
-    <script src="js/Opciones.js"></script>
-    <script src="js/ModoOscuro.js"defer></script>
+    <script src="js/router.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/ModoOscuro.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
 </head>
 <body>
-<header class="site-header">
-    <div class="container logo">
-        <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
-    </div>
-
-
-    <!-- Menú de navegación agregado aquí -->
-    <nav class="main-nav">
-        <ul>
-            <li><a href="Pagina_Principal.html">Inicio</a></li>
-            <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
-            <li><a href="contactenos.html">Contactenos</a></li>
-        </ul>
-    </nav>
-
-
-    <div class="header-content">
-        <div class="boton_cuenta">
-            <form action="">
-                <button type="button" class="cuenta" onclick="aparecerCuadro()">
-                    <p class="fount_cuenta">Cuenta</p>
-                </button>
-            </form>
+    <header class="site-header">
+        <div class="container logo">
+            <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
         </div>
 
-       
-    </div>
-</header>
- 
 
-    </div>
-</header>
-
-
-<!-- Sección de presentación: imagen bajo el header -->
-<section class="presentacion">
-    <img src="src/dinero-en-su-banco.jpg" alt="Dinero en su banco" class="imagen-presentacion">
-    <div class="texto-presentacion" role="note">
-        <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
-        <p class="mensaje-seguro">Con Fisclase, tus ahorros están seguros</p>
-        <p class="mensaje-ayuda">Siempre estamos para ti.</p>
-    </div>
-</section>
-<div id="cuadro-opciones" class="opciones" >
-
-    <ul>
-        <li><a href="#">Iniciar sesión</a></li>
-        <li><a href="#">Registrarse</a></li>
-        <li><a href="#">Otras opciones</a></li>
-    </ul>
-</div>
-
-    <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
-    <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
-
-</div>
-<main>
-<section id="informacion-banco">
-    <div class="contenido">
-        <h2 class="title-cont">Nuestros servicios digitales</h2>
-        <div class="texto">
-            <img src="src\como-funciona-banca-linea.jpg" alt="Banca en Línea" class="foto-banco">
-            <h2 class="tit-info">Banca en Línea</h2>
-            <p class="info-banco">Accede a tus servicios bancarios desde cualquier lugar, de forma rápida y segura.</p>
+        <!-- Menú de navegación agregado aquí -->
+        <nav class="main-nav">
             <ul>
-                <li><i class="check-icon"></i> Seguridad: Protege tu información con las mejores tecnologías.</li>
-                <li><i class="check-icon"></i> Accesibilidad: Conéctate cuando lo necesites.</li>
-                <li><i class="check-icon"></i> Eficiencia: Realiza operaciones con facilidad.</li>
+                <li><a href="Pagina_Principal.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
+                <li><a href="contactenos.html">Contactenos</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-content">
+            <div class="boton_cuenta">
+                <form action="">
+                    <button type="button" class="cuenta" onclick="aparecerCuadro()">
+                        <p class="fount_cuenta">Cuenta</p>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div id="cuadro-opciones" class="opciones" style="display: none;">
+        <button type="button" class="opcion-btn1" onclick="window.location.href='Login.html'">Ingresar</button>
+        <button type="button" class="opcion-btn2" onclick="window.location.href='Register.html'">Registrarse</button>
+    </div>
+
+
+    <section class="presentacion">
+        <img src="src/dinero-en-su-banco.jpg" alt="Dinero en su banco" class="imagen-presentacion">
+        <div class="texto-presentacion" role="note">
+            <img class="Titulo" src="src\noname-cutout.png" alt="Descripción de la imagen">
+            <p class="mensaje-seguro">Con Fisclase, tus ahorros están seguros</p>
+            <p class="mensaje-ayuda">Siempre estamos para ti.</p>
+        </div>
+    </section>
+
+    <main>
+        <section id="informacion-banco">
+            <div class="contenido">
+                <h2 class="title-cont">Nuestros servicios digitales</h2>
+                <div class="texto">
+                    <img src="src\como-funciona-banca-linea.jpg" alt="Banca en Línea" class="foto-banco">
+                    <h2 class="tit-info">Banca en Línea</h2>
+                    <p class="info-banco">Accede a tus servicios bancarios desde cualquier lugar, de forma rápida y segura.</p>
+                    <ul>
+                        <li><i class="check-icon"></i> Seguridad: Protege tu información con las mejores tecnologías.</li>
+                        <li><i class="check-icon"></i> Accesibilidad: Conéctate cuando lo necesites.</li>
+                        <li><i class="check-icon"></i> Eficiencia: Realiza operaciones con facilidad.</li>
+                    </ul>
+                </div>
+                <div class="texto">
+                    <img src="src\validar-transferencia-bancaria-2-2048x1630.jpg" alt="Transferencias y Pagos" class="foto-banco">
+                    <h2 class="tit-info">Transferencias y Pagos</h2>
+                    <p class="info-banco">Realiza pagos y transferencias de manera segura y sin complicaciones.</p>
+                    <ul>
+                        <li><i class="check-icon"></i> Rapidez: Envía dinero al instante.</li>
+                        <li><i class="check-icon"></i> Comodidad: Hazlo todo desde tu dispositivo.</li>
+                        <li><i class="check-icon"></i> Flexibilidad: Transfiere entre cuentas y paga tus servicios fácilmente.</li>
+                    </ul>
+                </div>
+                <div class="texto">
+                    <img src="src\concepto-pago-tarjeta-credito-pagina-inicio_52683-24768.avif" alt="Consultas de saldo e historial" class="foto-banco">
+                    <h2 class="tit-info">Consultas de Saldo e Historial</h2>
+                    <p class="info-banco">Consulta tu saldo y revisa el historial de tus transacciones al instante.</p>
+                    <ul>
+                        <li><i class="check-icon"></i> Control: Mantén un registro claro de tus finanzas.</li>
+                        <li><i class="check-icon"></i> Transparencia: Consulta tu historial en cualquier momento.</li>
+                        <li><i class="check-icon"></i> Facilidad: Todo lo que necesitas al alcance de tu mano.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="Video">
+        <h2 class="title-cont">Ahorra para el futuro</h2>
+        <video width="854" height="480" controls autoplay loop muted>
+            <source src="src\La importancia del ahorro.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+        </video>
+    </div>
+
+    <H2 class="info-data-container">
+        Nuestro banco ofrece
+    </H2>
+
+    <section class="data-container">
+        <div class="data-item">
+            <img src="src/4703650.png" alt="Imagen 1" class="data-image">
+            <p class="data-text">Plataforma confiable <br> y fácil de usar</p>
+        </div>
+        <div class="data-item">
+            <img src="src/3141991.png" alt="Imagen 2" class="data-image">
+            <p class="data-text">Transacciones rápidas <br> y seguras</p>
+        </div>
+        <div class="data-item">
+            <img src="src/393140c13ded6abdd322098d2d02a6d7-ilustracion-del-planeta-tierra.webp" alt="Imagen 3" class="data-image">
+            <p class="data-text">Accesibilidad desde <br> cualquier lugar</p>
+        </div>
+        <div class="data-item">
+            <img src="src/76cc00e3681f38ed4956be2394cccd38.svg" alt="Imagen 4" class="data-image">
+            <p class="data-text">Asistencia 24/7</p>
+        </div>
+        <div class="data-item">
+            <img src="src/3208690.png" alt="Imagen 5" class="data-image">
+            <p class="data-text">Seguridad sobre <br> sus datos</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="link_footer">
+            <ul>
+                <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
+                <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                <li><a href="https://www.X.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
             </ul>
         </div>
-        <div class="texto">
-            <img src="src\validar-transferencia-bancaria-2-2048x1630.jpg" alt="Transferencias y Pagos" class="foto-banco">
-            <h2 class="tit-info">Transferencias y Pagos</h2>
-            <p class="info-banco">Realiza pagos y transferencias de manera segura y sin complicaciones.</p>
-            <ul>
-                <li><i class="check-icon"></i> Rapidez: Envía dinero al instante.</li>
-                <li><i class="check-icon"></i> Comodidad: Hazlo todo desde tu dispositivo.</li>
-                <li><i class="check-icon"></i> Flexibilidad: Transfiere entre cuentas y paga tus servicios fácilmente.</li>
-            </ul>
-        </div>
-        <div class="texto">
-            <img src="src\concepto-pago-tarjeta-credito-pagina-inicio_52683-24768.avif" alt="Consultas de saldo e historial" class="foto-banco">
-            <h2 class="tit-info">Consultas de Saldo e Historial</h2>
-            <p class="info-banco">Consulta tu saldo y revisa el historial de tus transacciones al instante.</p>
-            <ul>
-                <li><i class="check-icon"></i> Control: Mantén un registro claro de tus finanzas.</li>
-                <li><i class="check-icon"></i> Transparencia: Consulta tu historial en cualquier momento.</li>
-                <li><i class="check-icon"></i> Facilidad: Todo lo que necesitas al alcance de tu mano.</li>
-            </ul>
-        </div>
-    </div>
-</section>
-</main>
-
-<div class="Video">
-    <h2 class="title-cont">Ahorra para el futuro</h2>
-
-    <video width="854" height="480" controls autoplay loop>
-
-    <video width="854" height="480" controls autoplay loop muted>
-
-        <source src="src\La importancia del ahorro.mp4" type="video/mp4">
-        Tu navegador no soporta el elemento de video.
-
-    </video>
-</div>
-<footer>
-    <div class="link_footer">
-        <ul>
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#acerca">Acerca de</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-            <li><a href="#privacidad">Política de Privacidad</a></li>
-        </ul>
-    </div>
-</footer>
-
-<H2 class="info-data-container">
-    Nuestro banco ofrece
-</H2>
-
-<section class="data-container">
-
-    <div class="data-item">
-        <img src="src/4703650.png" alt="Imagen 1" class="data-image">
-        <p class="data-text">Plataforma confiable <br> y fácil de usar</p>
-    </div>
-    <div class="data-item">
-        <img src="src/3141991.png" alt="Imagen 2" class="data-image">
-        <p class="data-text">Transacciones rápidas <br> y seguras</p>
-    </div>
-    <div class="data-item">
-        <img src="src/393140c13ded6abdd322098d2d02a6d7-ilustracion-del-planeta-tierra.webp" alt="Imagen 3" class="data-image">
-        <p class="data-text">Accesibilidad desde <br> cualquier lugar</p>
-    </div>
-    <div class="data-item">
-        <img src="src/76cc00e3681f38ed4956be2394cccd38.svg" alt="Imagen 4" class="data-image">
-        <p class="data-text">Asistencia 24/7</p>
-    </div>
-    <div class="data-item">
-        <img src="src/3208690.png" alt="Imagen 5" class="data-image">
-        <p class="data-text">Seguridad sobre <br> sus datos</p>
-    </div>
-</section>
-<footer>
-    <div class="link_footer">
-        <ul>
-            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
-            <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
-            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
-            <li><a href="https://www.X.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
-            <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
-        </ul>
-    </div>
-</footer>
+    </footer>
 </body>
 </html>

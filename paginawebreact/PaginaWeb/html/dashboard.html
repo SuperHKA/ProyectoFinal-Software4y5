@@ -6,195 +6,154 @@
     <link rel="stylesheet" href="css/Diseño.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="js/AuthService.js"></script>
+    <script src="js/ApiService.js"></script>
+    <script src="js/Router.js"></script>
+    <script src="js/Opciones.js"></script>
+    <script src="js/DashboardHandler.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-<header class="site-header">
-    <div class="container logo">
-        <img class="Titulo" src="src/noname-cutout.png" alt="FisClase">
-    </div>
-
-    <nav class="main-nav">
-        <ul>
-            <li><a href="Pagina_Principal.html">Inicio</a></li>
-            <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
-            <li><a href="contactenos.html">Contactenos</a></li>
-        </ul>
-    </nav>
-
-    <a href="Profile.html">
-        <div class="user-info">
-            <div class="user-avatar">JS</div>
-            <span>Juan Sánchez</span>
+    <header class="site-header">
+        <div class="container logo">
+            <img class="Titulo" src="src/noname-cutout.png" alt="FisClase">
         </div>
-    </a>
-</header>
 
+        <nav class="main-nav">
+            <ul>
+                <li><a href="Pagina_Principal.html">Inicio</a></li>
+                <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
+                <li><a href="contactenos.html">Contactenos</a></li>
+            </ul>
+        </nav>
 
-<div class="dashboard-container">
-    <aside class="sidebar">
-        <h3>Menú Principal</h3>
-        <ul class="sidebar-menu">
-            <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
-            <li><a href="dashboard.html" class="dash-link"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
-            <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
-            <li><a href="transferencias.html" class="transfers-link"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
-            <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
-            <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
-        </ul>
-    </aside>
-
-    <main class="dashboard-content">
-        <section class="welcome-banner">
-            <h1>👋 Bienvenido, Juan</h1>
-            <p>Revisa el estado de tus cuentas y realiza transacciones de forma segura</p>
-        </section>
-
-        <section class="accounts-section">
-            <div class="section-header">
-                <h2><i class="fas fa-wallet"></i> Mis Cuentas</h2>
-                <button class="btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Abrir Nueva Cuenta
-                </button>
+        <a href="Profile.html">
+            <div class="user-info">
+                <div class="user-avatar">JS</div>
+                <span>Usuario</span>
             </div>
+        </a>
+    </header>
 
-            <div class="accounts-grid">
-                <div class="account-card">
-                    <div class="account-header">
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <h3>Menú Principal</h3>
+            <ul class="sidebar-menu">
+                <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
+                <li><a href="dashboard.html" class="dash-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
+                <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
+                <li><a href="transferencias.html" class="transfers-link"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+                <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
+                <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            </ul>
+        </aside>
+
+        <main class="dashboard-content">
+            <section class="welcome-banner">
+                <h1>👋 Bienvenido</h1>
+                <p>Revisa el estado de tus cuentas y realiza transacciones de forma segura</p>
+            </section>
+
+            <section class="accounts-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-wallet"></i> Mis Cuentas</h2>
+                    <button class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Abrir Nueva Cuenta
+                    </button>
+                </div>
+
+                <div class="accounts-grid">
+                    <div class="account-card">
+                        <div class="account-header">
                             <span class="account-type">
                                 <i class="fas fa-university"></i>
                                 Cuenta Corriente
                             </span>
-                        <i class="fas fa-ellipsis-h"></i>
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <div class="account-balance">$0.00</div>
+                        <div class="account-number">** ** ** 0000</div>
                     </div>
-                    <div class="account-balance">$12,458.75</div>
-                    <div class="account-number">** ** ** 4582</div>
-                </div>
 
-                <div class="account-card">
-                    <div class="account-header">
+                    <div class="account-card">
+                        <div class="account-header">
                             <span class="account-type">
                                 <i class="fas fa-piggy-bank"></i>
                                 Cuenta de Ahorros
                             </span>
-                        <i class="fas fa-ellipsis-h"></i>
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <div class="account-balance">$0.00</div>
+                        <div class="account-number">** ** ** 0000</div>
                     </div>
-                    <div class="account-balance">$8,245.30</div>
-                    <div class="account-number">** ** ** 7821</div>
-                </div>
 
-                <div class="account-card">
-                    <div class="account-header">
+                    <div class="account-card">
+                        <div class="account-header">
                             <span class="account-type">
                                 <i class="fas fa-dollar-sign"></i>
                                 Cuenta Dólares
                             </span>
-                        <i class="fas fa-ellipsis-h"></i>
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                        <div class="account-balance">$0.00</div>
+                        <div class="account-number">** ** ** 0000</div>
                     </div>
-                    <div class="account-balance">$2,150.00</div>
-                    <div class="account-number">** ** ** 6394</div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="quick-actions">
-            <div class="section-header">
-                <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
-            </div>
-
-            <div class="actions-grid">
-                <button class="action-card" onclick="window.location.href='transferencias.html'">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>Transferir</span>
-                </button>
-                <button class="action-card" onclick="window.location.href='transacciones.html'">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Pagar Servicio</span>
-                </button>
-                <button class="action-card" onclick="window.location.href='tarjetas.html'">
-                    <i class="fas fa-credit-card"></i>
-                    <span>Mis Tarjetas</span>
-                </button>
-                <button class="action-card" onclick="window.location.href='transacciones.html'">
-                    <i class="fas fa-history"></i>
-                    <span>Historial</span>
-                </button>
-            </div>
-        </section>
-
-        <section class="recent-transactions">
-            <div class="section-header">
-                <h2><i class="fas fa-clock"></i> Movimientos Recientes</h2>
-                <button class="btn-outline" onclick="window.location.href='transacciones.html'">
-                    Ver Todos
-                </button>
-            </div>
-
-            <div class="transactions-list">
-                <div class="transaction-item">
-                    <div class="transaction-icon">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-name">Depósito de nómina</div>
-                        <div class="transaction-date">15/11/2024 - 09:30 AM</div>
-                    </div>
-                    <div class="transaction-amount positive">+$1,850.00</div>
+            <section class="quick-actions">
+                <div class="section-header">
+                    <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
                 </div>
 
-                <div class="transaction-item">
-                    <div class="transaction-icon">
+                <div class="actions-grid">
+                    <button class="action-card" onclick="router.navigateTo('transferencias.html')">
                         <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-name">Transferencia a María González</div>
-                        <div class="transaction-date">14/11/2024 - 14:20 PM</div>
-                    </div>
-                    <div class="transaction-amount negative">-$250.00</div>
+                        <span>Transferir</span>
+                    </button>
+                    <button class="action-card" onclick="router.navigateTo('transacciones.html')">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Pagar Servicio</span>
+                    </button>
+                    <button class="action-card" onclick="router.navigateTo('tarjetas.html')">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Mis Tarjetas</span>
+                    </button>
+                    <button class="action-card" onclick="router.navigateTo('Historial.html')">
+                        <i class="fas fa-history"></i>
+                        <span>Historial</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="recent-transactions">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Movimientos Recientes</h2>
+                    <button class="btn-outline" onclick="router.navigateTo('transacciones.html')">
+                        Ver Todos
+                    </button>
                 </div>
 
-                <div class="transaction-item">
-                    <div class="transaction-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-name">Pago servicio eléctrico</div>
-                        <div class="transaction-date">12/11/2024 - 16:45 PM</div>
-                    </div>
-                    <div class="transaction-amount negative">-$85.30</div>
+                <div class="transactions-list">
+                    <div class="no-data">Cargando transacciones...</div>
                 </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-name">Compra en supermercado</div>
-                        <div class="transaction-date">10/11/2024 - 11:20 AM</div>
-                    </div>
-                    <div class="transaction-amount negative">-$124.75</div>
-                </div>
-            </div>
-        </section>
-    </main>
-</div>
-
-<footer>
-    <div class="link_footer">
-        <ul>
-            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
-            <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
-            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
-            <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
-            <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
-        </ul>
+            </section>
+        </main>
     </div>
-</footer>
 
-<script src="Opciones.js"></script>
-<script src="dashboard.js"></script>
+    <footer>
+        <div class="link_footer">
+            <ul>
+                <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
+                <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+            </ul>
+        </div>
+    </footer>
+
 </body>
-
 </html>
