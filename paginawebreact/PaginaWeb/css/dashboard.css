@@ -18,14 +18,13 @@
 }
 
 .user-info:hover {
-    background-color: rgba(220, 220, 220, 0.18); /* Oscurece el fondo cuando se pasa el ratón */
+    background-color: rgba(220, 220, 220, 0.18);
 }
 
 a {
-    text-decoration: none; /* Elimina el subrayado */
-    color: inherit; /* Mantiene el color del texto original */
+    text-decoration: none;
+    color: inherit;
 }
-
 
 /* ==================== DASHBOARD CONTAINER ==================== */
 .dashboard-container {
@@ -91,7 +90,7 @@ a {
     font-size: 16px;
 }
 
-/* Contenido del dashboard */
+/* ==================== DASHBOARD CONTENT ==================== */
 .dashboard-content {
     flex: 1;
     display: flex;
@@ -117,10 +116,11 @@ a {
     font-size: 16px;
 }
 
-/* Secciones */
+/* ==================== SECTIONS ==================== */
 .accounts-section,
 .quick-actions,
-.recent-transactions {
+.recent-transactions,
+.monthly-summary {
     background: white;
     border-radius: 15px;
     padding: 30px;
@@ -143,7 +143,7 @@ a {
     margin: 0;
 }
 
-/* Botones */
+/* ==================== BUTTONS ==================== */
 .btn-primary {
     background: #6c5bcd;
     color: white;
@@ -188,7 +188,7 @@ a {
     transform: translateY(-2px);
 }
 
-/* Tarjetas de cuentas */
+/* ==================== ACCOUNT CARDS ==================== */
 .accounts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -251,7 +251,73 @@ a {
     letter-spacing: 1px;
 }
 
-/* Acciones rápidas */
+/* ==================== GRÁFICA DE RESUMEN MENSUAL ==================== */
+.monthly-summary {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.chart-container {
+    position: relative;
+    height: 350px;
+    margin-top: 20px;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border-left: 4px solid #6c5bcd;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card.income {
+    border-left-color: #28a745;
+}
+
+.stat-card.expenses {
+    border-left-color: #dc3545;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.stat-value.income {
+    color: #28a745;
+}
+
+.stat-value.expenses {
+    color: #dc3545;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
 .actions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -300,7 +366,7 @@ a {
     color: white;
 }
 
-/* Movimientos recientes */
+/* ==================== RECENT TRANSACTIONS ==================== */
 .transactions-list {
     display: flex;
     flex-direction: column;
@@ -368,8 +434,17 @@ a {
     color: #dc3545;
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+    }
+
     .accounts-grid {
         grid-template-columns: 1fr;
     }
@@ -418,6 +493,22 @@ a {
     .transaction-amount {
         font-size: 16px;
     }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -437,7 +528,102 @@ a {
 
     .accounts-section,
     .quick-actions,
-    .recent-transactions {
+    .recent-transactions,
+    .monthly-summary {
         padding: 20px;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}
+/* ==================== GRÁFICA DE RESUMEN MENSUAL ==================== */
+.monthly-summary {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.chart-container {
+    position: relative;
+    height: 350px;
+    margin-top: 20px;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border-left: 4px solid #6c5bcd;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.stat-card.income {
+    border-left-color: #28a745;
+}
+
+.stat-card.expenses {
+    border-left-color: #dc3545;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.stat-value.income {
+    color: #28a745;
+}
+
+.stat-value.expenses {
+    color: #dc3545;
+}
+
+/* Responsive para la gráfica */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px;
+    }
+
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-container {
+        height: 250px;
     }
 }
