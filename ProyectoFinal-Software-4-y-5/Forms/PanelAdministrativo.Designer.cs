@@ -31,6 +31,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnLogout = new System.Windows.Forms.Button();
             this.tabPanelAdmin = new System.Windows.Forms.TabControl();
             this.tabDashboard = new System.Windows.Forms.TabPage();
             this.panelDashboard = new System.Windows.Forms.Panel();
@@ -139,6 +140,24 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             ((System.ComponentModel.ISupportInitialize)(this.tablaResumen)).BeginInit();
             this.SuspendLayout();
             // 
+            // btnLogout
+            // 
+            this.btnLogout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.btnLogout.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogout.FlatAppearance.BorderSize = 0;
+            this.btnLogout.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(35)))), ((int)(((byte)(51)))));
+            this.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogout.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLogout.ForeColor = System.Drawing.Color.White;
+            this.btnLogout.Location = new System.Drawing.Point(1260, 10);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(120, 35);
+            this.btnLogout.TabIndex = 1;
+            this.btnLogout.Text = "Cerrar Sesión";
+            this.btnLogout.UseVisualStyleBackColor = false;
+            this.btnLogout.Click += new System.EventHandler(this.BtnLogout_Click);
+            // 
             // tabPanelAdmin
             // 
             this.tabPanelAdmin.Controls.Add(this.tabDashboard);
@@ -153,16 +172,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tabPanelAdmin.Location = new System.Drawing.Point(0, 0);
             this.tabPanelAdmin.Name = "tabPanelAdmin";
             this.tabPanelAdmin.SelectedIndex = 0;
-            this.tabPanelAdmin.Size = new System.Drawing.Size(1400, 800);
+            this.tabPanelAdmin.Size = new System.Drawing.Size(1397, 575);
             this.tabPanelAdmin.TabIndex = 0;
             // 
             // tabDashboard
             // 
             this.tabDashboard.Controls.Add(this.panelDashboard);
-            this.tabDashboard.Location = new System.Drawing.Point(4, 29);
+            this.tabDashboard.Location = new System.Drawing.Point(4, 25);
             this.tabDashboard.Name = "tabDashboard";
             this.tabDashboard.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDashboard.Size = new System.Drawing.Size(1392, 767);
+            this.tabDashboard.Size = new System.Drawing.Size(1389, 546);
             this.tabDashboard.TabIndex = 0;
             this.tabDashboard.Text = "Dashboard";
             this.tabDashboard.UseVisualStyleBackColor = true;
@@ -174,7 +193,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelDashboard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelDashboard.Location = new System.Drawing.Point(3, 3);
             this.panelDashboard.Name = "panelDashboard";
-            this.panelDashboard.Size = new System.Drawing.Size(1386, 761);
+            this.panelDashboard.Size = new System.Drawing.Size(1383, 540);
             this.panelDashboard.TabIndex = 0;
             // 
             // panelTransaccionesRecientes
@@ -184,7 +203,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelTransaccionesRecientes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelTransaccionesRecientes.Location = new System.Drawing.Point(0, 150);
             this.panelTransaccionesRecientes.Name = "panelTransaccionesRecientes";
-            this.panelTransaccionesRecientes.Size = new System.Drawing.Size(1386, 611);
+            this.panelTransaccionesRecientes.Size = new System.Drawing.Size(1383, 390);
             this.panelTransaccionesRecientes.TabIndex = 1;
             // 
             // gridTransaccionesRecientes
@@ -199,7 +218,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridTransaccionesRecientes.ReadOnly = true;
             this.gridTransaccionesRecientes.RowHeadersWidth = 51;
             this.gridTransaccionesRecientes.RowTemplate.Height = 24;
-            this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1386, 581);
+            this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1383, 360);
             this.gridTransaccionesRecientes.TabIndex = 1;
             // 
             // lblTransRecientes
@@ -208,7 +227,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTransRecientes.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTransRecientes.Location = new System.Drawing.Point(0, 0);
             this.lblTransRecientes.Name = "lblTransRecientes";
-            this.lblTransRecientes.Size = new System.Drawing.Size(1386, 30);
+            this.lblTransRecientes.Size = new System.Drawing.Size(1383, 30);
             this.lblTransRecientes.TabIndex = 0;
             this.lblTransRecientes.Text = "Transacciones Recientes";
             this.lblTransRecientes.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -219,7 +238,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelEstadisticas.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelEstadisticas.Location = new System.Drawing.Point(0, 0);
             this.panelEstadisticas.Name = "panelEstadisticas";
-            this.panelEstadisticas.Size = new System.Drawing.Size(1386, 150);
+            this.panelEstadisticas.Size = new System.Drawing.Size(1383, 150);
             this.panelEstadisticas.TabIndex = 0;
             // 
             // flowLayoutEstadisticas
@@ -231,7 +250,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.flowLayoutEstadisticas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutEstadisticas.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutEstadisticas.Name = "flowLayoutEstadisticas";
-            this.flowLayoutEstadisticas.Size = new System.Drawing.Size(1386, 150);
+            this.flowLayoutEstadisticas.Size = new System.Drawing.Size(1383, 150);
             this.flowLayoutEstadisticas.TabIndex = 0;
             // 
             // panelTotalClientes
@@ -373,10 +392,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabClientes
             // 
             this.tabClientes.Controls.Add(this.splitContainerClientes);
-            this.tabClientes.Location = new System.Drawing.Point(4, 29);
+            this.tabClientes.Location = new System.Drawing.Point(4, 25);
             this.tabClientes.Name = "tabClientes";
             this.tabClientes.Padding = new System.Windows.Forms.Padding(3);
-            this.tabClientes.Size = new System.Drawing.Size(1392, 767);
+            this.tabClientes.Size = new System.Drawing.Size(1389, 546);
             this.tabClientes.TabIndex = 1;
             this.tabClientes.Text = "Gestión de Clientes";
             this.tabClientes.UseVisualStyleBackColor = true;
@@ -394,8 +413,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // splitContainerClientes.Panel2
             // 
             this.splitContainerClientes.Panel2.Controls.Add(this.panelFormularioCliente);
-            this.splitContainerClientes.Size = new System.Drawing.Size(1386, 761);
-            this.splitContainerClientes.SplitterDistance = 800;
+            this.splitContainerClientes.Size = new System.Drawing.Size(1383, 540);
+            this.splitContainerClientes.SplitterDistance = 798;
             this.splitContainerClientes.TabIndex = 0;
             // 
             // tablaClientes
@@ -411,7 +430,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaClientes.RowHeadersWidth = 51;
             this.tablaClientes.RowTemplate.Height = 24;
             this.tablaClientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tablaClientes.Size = new System.Drawing.Size(800, 761);
+            this.tablaClientes.Size = new System.Drawing.Size(798, 540);
             this.tablaClientes.TabIndex = 0;
             // 
             // panelFormularioCliente
@@ -419,15 +438,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormularioCliente.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelFormularioCliente.Location = new System.Drawing.Point(0, 0);
             this.panelFormularioCliente.Name = "panelFormularioCliente";
-            this.panelFormularioCliente.Size = new System.Drawing.Size(582, 761);
+            this.panelFormularioCliente.Size = new System.Drawing.Size(581, 540);
             this.panelFormularioCliente.TabIndex = 0;
             // 
             // tabSeguridad
             // 
             this.tabSeguridad.Controls.Add(this.splitContainerSeguridad);
-            this.tabSeguridad.Location = new System.Drawing.Point(4, 29);
+            this.tabSeguridad.Location = new System.Drawing.Point(4, 25);
             this.tabSeguridad.Name = "tabSeguridad";
-            this.tabSeguridad.Size = new System.Drawing.Size(1392, 767);
+            this.tabSeguridad.Size = new System.Drawing.Size(1389, 546);
             this.tabSeguridad.TabIndex = 2;
             this.tabSeguridad.Text = "Seguridad";
             this.tabSeguridad.UseVisualStyleBackColor = true;
@@ -446,8 +465,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // splitContainerSeguridad.Panel2
             // 
             this.splitContainerSeguridad.Panel2.Controls.Add(this.panelCrearAdmin);
-            this.splitContainerSeguridad.Size = new System.Drawing.Size(1392, 767);
-            this.splitContainerSeguridad.SplitterDistance = 383;
+            this.splitContainerSeguridad.Size = new System.Drawing.Size(1389, 546);
+            this.splitContainerSeguridad.SplitterDistance = 272;
             this.splitContainerSeguridad.TabIndex = 0;
             // 
             // panelUsuariosBloqueados
@@ -458,15 +477,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelUsuariosBloqueados.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelUsuariosBloqueados.Location = new System.Drawing.Point(0, 0);
             this.panelUsuariosBloqueados.Name = "panelUsuariosBloqueados";
-            this.panelUsuariosBloqueados.Size = new System.Drawing.Size(1392, 383);
+            this.panelUsuariosBloqueados.Size = new System.Drawing.Size(1389, 272);
             this.panelUsuariosBloqueados.TabIndex = 0;
             // 
             // btnDesbloquearUsuario
             // 
             this.btnDesbloquearUsuario.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnDesbloquearUsuario.Location = new System.Drawing.Point(0, 350);
+            this.btnDesbloquearUsuario.Location = new System.Drawing.Point(0, 239);
             this.btnDesbloquearUsuario.Name = "btnDesbloquearUsuario";
-            this.btnDesbloquearUsuario.Size = new System.Drawing.Size(1392, 33);
+            this.btnDesbloquearUsuario.Size = new System.Drawing.Size(1389, 33);
             this.btnDesbloquearUsuario.TabIndex = 2;
             this.btnDesbloquearUsuario.Text = "Desbloquear Usuario Seleccionado";
             this.btnDesbloquearUsuario.UseVisualStyleBackColor = true;
@@ -483,7 +502,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridUsuariosBloqueados.ReadOnly = true;
             this.gridUsuariosBloqueados.RowHeadersWidth = 51;
             this.gridUsuariosBloqueados.RowTemplate.Height = 24;
-            this.gridUsuariosBloqueados.Size = new System.Drawing.Size(1392, 353);
+            this.gridUsuariosBloqueados.Size = new System.Drawing.Size(1389, 242);
             this.gridUsuariosBloqueados.TabIndex = 1;
             // 
             // label9
@@ -492,7 +511,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label9.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.Location = new System.Drawing.Point(0, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(1392, 30);
+            this.label9.Size = new System.Drawing.Size(1389, 30);
             this.label9.TabIndex = 0;
             this.label9.Text = "Usuarios Bloqueados";
             this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -504,7 +523,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelCrearAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCrearAdmin.Location = new System.Drawing.Point(0, 0);
             this.panelCrearAdmin.Name = "panelCrearAdmin";
-            this.panelCrearAdmin.Size = new System.Drawing.Size(1392, 380);
+            this.panelCrearAdmin.Size = new System.Drawing.Size(1389, 270);
             this.panelCrearAdmin.TabIndex = 0;
             // 
             // panelFormAdmin
@@ -515,15 +534,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormAdmin.Location = new System.Drawing.Point(0, 30);
             this.panelFormAdmin.Name = "panelFormAdmin";
             this.panelFormAdmin.Padding = new System.Windows.Forms.Padding(10);
-            this.panelFormAdmin.Size = new System.Drawing.Size(1392, 350);
+            this.panelFormAdmin.Size = new System.Drawing.Size(1389, 240);
             this.panelFormAdmin.TabIndex = 1;
             // 
             // btnCrearAdministrador
             // 
             this.btnCrearAdministrador.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnCrearAdministrador.Location = new System.Drawing.Point(10, 307);
+            this.btnCrearAdministrador.Location = new System.Drawing.Point(10, 197);
             this.btnCrearAdministrador.Name = "btnCrearAdministrador";
-            this.btnCrearAdministrador.Size = new System.Drawing.Size(1372, 33);
+            this.btnCrearAdministrador.Size = new System.Drawing.Size(1369, 33);
             this.btnCrearAdministrador.TabIndex = 1;
             this.btnCrearAdministrador.Text = "Crear Administrador";
             this.btnCrearAdministrador.UseVisualStyleBackColor = true;
@@ -549,80 +568,80 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tableLayoutAdmin.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutAdmin.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutAdmin.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutAdmin.Size = new System.Drawing.Size(1372, 200);
+            this.tableLayoutAdmin.Size = new System.Drawing.Size(1369, 200);
             this.tableLayoutAdmin.TabIndex = 0;
             // 
             // label10
             // 
             this.label10.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 14);
+            this.label10.Location = new System.Drawing.Point(3, 17);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(81, 22);
+            this.label10.Size = new System.Drawing.Size(59, 16);
             this.label10.TabIndex = 0;
             this.label10.Text = "Username:";
             // 
             // txtAdminUsername
             // 
             this.txtAdminUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminUsername.Location = new System.Drawing.Point(414, 12);
+            this.txtAdminUsername.Location = new System.Drawing.Point(413, 14);
             this.txtAdminUsername.Name = "txtAdminUsername";
-            this.txtAdminUsername.Size = new System.Drawing.Size(955, 26);
+            this.txtAdminUsername.Size = new System.Drawing.Size(953, 22);
             this.txtAdminUsername.TabIndex = 1;
             // 
             // label12
             // 
             this.label12.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 64);
+            this.label12.Location = new System.Drawing.Point(3, 67);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(75, 22);
+            this.label12.Size = new System.Drawing.Size(57, 16);
             this.label12.TabIndex = 2;
             this.label12.Text = "Password:";
             // 
             // txtAdminPassword
             // 
             this.txtAdminPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminPassword.Location = new System.Drawing.Point(414, 62);
+            this.txtAdminPassword.Location = new System.Drawing.Point(413, 64);
             this.txtAdminPassword.Name = "txtAdminPassword";
             this.txtAdminPassword.PasswordChar = '*';
-            this.txtAdminPassword.Size = new System.Drawing.Size(955, 26);
+            this.txtAdminPassword.Size = new System.Drawing.Size(953, 22);
             this.txtAdminPassword.TabIndex = 3;
             // 
             // label13
             // 
             this.label13.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(3, 114);
+            this.label13.Location = new System.Drawing.Point(3, 117);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(66, 22);
+            this.label13.Size = new System.Drawing.Size(48, 16);
             this.label13.TabIndex = 4;
             this.label13.Text = "Nombre:";
             // 
             // txtAdminNombre
             // 
             this.txtAdminNombre.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminNombre.Location = new System.Drawing.Point(414, 112);
+            this.txtAdminNombre.Location = new System.Drawing.Point(413, 114);
             this.txtAdminNombre.Name = "txtAdminNombre";
-            this.txtAdminNombre.Size = new System.Drawing.Size(955, 26);
+            this.txtAdminNombre.Size = new System.Drawing.Size(953, 22);
             this.txtAdminNombre.TabIndex = 5;
             // 
             // label14
             // 
             this.label14.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(3, 164);
+            this.label14.Location = new System.Drawing.Point(3, 167);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(50, 22);
+            this.label14.Size = new System.Drawing.Size(35, 16);
             this.label14.TabIndex = 6;
             this.label14.Text = "Email:";
             // 
             // txtAdminEmail
             // 
             this.txtAdminEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminEmail.Location = new System.Drawing.Point(414, 162);
+            this.txtAdminEmail.Location = new System.Drawing.Point(413, 164);
             this.txtAdminEmail.Name = "txtAdminEmail";
-            this.txtAdminEmail.Size = new System.Drawing.Size(955, 26);
+            this.txtAdminEmail.Size = new System.Drawing.Size(953, 22);
             this.txtAdminEmail.TabIndex = 7;
             // 
             // label15
@@ -631,7 +650,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label15.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.Location = new System.Drawing.Point(0, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(1392, 30);
+            this.label15.Size = new System.Drawing.Size(1389, 30);
             this.label15.TabIndex = 0;
             this.label15.Text = "Crear Nuevo Administrador";
             this.label15.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -639,9 +658,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabReportes
             // 
             this.tabReportes.Controls.Add(this.panelReportes);
-            this.tabReportes.Location = new System.Drawing.Point(4, 29);
+            this.tabReportes.Location = new System.Drawing.Point(4, 25);
             this.tabReportes.Name = "tabReportes";
-            this.tabReportes.Size = new System.Drawing.Size(1392, 767);
+            this.tabReportes.Size = new System.Drawing.Size(1389, 546);
             this.tabReportes.TabIndex = 3;
             this.tabReportes.Text = "Reportes Avanzados";
             this.tabReportes.UseVisualStyleBackColor = true;
@@ -653,7 +672,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelReportes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelReportes.Location = new System.Drawing.Point(0, 0);
             this.panelReportes.Name = "panelReportes";
-            this.panelReportes.Size = new System.Drawing.Size(1392, 767);
+            this.panelReportes.Size = new System.Drawing.Size(1389, 546);
             this.panelReportes.TabIndex = 0;
             // 
             // gridReporteTransacciones
@@ -668,7 +687,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridReporteTransacciones.ReadOnly = true;
             this.gridReporteTransacciones.RowHeadersWidth = 51;
             this.gridReporteTransacciones.RowTemplate.Height = 24;
-            this.gridReporteTransacciones.Size = new System.Drawing.Size(1392, 687);
+            this.gridReporteTransacciones.Size = new System.Drawing.Size(1389, 466);
             this.gridReporteTransacciones.TabIndex = 1;
             // 
             // panelFiltrosReporte
@@ -682,7 +701,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFiltrosReporte.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelFiltrosReporte.Location = new System.Drawing.Point(0, 0);
             this.panelFiltrosReporte.Name = "panelFiltrosReporte";
-            this.panelFiltrosReporte.Size = new System.Drawing.Size(1392, 80);
+            this.panelFiltrosReporte.Size = new System.Drawing.Size(1389, 80);
             this.panelFiltrosReporte.TabIndex = 0;
             // 
             // btnGenerarReporte
@@ -698,7 +717,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaFin.Location = new System.Drawing.Point(550, 28);
             this.dtpFechaFin.Name = "dtpFechaFin";
-            this.dtpFechaFin.Size = new System.Drawing.Size(200, 26);
+            this.dtpFechaFin.Size = new System.Drawing.Size(200, 22);
             this.dtpFechaFin.TabIndex = 4;
             // 
             // label7
@@ -706,7 +725,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(470, 32);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(78, 22);
+            this.label7.Size = new System.Drawing.Size(58, 16);
             this.label7.TabIndex = 3;
             this.label7.Text = "Fecha Fin:";
             // 
@@ -714,7 +733,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaInicio.Location = new System.Drawing.Point(220, 28);
             this.dtpFechaInicio.Name = "dtpFechaInicio";
-            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 26);
+            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 22);
             this.dtpFechaInicio.TabIndex = 2;
             // 
             // label5
@@ -722,7 +741,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(120, 32);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(90, 22);
+            this.label5.Size = new System.Drawing.Size(67, 16);
             this.label5.TabIndex = 1;
             this.label5.Text = "Fecha Inicio:";
             // 
@@ -732,16 +751,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label3.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(20, 30);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(94, 19);
+            this.label3.Size = new System.Drawing.Size(81, 16);
             this.label3.TabIndex = 0;
             this.label3.Text = "Filtrar por:";
             // 
             // tabNotificaciones
             // 
             this.tabNotificaciones.Controls.Add(this.panelNotificaciones);
-            this.tabNotificaciones.Location = new System.Drawing.Point(4, 29);
+            this.tabNotificaciones.Location = new System.Drawing.Point(4, 25);
             this.tabNotificaciones.Name = "tabNotificaciones";
-            this.tabNotificaciones.Size = new System.Drawing.Size(1392, 767);
+            this.tabNotificaciones.Size = new System.Drawing.Size(1389, 546);
             this.tabNotificaciones.TabIndex = 4;
             this.tabNotificaciones.Text = "Notificaciones Sistema";
             this.tabNotificaciones.UseVisualStyleBackColor = true;
@@ -753,7 +772,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelNotificaciones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelNotificaciones.Location = new System.Drawing.Point(0, 0);
             this.panelNotificaciones.Name = "panelNotificaciones";
-            this.panelNotificaciones.Size = new System.Drawing.Size(1392, 767);
+            this.panelNotificaciones.Size = new System.Drawing.Size(1389, 546);
             this.panelNotificaciones.TabIndex = 0;
             // 
             // gridNotificacionesSistema
@@ -768,7 +787,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridNotificacionesSistema.ReadOnly = true;
             this.gridNotificacionesSistema.RowHeadersWidth = 51;
             this.gridNotificacionesSistema.RowTemplate.Height = 24;
-            this.gridNotificacionesSistema.Size = new System.Drawing.Size(1392, 687);
+            this.gridNotificacionesSistema.Size = new System.Drawing.Size(1389, 466);
             this.gridNotificacionesSistema.TabIndex = 1;
             // 
             // panelControlesNotificaciones
@@ -778,7 +797,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelControlesNotificaciones.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControlesNotificaciones.Location = new System.Drawing.Point(0, 0);
             this.panelControlesNotificaciones.Name = "panelControlesNotificaciones";
-            this.panelControlesNotificaciones.Size = new System.Drawing.Size(1392, 80);
+            this.panelControlesNotificaciones.Size = new System.Drawing.Size(1389, 80);
             this.panelControlesNotificaciones.TabIndex = 0;
             // 
             // btnEjecutarResumenes
@@ -796,16 +815,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.label16.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label16.Location = new System.Drawing.Point(400, 32);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(214, 19);
+            this.label16.Size = new System.Drawing.Size(192, 16);
             this.label16.TabIndex = 0;
             this.label16.Text = "Notificaciones del Sistema";
             // 
             // tabMovimientos
             // 
             this.tabMovimientos.Controls.Add(this.tablaMovimientos);
-            this.tabMovimientos.Location = new System.Drawing.Point(4, 29);
+            this.tabMovimientos.Location = new System.Drawing.Point(4, 25);
             this.tabMovimientos.Name = "tabMovimientos";
-            this.tabMovimientos.Size = new System.Drawing.Size(1392, 767);
+            this.tabMovimientos.Size = new System.Drawing.Size(1389, 546);
             this.tabMovimientos.TabIndex = 5;
             this.tabMovimientos.Text = "Movimientos del Día";
             this.tabMovimientos.UseVisualStyleBackColor = true;
@@ -822,15 +841,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaMovimientos.ReadOnly = true;
             this.tablaMovimientos.RowHeadersWidth = 51;
             this.tablaMovimientos.RowTemplate.Height = 24;
-            this.tablaMovimientos.Size = new System.Drawing.Size(1392, 767);
+            this.tablaMovimientos.Size = new System.Drawing.Size(1389, 546);
             this.tablaMovimientos.TabIndex = 0;
             // 
             // tabAnalisis
             // 
             this.tabAnalisis.Controls.Add(this.tablaAnalisis);
-            this.tabAnalisis.Location = new System.Drawing.Point(4, 29);
+            this.tabAnalisis.Location = new System.Drawing.Point(4, 25);
             this.tabAnalisis.Name = "tabAnalisis";
-            this.tabAnalisis.Size = new System.Drawing.Size(1392, 767);
+            this.tabAnalisis.Size = new System.Drawing.Size(1389, 546);
             this.tabAnalisis.TabIndex = 6;
             this.tabAnalisis.Text = "Análisis de Transacciones";
             this.tabAnalisis.UseVisualStyleBackColor = true;
@@ -847,15 +866,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaAnalisis.ReadOnly = true;
             this.tablaAnalisis.RowHeadersWidth = 51;
             this.tablaAnalisis.RowTemplate.Height = 24;
-            this.tablaAnalisis.Size = new System.Drawing.Size(1392, 767);
+            this.tablaAnalisis.Size = new System.Drawing.Size(1389, 546);
             this.tablaAnalisis.TabIndex = 0;
             // 
             // tabResumen
             // 
             this.tabResumen.Controls.Add(this.tablaResumen);
-            this.tabResumen.Location = new System.Drawing.Point(4, 29);
+            this.tabResumen.Location = new System.Drawing.Point(4, 25);
             this.tabResumen.Name = "tabResumen";
-            this.tabResumen.Size = new System.Drawing.Size(1392, 767);
+            this.tabResumen.Size = new System.Drawing.Size(1389, 546);
             this.tabResumen.TabIndex = 7;
             this.tabResumen.Text = "Resumen de Clientes";
             this.tabResumen.UseVisualStyleBackColor = true;
@@ -872,14 +891,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaResumen.ReadOnly = true;
             this.tablaResumen.RowHeadersWidth = 51;
             this.tablaResumen.RowTemplate.Height = 24;
-            this.tablaResumen.Size = new System.Drawing.Size(1392, 767);
+            this.tablaResumen.Size = new System.Drawing.Size(1389, 546);
             this.tablaResumen.TabIndex = 0;
             // 
             // PanelAdministrativo
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1400, 800);
+            this.ClientSize = new System.Drawing.Size(1397, 575);
             this.Controls.Add(this.tabPanelAdmin);
             this.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

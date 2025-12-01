@@ -1,7 +1,7 @@
-// Servicio de autenticaciÛn para manejar login y registro
+// Servicio de autenticaci√≥n mejorado para manejar login y registro
 class AuthService {
     constructor() {
-        this.baseURL = 'http://localhost:5202';
+        this.baseURL = 'http://localhost:5202/api';
         this.currentUser = this.getCurrentUser();
     }
 
@@ -42,7 +42,7 @@ class AuthService {
     // Login
     async login(username, password) {
         try {
-            const response = await fetch(`${this.baseURL}/banco/login-admin`, {
+            const response = await fetch(`${this.baseURL}/banco/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,19 +52,23 @@ class AuthService {
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            // EstatusLogin.Success = 0
+            if (response.ok && data.status === 0) {
                 const userData = {
-                    username: username,
-                    isAdmin: data.isAdmin || false,
-                    token: data.token
+                    id: data.user.id,
+                    username: data.user.username,
+                    clienteId: data.user.clienteId,
+                    isAdmin: data.user.isAdmin || false
                 };
 
-                this.saveUser(userData, data.token);
+                // Generar un token simple
+                const token = btoa(`${username}:${Date.now()}`);
+                this.saveUser(userData, token);
 
                 return {
                     success: true,
                     user: userData,
-                    message: data.message
+                    message: data.message || 'Login exitoso'
                 };
             } else {
                 return {
@@ -76,7 +80,7 @@ class AuthService {
             console.error('Login error:', error);
             return {
                 success: false,
-                message: 'Error de conexiÛn. Intenta de nuevo.'
+                message: 'Error de conexi√≥n. Intenta de nuevo.'
             };
         }
     }
@@ -84,15 +88,28 @@ class AuthService {
     // Registro
     async register(userData) {
         try {
+            // Preparar datos seg√∫n el DTO esperado por la API
+            const clienteData = {
+                username: userData.username,
+                password: userData.password,
+                nombreCompleto: userData.nombreCompleto,
+                email: userData.email,
+                telefono: userData.telefono,
+                calle: userData.calle || '',
+                numero: userData.numero || '',
+                ciudad: userData.ciudad || '',
+                estadoProvincia: userData.estadoProvincia || '',
+                codigoPostal: userData.codigoPostal || '',
+                pais: userData.pais || 'M√©xico'
+            };
+
             const response = await fetch(`${this.baseURL}/banco/clientes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify(clienteData),
             });
-
-            const data = await response.json();
 
             if (response.ok) {
                 return {
@@ -100,6 +117,7 @@ class AuthService {
                     message: 'Usuario registrado exitosamente'
                 };
             } else {
+                const data = await response.json();
                 return {
                     success: false,
                     message: data.message || 'Error al registrar usuario'
@@ -109,7 +127,69 @@ class AuthService {
             console.error('Register error:', error);
             return {
                 success: false,
-                message: 'Error de conexiÛn. Intenta de nuevo.'
+                message: 'Error de conexi√≥n. Intenta de nuevo.'
+            };
+        }
+    }
+
+    // Obtener cuentas del usuario actual
+    async getCuentas() {
+        if (!this.currentUser || !this.currentUser.username) {
+            throw new Error('No hay usuario logueado');
+        }
+
+        try {
+            const response = await fetch(
+                `${this.baseURL}/banco/clientes/por-usuario?username=${encodeURIComponent(this.currentUser.username)}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.getAuthToken()}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                return await response.json();
+            } else {
+                throw new Error('Error al obtener cuentas');
+            }
+        } catch (error) {
+            console.error('Error getting cuentas:', error);
+            throw error;
+        }
+    }
+
+    // Realizar transferencia
+    async transferir(transferData) {
+        try {
+            const response = await fetch(`${this.baseURL}/banco/transfer/internal`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.getAuthToken()}`
+                },
+                body: JSON.stringify(transferData),
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                return {
+                    success: true,
+                    data: data,
+                    message: 'Transferencia realizada exitosamente'
+                };
+            } else {
+                return {
+                    success: false,
+                    message: data.message || 'Error al realizar transferencia'
+                };
+            }
+        } catch (error) {
+            console.error('Transfer error:', error);
+            return {
+                success: false,
+                message: 'Error de conexi√≥n. Intenta de nuevo.'
             };
         }
     }
@@ -120,7 +200,7 @@ class AuthService {
         window.location.href = 'Pagina_Principal.html';
     }
 
-    // Verificar si est· logueado
+    // Verificar si est√° logueado
     isLoggedIn() {
         return this.currentUser !== null && localStorage.getItem('authToken') !== null;
     }
@@ -130,11 +210,21 @@ class AuthService {
         return this.currentUser && (this.currentUser.isAdmin === true);
     }
 
-    // Obtener token de autorizaciÛn
+    // Obtener token de autorizaci√≥n
     getAuthToken() {
         return localStorage.getItem('authToken');
     }
+
+    // Verificar conexi√≥n con la API
+    async checkConnection() {
+        try {
+            const response = await fetch(`${this.baseURL}/banco/health`);
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
 }
 
-// Instancia global del servicio de autenticaciÛn
+// Instancia global del servicio de autenticaci√≥n
 const authService = new AuthService();

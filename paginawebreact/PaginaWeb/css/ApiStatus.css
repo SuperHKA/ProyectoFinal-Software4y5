@@ -1,0 +1,150 @@
+/* Indicador de estado de API */
+.api-status-indicator {
+    position: fixed;
+    top: 70px; /* Debajo del header que tiene 60px */
+    right: 20px;
+    z-index: 2000; /* Por encima del header que tiene z-index 1000 */
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    display: none; /* Oculto por defecto */
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.3s ease;
+}
+
+/* Animación de entrada */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Animación de salida */
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Contenedor del contenido */
+.api-status-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Icono del estado */
+.api-status-icon {
+    font-size: 12px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación de pulso para el icono */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* Estado conectado (verde) */
+.api-status-indicator.connected {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: 2px solid #1e7e34;
+}
+
+.api-status-indicator.connected .api-status-icon {
+    color: #d4edda;
+}
+
+/* Estado desconectado (rojo) */
+.api-status-indicator.disconnected {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: 2px solid #bd2130;
+    animation: shake 0.5s ease-in-out;
+}
+
+.api-status-indicator.disconnected .api-status-icon {
+    color: #f8d7da;
+    animation: blink 1s ease-in-out infinite;
+}
+
+/* Animación de parpadeo para estado desconectado */
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Animación de sacudida para llamar la atención */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* Texto del estado */
+.api-status-text {
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .api-status-indicator {
+        top: 60px;
+        right: 10px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .api-status-content {
+        gap: 8px;
+    }
+    
+    .api-status-icon {
+        font-size: 11px;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .api-status-indicator {
+        right: 5px;
+        left: 5px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .api-status-text {
+        font-size: 12px;
+    }
+}

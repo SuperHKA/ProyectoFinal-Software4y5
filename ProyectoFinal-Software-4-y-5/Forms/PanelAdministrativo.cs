@@ -18,6 +18,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private TextBox txtContrasena;
         private Button btnNuevo, btnGuardar, btnEliminar, btnActualizar;
         private Button btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo;
+        private Button btnLogout; // New logout button
 
         // Use the API adapter exclusively
         private readonly ServicioBancoApi _servicioBancoApi;
@@ -39,6 +40,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Conectar eventos
                 ConectarEventos();
 
+                // Add logout button to form
+                AgregarBotonLogout();
+
                 // Defer heavy I/O to form load to keep constructor fast
                 this.Load += PanelAdministrativo_Load;
             }
@@ -47,6 +51,158 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 MessageBox.Show($"Error crítico al inicializar el panel: {ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void AgregarBotonLogout()
+        {
+            // Create logout button
+            btnLogout = new Button
+            {
+                Text = "Cerrar Sesión",
+                Size = new Size(120, 35),
+                BackColor = Color.FromArgb(220, 53, 69), // Red color
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+
+            btnLogout.FlatAppearance.BorderSize = 0;
+            btnLogout.FlatAppearance.MouseOverBackColor = Color.FromArgb(200, 35, 51);
+
+            // Position it in the top-right corner
+            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnLogout.Location = new Point(this.Width - btnLogout.Width - 20, 10);
+
+            // Add to form
+            this.Controls.Add(btnLogout);
+            btnLogout.BringToFront();
+
+            // Connect event
+            btnLogout.Click += BtnLogout_Click;
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            CerrarSesion();
+        }
+
+        private void CerrarSesion()
+        {
+            var resultado = MessageBox.Show(
+                "¿Está seguro que desea cerrar la sesión?",
+                "Confirmar Cierre de Sesión",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (resultado == DialogResult.Yes)
+            {
+                try
+                {
+                    // Clear any sensitive data or perform cleanup
+                    LimpiarDatosSesion();
+
+                    
+
+                    // Close current form
+                    this.Close();
+                    var loginForm = new FormLogin();
+                    loginForm.Show();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al cerrar sesión: {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void LimpiarDatosSesion()
+        {
+            // Clear form data
+            LimpiarFormulario();
+
+            // Clear any cached data
+            if (tablaClientes.DataSource != null)
+            {
+                tablaClientes.DataSource = null;
+            }
+
+            if (gridTransaccionesRecientes.DataSource != null)
+            {
+                gridTransaccionesRecientes.DataSource = null;
+            }
+
+            if (tablaMovimientos.DataSource != null)
+            {
+                tablaMovimientos.DataSource = null;
+            }
+
+            if (tablaAnalisis.DataSource != null)
+            {
+                tablaAnalisis.DataSource = null;
+            }
+
+            if (tablaResumen.DataSource != null)
+            {
+                tablaResumen.DataSource = null;
+            }
+
+            if (gridUsuariosBloqueados.DataSource != null)
+            {
+                gridUsuariosBloqueados.DataSource = null;
+            }
+
+            if (gridNotificacionesSistema.DataSource != null)
+            {
+                gridNotificacionesSistema.DataSource = null;
+            }
+
+            // Clear dashboard labels
+            lblTotalClientes.Text = "0";
+            lblTotalCuentas.Text = "0";
+            lblSaldoTotal.Text = "$0.00";
+            lblTransaccionesHoy.Text = "0";
+        }
+
+        // Override form closing to ensure proper cleanup
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                var resultado = MessageBox.Show(
+                    "¿Está seguro que desea cerrar la aplicación?",
+                    "Confirmar Cierre",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (resultado == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                // If closing, ensure login form is available
+                var openForms = Application.OpenForms;
+                bool loginFormExists = false;
+
+                foreach (Form form in openForms)
+                {
+                    if (form is FormLogin)
+                    {
+                        loginFormExists = true;
+                        break;
+                    }
+                }
+
+                if (!loginFormExists)
+                {
+                    var loginForm = new FormLogin();
+                    loginForm.Show();
+                }
+            }
+
+            base.OnFormClosing(e);
         }
 
         private async void PanelAdministrativo_Load(object sender, EventArgs e)
