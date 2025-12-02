@@ -1,4 +1,4 @@
-﻿namespace datellees_de_cuentas
+﻿namespace ProyectoFinal_Software_4_y_5.Forms
 {
     partial class Form1
     {
