@@ -159,6 +159,35 @@ class AuthService {
         }
     }
 
+    // Obtener información completa del cliente (perfil)
+    async getClienteInfo() {
+        if (!this.currentUser || !this.currentUser.username) {
+            throw new Error('No hay usuario logueado');
+        }
+
+        try {
+            const response = await fetch(
+                `${this.baseURL}/banco/clientes/por-usuario?username=${encodeURIComponent(this.currentUser.username)}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.getAuthToken()}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                // Devolver el objeto tal cual (la estructura depende de la API)
+                return data;
+            } else {
+                throw new Error('Error al obtener información del cliente');
+            }
+        } catch (error) {
+            console.error('Error getting cliente info:', error);
+            throw error;
+        }
+    }
+
     // Realizar transferencia
     async transferir(transferData) {
         try {

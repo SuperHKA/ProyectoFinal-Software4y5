@@ -53,6 +53,8 @@ main {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .site-header .Titulo {
@@ -164,6 +166,8 @@ main {
     height: auto;
     max-height: 600px;
     object-fit: cover;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../src/dinero-en-su-banco.jpg');
+    filter: brightness(0.6);
 }
 
 .texto-presentacion {

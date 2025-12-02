@@ -1,6 +1,6 @@
-// Manejador específico para la página de login
+// Manejador especï¿½fico para la pï¿½gina de login
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si ya está logueado
+    // Verificar si ya estï¿½ logueado
     if (authService.isLoggedIn()) {
         if (authService.isAdmin()) {
             console.log('Todavia en desarrollo');
@@ -10,16 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    const loginForm = document.querySelector('form[action="/login"]');
+    const loginForm = document.getElementById('login-form') || document.querySelector('form');
     
     if (loginForm) {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const email = document.getElementById('email').value.trim();
+            const username = document.getElementById('username') ? document.getElementById('username').value.trim() : document.getElementById('username') && document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             
-            if (!email || !password) {
+            if (!username || !password) {
                 showError('Por favor completa todos los campos');
                 return;
             }
@@ -27,11 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
             showLoading(true);
 
             try {
-                const result = await authService.login(email, password);
+                const result = await authService.login(username, password);
 
                 if (result.success) {
-                    // Redirigir según el tipo de usuario
-                    if (result.user.isAdmin) {
+                    // Redirigir segï¿½n el tipo de usuario
+                    if (result.user && result.user.isAdmin) {
                         console.log('Todavia en desarrollo');
                     } else {
                         window.location.href = 'dashboard.html';
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showError(result.message);
                 }
             } catch (error) {
-                showError('Error al iniciar sesión. Intenta de nuevo.');
+                showError('Error al iniciar sesiï¿½n. Intenta de nuevo.');
             } finally {
                 showLoading(false);
             }
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
 
-        // Ocultar después de 5 segundos
+        // Ocultar despuï¿½s de 5 segundos
         setTimeout(() => {
             errorDiv.style.display = 'none';
         }, 5000);
@@ -85,10 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (submitButton) {
             if (loading) {
                 submitButton.disabled = true;
-                submitButton.textContent = 'Iniciando sesión...';
+                submitButton.textContent = 'Iniciando sesiï¿½n...';
             } else {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Iniciar Sesión';
+                submitButton.textContent = 'Iniciar Sesiï¿½n';
             }
         }
     }

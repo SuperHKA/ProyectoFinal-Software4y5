@@ -7,22 +7,37 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Actualizar información del usuario en el header
-    updateUserInfo();
+    await updateUserInfo();
 
     // Cargar datos del dashboard
     await loadDashboardData();
 });
 
-function updateUserInfo() {
-    const user = authService.getCurrentUser();
-    if (user) {
-        // Actualizar nombre de usuario en el header
+async function updateUserInfo() {
+    try {
+        const data = await authService.getClienteInfo();
+        const cliente = data.cliente || data || (Array.isArray(data) ? data[0] : null);
+        const displayName = (cliente && (cliente.nombreCompleto || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
+
         const userNameElements = document.querySelectorAll('.user-info span, h1');
         userNameElements.forEach(el => {
-            if (el.textContent.includes('Bienvenido')) {
-                el.textContent = `👋 Bienvenido, ${user.username}`;
+            if (el.classList.contains('profile-name')) return; // evitar sobreescribir título del perfil
+            // Si el elemento tiene texto de bienvenida, mantenerlo y añadir nombre
+            if (el.textContent && el.textContent.toLowerCase().includes('bienvenido')) {
+                el.textContent = `👋 Bienvenido, ${displayName}`;
+            } else {
+                // Para otros elementos como el header
+                if (el.matches('.user-info span')) el.textContent = displayName;
             }
         });
+
+        const avatar = document.querySelector('.user-avatar');
+        if (avatar && cliente && cliente.nombreCompleto) {
+            const initials = cliente.nombreCompleto.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+            avatar.textContent = initials;
+        }
+    } catch (error) {
+        console.warn('No se pudo obtener información extendida del usuario:', error);
     }
 }
 
@@ -63,7 +78,8 @@ function displayCuentas(cuentas) {
         
         const tipoCuenta = cuenta.tipoCuenta || 'Cuenta';
         const icon = getTipoCuentaIcon(tipoCuenta);
-        
+        const last4 = cuenta && cuenta.numeroCuenta ? String(cuenta.numeroCuenta).slice(-4) : '----';
+
         card.innerHTML = `
             <div class="account-header">
                 <span class="account-type">
@@ -73,7 +89,7 @@ function displayCuentas(cuentas) {
                 <i class="fas fa-ellipsis-h"></i>
             </div>
             <div class="account-balance">$${formatMoney(cuenta.saldo)}</div>
-            <div class="account-number">** ** ** ${cuenta.numeroCuenta.slice(-4)}</div>
+            <div class="account-number">** ** ** ${last4}</div>
         `;
         
         accountsGrid.appendChild(card);
