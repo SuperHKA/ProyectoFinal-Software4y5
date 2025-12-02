@@ -1,15 +1,25 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3864779">
   <PropertyGroup>
+    <!-- Usar npm run dev que ya está configurado en package.json -->
     <StartupCommand>npm run dev</StartupCommand>
-    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
-    <JavaScriptTestFramework>Vitest</JavaScriptTestFramework>
-    <!-- Allows the build (or compile) script located on package.json to run on Build -->
-    <ShouldRunBuildScript>false</ShouldRunBuildScript>
-    <!-- Folder where production build objects will be placed -->
-    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+    <JavaScriptTestRoot>PaginaWeb\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>None</JavaScriptTestFramework>
+    <ShouldRunBuildScript>true</ShouldRunBuildScript>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\PaginaWeb\html</BuildOutputFolder>
+    <!-- Working directory debe ser PaginaWeb -->
+    <WorkingDirectory>$(MSBuildProjectDirectory)\PaginaWeb/html</WorkingDirectory>
+    <BuildCommand>npm run dev || npx serve PaginaWeb/html</BuildCommand>
+    <StartupCommandWorkingDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginawebreact\PaginaWeb</StartupCommandWorkingDirectory>
+    <PackageJsonDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginawebreact</PackageJsonDirectory>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".vscode\**" />
+    <None Remove="node_modules\**" />
+    <None Remove="PaginaWebReact\**" />
     <TypeScriptConfiguration Remove=".vscode\**" />
+    <TypeScriptConfiguration Remove="node_modules\**" />
+    <!-- Incluir todos los archivos de PaginaWeb -->
+    <TypeScriptConfiguration Remove="PaginaWebReact\**" />
+    <None Include="PaginaWeb\**\*" />
   </ItemGroup>
 </Project>

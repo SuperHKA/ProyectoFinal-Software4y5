@@ -6,8 +6,8 @@
   "name": "localhost (Chrome)",
   "type": "chrome",
   "request": "launch",
-  "url": "http://localhost:54982",
-  "webRoot": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\PaginaWebReact"
+  "url": "http://localhost:3000",
+  "webRoot": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\PaginaWeb"
 }</LaunchJsonTarget>
   </PropertyGroup>
 </Project>
