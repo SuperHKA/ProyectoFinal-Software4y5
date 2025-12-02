@@ -3928,11 +3928,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
+      "projectUniqueName": "c:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
       "projectName": "API_BancoFisclase",
-      "projectPath": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
+      "projectPath": "c:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
       "packagesPath": "C:\\Users\\andre\\.nuget\\packages\\",
-      "outputPath": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\obj\\",
+      "outputPath": "c:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
