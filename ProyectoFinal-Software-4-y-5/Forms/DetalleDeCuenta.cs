@@ -24,7 +24,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             InitializeComponent();
             _apiCliente = new ApiAdmin("http://localhost:5202", allowInvalidSsl: false);
-            CargarDatosEjemplo();
             ConectarEventos();
         }
 
@@ -33,7 +32,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             _clienteId = clienteId;
             _numeroCuenta = numeroCuenta;
-            _ = CargarDatosCuentaAsync(clienteId, numeroCuenta);
+            this.Load += async (s, e) => await CargarDatosCuentaAsync(clienteId, numeroCuenta);
         }
 
         private void ConectarEventos()
@@ -103,32 +102,60 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
+                // DEBUG: Mostrar qué se está buscando
+                System.Diagnostics.Debug.WriteLine($"DEBUG DetalleDeCuenta: Buscando cuenta '{numeroCuenta}' para cliente {clienteId}");
+                
                 // Obtener información del cliente usando métodos disponibles
                 var clientesData = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
                 var clienteInfo = clientesData.FirstOrDefault(c => c.cliente_id == clienteId);
                 
                 if (clienteInfo == null)
                 {
-                    MessageBox.Show("No se pudo obtener la información del cliente.", "Error", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.BeginInvoke((Action)(() =>
+                    {
+                        MessageBox.Show("No se pudo obtener la información del cliente.", "Error", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        this.Close();
+                    }));
                     return;
                 }
 
                 // Obtener cuentas del cliente
                 var cuentas = await _apiCliente.ObtenerCuentasPorClienteAsync(clienteId).ConfigureAwait(false);
+                
+                // DEBUG: Mostrar qué cuentas se recibieron
+                System.Diagnostics.Debug.WriteLine($"DEBUG DetalleDeCuenta: Se recibieron {cuentas.Count()} cuentas");
+                foreach (var cuenta in cuentas)
+                {
+                    var numCuenta = cuenta.ContainsKey("numero_cuenta") ? cuenta["numero_cuenta"]?.ToString() : 
+                                   cuenta.ContainsKey("numeroCuenta") ? cuenta["numeroCuenta"]?.ToString() : "N/A";
+                    System.Diagnostics.Debug.WriteLine($"  - Cuenta: {numCuenta}");
+                }
+                
+                // Buscar la cuenta con ambas variantes del nombre de campo
                 var cuentaData = cuentas.FirstOrDefault(c => 
-                    c.ContainsKey("numero_cuenta") && 
-                    c["numero_cuenta"]?.ToString() == numeroCuenta);
+                    (c.ContainsKey("numero_cuenta") && c["numero_cuenta"]?.ToString() == numeroCuenta) ||
+                    (c.ContainsKey("numeroCuenta") && c["numeroCuenta"]?.ToString() == numeroCuenta));
 
                 if (cuentaData == null)
                 {
-                    MessageBox.Show("No se encontró la cuenta especificada.", "Error", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.BeginInvoke((Action)(() =>
+                    {
+                        MessageBox.Show($"No se encontró la cuenta especificada.\n\nCliente ID: {clienteId}\nNúmero de cuenta buscado: {numeroCuenta}\nCuentas encontradas: {cuentas.Count()}", "Error", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        this.Close();
+                    }));
                     return;
                 }
 
-                // Crear información simulada de transacciones (ya que el método no está disponible)
-                var transaccionesCuenta = new List<Dictionary<string, object>>();
+                // Obtener transacciones de la cuenta
+                var todasTransacciones = await _apiCliente.ObtenerTransaccionesAsync().ConfigureAwait(false);
+                var transaccionesCuenta = todasTransacciones.Where(t =>
+                {
+                    var cuentaOrigen = t.ContainsKey("cuenta_origen") ? t["cuenta_origen"]?.ToString() : "";
+                    var cuentaDestino = t.ContainsKey("cuenta_destino") ? t["cuenta_destino"]?.ToString() : "";
+                    return cuentaOrigen == numeroCuenta || cuentaDestino == numeroCuenta;
+                }).ToList();
 
                 // Crear objeto CuentaBancaria con datos reales
                 this.BeginInvoke((Action)(() =>
@@ -141,9 +168,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 this.BeginInvoke((Action)(() =>
                 {
-                    MessageBox.Show($"Error al cargar datos de la cuenta: {ex.Message}", "Error", 
+                    MessageBox.Show($"Error al cargar datos de la cuenta: {ex.Message}\n\nDetalles: {ex.StackTrace}", "Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    CargarDatosEjemplo(); // Fallback a datos de ejemplo
+                    this.Close();
                 }));
             }
         }
@@ -153,22 +180,52 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             IDictionary<string, object> cuentaData,
             IEnumerable<IDictionary<string, object>> transacciones)
         {
-            var saldo = Convert.ToDecimal(cuentaData["saldo"] ?? 0);
-            var fechaApertura = DateTime.Now.AddMonths(-6); // Fecha de apertura por defecto
-
-            // Determinar tipo de cuenta
-            var tipoCuenta = "Cuenta";
-            if (cuentaData.ContainsKey("tipo") || cuentaData.ContainsKey("tipoCuenta"))
+            // Obtener saldo con verificación
+            var saldo = 0m;
+            if (cuentaData.ContainsKey("saldo"))
             {
-                tipoCuenta = cuentaData["tipo"]?.ToString() ?? cuentaData["tipoCuenta"]?.ToString() ?? "Cuenta";
+                saldo = Convert.ToDecimal(cuentaData["saldo"] ?? 0);
             }
             
-            // Calcular estadísticas de transacciones del mes actual (datos simulados)
+            // Obtener número de cuenta con ambas variantes
+            var numeroCuenta = cuentaData.ContainsKey("numero_cuenta") ? cuentaData["numero_cuenta"]?.ToString() :
+                              cuentaData.ContainsKey("numeroCuenta") ? cuentaData["numeroCuenta"]?.ToString() : "";
+            
+            // Obtener fecha de apertura si existe
+            DateTime fechaApertura = DateTime.Now.AddMonths(-6);
+            if (cuentaData.ContainsKey("fecha_apertura") && cuentaData["fecha_apertura"] != null)
+            {
+                DateTime.TryParse(cuentaData["fecha_apertura"].ToString(), out fechaApertura);
+            }
+
+            // Determinar tipo de cuenta with múltiples variantes
+            var tipoCuenta = "Cuenta";
+            if (cuentaData.ContainsKey("tipo"))
+            {
+                tipoCuenta = cuentaData["tipo"]?.ToString() ?? "Cuenta";
+            }
+            else if (cuentaData.ContainsKey("tipoCuenta"))
+            {
+                tipoCuenta = cuentaData["tipoCuenta"]?.ToString() ?? "Cuenta";
+            }
+            else if (cuentaData.ContainsKey("tipo_cuenta"))
+            {
+                tipoCuenta = cuentaData["tipo_cuenta"]?.ToString() ?? "Cuenta";
+            }
+            
+            // Obtener estado con verificación
+            var activa = true;
+            if (cuentaData.ContainsKey("activa"))
+            {
+                activa = Convert.ToBoolean(cuentaData["activa"] ?? true);
+            }
+            
+            // Calcular estadísticas de transacciones del mes actual con datos reales
             var depositos = 0m;
             var retiros = 0m;
+            DateTime? fechaUltimaTransaccion = null;
 
-            // Si hay transacciones reales, usarlas
-            if (transacciones != null)
+            if (transacciones != null && transacciones.Any())
             {
                 var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var transaccionesDelMes = transacciones.Where(t =>
@@ -180,62 +237,62 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     return false;
                 }).ToList();
 
+                // Calcular depósitos (transacciones donde esta cuenta es destino)
                 depositos = transaccionesDelMes.Where(t => 
                 {
                     var cuentaDestino = t.ContainsKey("cuenta_destino") ? t["cuenta_destino"]?.ToString() : "";
-                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString() : "";
-                    return cuentaDestino == _numeroCuenta || tipo?.ToLower().Contains("depósito") == true;
-                }).Sum(t => Convert.ToDecimal(t["monto"] ?? 0));
+                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString()?.ToLower() : "";
+                    return cuentaDestino == _numeroCuenta || tipo.Contains("depósito") || tipo.Contains("deposito");
+                }).Sum(t => 
+                {
+                    if (t.TryGetValue("monto", out var montoObj))
+                    {
+                        return Convert.ToDecimal(montoObj);
+                    }
+                    return 0m;
+                });
 
+                // Calcular retiros (transacciones donde esta cuenta es origen)
                 retiros = transaccionesDelMes.Where(t => 
                 {
                     var cuentaOrigen = t.ContainsKey("cuenta_origen") ? t["cuenta_origen"]?.ToString() : "";
-                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString() : "";
-                    return cuentaOrigen == _numeroCuenta || tipo?.ToLower().Contains("retiro") == true;
-                }).Sum(t => Convert.ToDecimal(t["monto"] ?? 0));
-            }
-            else
-            {
-                // Datos simulados para demostración
-                depositos = saldo * 0.3m; // 30% del saldo como depósitos del mes
-                retiros = saldo * 0.1m;   // 10% del saldo como retiros del mes
-            }
+                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString()?.ToLower() : "";
+                    return cuentaOrigen == _numeroCuenta || tipo.Contains("retiro");
+                }).Sum(t => 
+                {
+                    if (t.TryGetValue("monto", out var montoObj))
+                    {
+                        return Convert.ToDecimal(montoObj);
+                    }
+                    return 0m;
+                });
 
-            DateTime? fechaUltimaTransaccion = DateTime.Now.AddDays(-3); // Última transacción hace 3 días
+                // Obtener fecha de última transacción
+                var ultimaTransaccion = transacciones
+                    .Where(t => t.ContainsKey("fecha"))
+                    .OrderByDescending(t => DateTime.TryParse(t["fecha"]?.ToString(), out var f) ? f : DateTime.MinValue)
+                    .FirstOrDefault();
+
+                if (ultimaTransaccion != null && ultimaTransaccion.TryGetValue("fecha", out var fechaUltima))
+                {
+                    DateTime.TryParse(fechaUltima?.ToString(), out var fechaTemp);
+                    fechaUltimaTransaccion = fechaTemp;
+                }
+            }
 
             cuentaActual = new CuentaBancaria
             {
-                NumeroCuenta = cuentaData["numero_cuenta"]?.ToString() ?? "",
+                NumeroCuenta = numeroCuenta,
                 Titular = clienteInfo?.nombre_completo ?? "Cliente",
                 TipoCuenta = tipoCuenta,
                 SaldoActual = saldo,
-                Estado = Convert.ToBoolean(cuentaData["activa"] ?? true) ? "Activa" : "Inactiva",
+                Estado = activa ? "Activa" : "Inactiva",
                 FechaApertura = fechaApertura,
                 UltimoMovimiento = fechaUltimaTransaccion,
                 DepositosMes = depositos,
                 RetirosMes = retiros,
                 SaldoNeto = depositos - retiros
             };
-        }
-
-        // Cargar datos de ejemplo (fallback)
-        private void CargarDatosEjemplo()
-        {
-            cuentaActual = new CuentaBancaria
-            {
-                NumeroCuenta = _numeroCuenta ?? "ACC-2024-001234",
-                Titular = "Cliente Ejemplo",
-                TipoCuenta = "Cuenta de Ahorros",
-                SaldoActual = 15750.50m,
-                Estado = "Activa",
-                FechaApertura = new DateTime(2023, 3, 15),
-                UltimoMovimiento = DateTime.Now.AddDays(-2),
-                DepositosMes = 5500.00m,
-                RetirosMes = 1700.00m,
-                SaldoNeto = 3800.00m
-            };
-
-            MostrarDatos();
         }
 
         // Mostrar datos en la interfaz
@@ -246,7 +303,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 if (cuentaActual == null) return;
 
                 // Título
-                label1.Text = $"Detalle de Cuenta #{cuentaActual.NumeroCuenta}";
+                lblTituloPrincipal.Text = $"Detalle de Cuenta #{cuentaActual.NumeroCuenta}";
 
                 // Información de la cuenta
                 txtNumeroCuentaValor.Text = cuentaActual.NumeroCuenta;

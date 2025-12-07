@@ -31,7 +31,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private void CargarHistorial()
         {
             // Limpiar filas existentes
-            dataGridView1.Rows.Clear();
+            dgvHistorialTransacciones.Rows.Clear();
 
             var transacciones = new List<Transaccion>
             {
@@ -67,8 +67,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // Agregar cada transacción al DataGridView
             foreach (var trans in transacciones.OrderByDescending(t => t.Fecha))
             {
-                int index = dataGridView1.Rows.Add();
-                DataGridViewRow fila = dataGridView1.Rows[index];
+                int index = dgvHistorialTransacciones.Rows.Add();
+                DataGridViewRow fila = dgvHistorialTransacciones.Rows[index];
 
                 // Llenar las columnas
                 fila.Cells["Fecha"].Value = trans.Fecha.ToString("dd/MM/yyyy HH:mm");
@@ -94,16 +94,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private void ConfigurarDataGridView()
         {
             // Ajustar columnas
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvHistorialTransacciones.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             // Deshabilitar edición
-            dataGridView1.ReadOnly = true;
+            dgvHistorialTransacciones.ReadOnly = true;
 
             // Selección de fila completa
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvHistorialTransacciones.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             // Estilo alternado de filas
-            dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+            dgvHistorialTransacciones.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
         }
 
         // EVENTO: Cerrar ventana y volver a DetalleDeCuenta
@@ -118,7 +118,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // Verificar que no se hizo clic en el encabezado
             if (e.RowIndex >= 0)
             {
-                DataGridViewRow fila = dataGridView1.Rows[e.RowIndex];
+                DataGridViewRow fila = dgvHistorialTransacciones.Rows[e.RowIndex];
 
                 string fecha = fila.Cells["Fecha"].Value.ToString();
                 string monto = fila.Cells["Monto"].Value.ToString();
@@ -138,7 +138,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         }
     }
 
-    // CLASE AUXILIAR: Transacción
+    // CLASE AUXILIAR: Transaccion
     public class Transaccion
     {
         public DateTime Fecha { get; set; }

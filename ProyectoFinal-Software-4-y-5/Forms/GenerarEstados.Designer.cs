@@ -28,95 +28,95 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
-            this.button1 = new System.Windows.Forms.Button();
-            this.panel1.SuspendLayout();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.lblTituloGenerarEstados = new System.Windows.Forms.Label();
+            this.lblFechaDesde = new System.Windows.Forms.Label();
+            this.lblFechaHasta = new System.Windows.Forms.Label();
+            this.dtpFechaDesde = new System.Windows.Forms.DateTimePicker();
+            this.dtpFechaHasta = new System.Windows.Forms.DateTimePicker();
+            this.btnGenerarEstado = new System.Windows.Forms.Button();
+            this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // pnlHeader
             // 
-            this.panel1.BackColor = System.Drawing.Color.SlateBlue;
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 95);
-            this.panel1.TabIndex = 0;
+            this.pnlHeader.BackColor = System.Drawing.Color.SlateBlue;
+            this.pnlHeader.Controls.Add(this.lblTituloGenerarEstados);
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(800, 80);
+            this.pnlHeader.TabIndex = 0;
             // 
-            // label2
+            // lblTituloGenerarEstados
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label2.Location = new System.Drawing.Point(23, 24);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(244, 41);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Generar Estados";
+            this.lblTituloGenerarEstados.AutoSize = true;
+            this.lblTituloGenerarEstados.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTituloGenerarEstados.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblTituloGenerarEstados.Location = new System.Drawing.Point(25, 20);
+            this.lblTituloGenerarEstados.Name = "lblTituloGenerarEstados";
+            this.lblTituloGenerarEstados.Size = new System.Drawing.Size(230, 32);
+            this.lblTituloGenerarEstados.TabIndex = 1;
+            this.lblTituloGenerarEstados.Text = "Generar Estados";
             // 
-            // label1
+            // lblFechaDesde
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(213, 171);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 31);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Desde:";
+            this.lblFechaDesde.AutoSize = true;
+            this.lblFechaDesde.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFechaDesde.Location = new System.Drawing.Point(213, 171);
+            this.lblFechaDesde.Name = "lblFechaDesde";
+            this.lblFechaDesde.Size = new System.Drawing.Size(85, 31);
+            this.lblFechaDesde.TabIndex = 1;
+            this.lblFechaDesde.Text = "Desde:";
             // 
-            // label3
+            // lblFechaHasta
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(213, 252);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(81, 31);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Hasta:";
+            this.lblFechaHasta.AutoSize = true;
+            this.lblFechaHasta.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFechaHasta.Location = new System.Drawing.Point(213, 252);
+            this.lblFechaHasta.Name = "lblFechaHasta";
+            this.lblFechaHasta.Size = new System.Drawing.Size(81, 31);
+            this.lblFechaHasta.TabIndex = 2;
+            this.lblFechaHasta.Text = "Hasta:";
             // 
-            // dateTimePicker1
+            // dtpFechaDesde
             // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(325, 178);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(219, 22);
-            this.dateTimePicker1.TabIndex = 3;
+            this.dtpFechaDesde.Location = new System.Drawing.Point(325, 178);
+            this.dtpFechaDesde.Name = "dtpFechaDesde";
+            this.dtpFechaDesde.Size = new System.Drawing.Size(219, 22);
+            this.dtpFechaDesde.TabIndex = 3;
             // 
-            // dateTimePicker2
+            // dtpFechaHasta
             // 
-            this.dateTimePicker2.Location = new System.Drawing.Point(325, 259);
-            this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(219, 22);
-            this.dateTimePicker2.TabIndex = 4;
+            this.dtpFechaHasta.Location = new System.Drawing.Point(325, 259);
+            this.dtpFechaHasta.Name = "dtpFechaHasta";
+            this.dtpFechaHasta.Size = new System.Drawing.Size(219, 22);
+            this.dtpFechaHasta.TabIndex = 4;
             // 
-            // button1
+            // btnGenerarEstado
             // 
-            this.button1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(305, 347);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(158, 45);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "Aceptar";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnGenerarEstado.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGenerarEstado.Location = new System.Drawing.Point(305, 347);
+            this.btnGenerarEstado.Name = "btnGenerarEstado";
+            this.btnGenerarEstado.Size = new System.Drawing.Size(158, 45);
+            this.btnGenerarEstado.TabIndex = 5;
+            this.btnGenerarEstado.Text = "Aceptar";
+            this.btnGenerarEstado.UseVisualStyleBackColor = true;
             // 
             // GenerarEstados
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.dateTimePicker2);
-            this.Controls.Add(this.dateTimePicker1);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.btnGenerarEstado);
+            this.Controls.Add(this.dtpFechaHasta);
+            this.Controls.Add(this.dtpFechaDesde);
+            this.Controls.Add(this.lblFechaHasta);
+            this.Controls.Add(this.lblFechaDesde);
+            this.Controls.Add(this.pnlHeader);
             this.Name = "GenerarEstados";
             this.Text = "GenerarEstados";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -124,12 +124,12 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.DateTimePicker dateTimePicker2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Label lblTituloGenerarEstados;
+        private System.Windows.Forms.Label lblFechaDesde;
+        private System.Windows.Forms.Label lblFechaHasta;
+        private System.Windows.Forms.DateTimePicker dtpFechaDesde;
+        private System.Windows.Forms.DateTimePicker dtpFechaHasta;
+        private System.Windows.Forms.Button btnGenerarEstado;
     }
 }

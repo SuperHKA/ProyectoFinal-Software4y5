@@ -18,6 +18,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private TextBox txtContrasena;
         private Button btnNuevo, btnGuardar, btnEliminar, btnActualizar;
         private Button btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo;
+        private Button btnVerCuentas; // Nuevo botón para ver cuentas del cliente
         private Button btnLogout; // New logout button
 
         // Use the API adapter exclusively
@@ -34,14 +35,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 _apiCliente = new ApiAdmin("http://localhost:5202", allowInvalidSsl: false);
                 _servicioBancoApi = new ServicioBancoApi("http://localhost:5202", allowInvalidSsl: false);
 
+                // Aplicar estilos modernos
+                AplicarEstilosModernos();
+
                 // Crear formulario de cliente dinámicamente
                 CrearFormularioCliente();
 
                 // Conectar eventos
                 ConectarEventos();
-
-                // Add logout button to form
-                AgregarBotonLogout();
 
                 // Defer heavy I/O to form load to keep constructor fast
                 this.Load += PanelAdministrativo_Load;
@@ -53,33 +54,62 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        private void AgregarBotonLogout()
+        private void AplicarEstilosModernos()
         {
-            // Create logout button
-            btnLogout = new Button
+            // Estilos para el formulario
+            this.BackColor = Color.FromArgb(248, 249, 250);
+            this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+
+            // Estilos para paneles de estadísticas
+            var paneles = new[] { panelTotalClientes, panelTotalCuentas, panelSaldoTotal, panelTransaccionesHoy };
+            foreach (var panel in paneles)
             {
-                Text = "Cerrar Sesión",
-                Size = new Size(120, 35),
-                BackColor = Color.FromArgb(220, 53, 69), // Red color
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
+                panel.BackColor = Color.White;
+            }
 
-            btnLogout.FlatAppearance.BorderSize = 0;
-            btnLogout.FlatAppearance.MouseOverBackColor = Color.FromArgb(200, 35, 51);
+            // Estilos para DataGridView de transacciones recientes
+            AplicarEstiloDataGridView(gridTransaccionesRecientes);
+            AplicarEstiloDataGridView(tablaClientes);
+            AplicarEstiloDataGridView(tablaMovimientos);
+            AplicarEstiloDataGridView(tablaAnalisis);
+            AplicarEstiloDataGridView(tablaResumen);
 
-            // Position it in the top-right corner
-            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnLogout.Location = new Point(this.Width - btnLogout.Width - 20, 10);
+            // Panel dashboard
+            panelDashboard.BackColor = Color.FromArgb(248, 249, 250);
+        }
 
-            // Add to form
-            this.Controls.Add(btnLogout);
-            btnLogout.BringToFront();
+        private void AplicarEstiloDataGridView(DataGridView grid)
+        {
+            // Estilos generales
+            grid.BackgroundColor = Color.White;
+            grid.BorderStyle = BorderStyle.None;
+            grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.GridColor = Color.FromArgb(230, 230, 230);
+            grid.RowHeadersVisible = false;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.EnableHeadersVisualStyles = false;
+            grid.AllowUserToResizeRows = false;
 
-            // Connect event
-            btnLogout.Click += BtnLogout_Click;
+            // Estilos de encabezado
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.SlateBlue;
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.SlateBlue;
+            grid.ColumnHeadersDefaultCellStyle.Padding = new Padding(10, 8, 10, 8);
+            grid.ColumnHeadersHeight = 40;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            // Estilos de celdas
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(100, 90, 168);
+            grid.DefaultCellStyle.SelectionForeColor = Color.White;
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            grid.DefaultCellStyle.Font = new Font("Segoe UI", 9.5F);
+            grid.DefaultCellStyle.Padding = new Padding(8, 4, 8, 4);
+
+            // Filas alternas
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
+            grid.RowTemplate.Height = 32;
         }
 
         private void BtnLogout_Click(object sender, EventArgs e)
@@ -480,11 +510,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             btnCambiarContrasena = new Button { Text = "Cambiar Contraseña", Size = new Size(120, 30) };
             btnCrearCuenta = new Button { Text = "Crear Cuenta", Size = new Size(100, 30) };
             btnActualizarSaldo = new Button { Text = "Actualizar Saldo", Size = new Size(120, 30) };
+            btnVerCuentas = new Button { Text = "Ver Cuentas", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
 
             flowLayout.Controls.AddRange(new Control[]
             {
                 btnNuevo, btnGuardar, btnEliminar, btnActualizar,
-                btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo
+                btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo, btnVerCuentas
             });
 
             panel.Controls.Add(flowLayout);
@@ -501,6 +532,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             btnCambiarContrasena.Click += async (s, e) => await CambiarContrasenaAsync();
             btnCrearCuenta.Click += async (s, e) => await CrearCuentaBancariaAsync();
             btnActualizarSaldo.Click += (s, e) => ActualizarSaldoCuenta();
+            btnVerCuentas.Click += (s, e) => AbrirCuentasCliente();
 
             btnDesbloquearUsuario.Click += async (s, e) => await DesbloquearUsuarioAsync();
             btnCrearAdministrador.Click += async (s, e) => await CrearAdministradorAsync();
@@ -992,6 +1024,62 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
 
             MessageBox.Show("Funcionalidad de actualizar saldo en desarrollo", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void AbrirCuentasCliente()
+        {
+            try
+            {
+                // Verificar que hay un cliente seleccionado
+                if (tablaClientes.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Por favor, seleccione un cliente de la lista primero.", 
+                        "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                var row = tablaClientes.SelectedRows[0];
+                
+                // Obtener el ClienteId de las columnas ocultas
+                int clienteId = 0;
+                if (row.DataBoundItem is DataRowView dataRowView)
+                {
+                    var dataRow = dataRowView.Row;
+                    
+                    // Intentar obtener cliente_id primero
+                    if (dataRow.Table.Columns.Contains("ClienteId") && 
+                        dataRow["ClienteId"] != DBNull.Value)
+                    {
+                        clienteId = Convert.ToInt32(dataRow["ClienteId"]);
+                    }
+                    
+                    // Si no hay cliente_id válido, usar usuario_id
+                    if (clienteId == 0 && dataRow.Table.Columns.Contains("UsuarioId") && 
+                        dataRow["UsuarioId"] != DBNull.Value)
+                    {
+                        clienteId = Convert.ToInt32(dataRow["UsuarioId"]);
+                    }
+                }
+
+                // Obtener el nombre completo
+                var nombreCompleto = row.Cells["Nombre"].Value?.ToString() ?? "Cliente";
+
+                if (clienteId == 0)
+                {
+                    MessageBox.Show("No se pudo obtener el ID del cliente seleccionado.", 
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Abrir el formulario de cuentas del cliente
+                var formCuentas = new CuentasCliente(clienteId, nombreCompleto);
+                formCuentas.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al abrir las cuentas del cliente: {ex.Message}\n\nDetalles: {ex.StackTrace}", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task DesbloquearUsuarioAsync()

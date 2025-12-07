@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lblTituloPrincipal = new System.Windows.Forms.Label();
+            this.grpInformacionCuenta = new System.Windows.Forms.GroupBox();
             this.txtUltimoMovimientoValor = new System.Windows.Forms.TextBox();
             this.txtFechaAperturaValor = new System.Windows.Forms.TextBox();
             this.txtEstadoValor = new System.Windows.Forms.TextBox();
@@ -37,65 +37,65 @@
             this.txtTipoCuentaValor = new System.Windows.Forms.TextBox();
             this.txtTitularValor = new System.Windows.Forms.TextBox();
             this.txtNumeroCuentaValor = new System.Windows.Forms.TextBox();
-            this.UltimoMovimiento = new System.Windows.Forms.Label();
-            this.FechadeApertura = new System.Windows.Forms.Label();
-            this.Estado = new System.Windows.Forms.Label();
-            this.SaldoActual = new System.Windows.Forms.Label();
-            this.TipodeCuenta = new System.Windows.Forms.Label();
-            this.Titular = new System.Windows.Forms.Label();
-            this.Númerodecuenta = new System.Windows.Forms.Label();
+            this.lblUltimoMovimiento = new System.Windows.Forms.Label();
+            this.lblFechaApertura = new System.Windows.Forms.Label();
+            this.lblEstado = new System.Windows.Forms.Label();
+            this.lblSaldoActual = new System.Windows.Forms.Label();
+            this.lblTipoCuenta = new System.Windows.Forms.Label();
+            this.lblTitular = new System.Windows.Forms.Label();
+            this.lblNumeroCuenta = new System.Windows.Forms.Label();
             this.txtDepositosValor = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.AccionesRapidas = new System.Windows.Forms.GroupBox();
+            this.lblInformacionCuenta = new System.Windows.Forms.Label();
+            this.lblAccionesRapidas = new System.Windows.Forms.Label();
+            this.grpAccionesRapidas = new System.Windows.Forms.GroupBox();
             this.btnVerHistorial = new System.Windows.Forms.Button();
             this.btnNuevaTransaccion = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lblResumenMensual = new System.Windows.Forms.Label();
+            this.grpResumenMensual = new System.Windows.Forms.GroupBox();
             this.txtSaldoNetoValor = new System.Windows.Forms.TextBox();
             this.txtRetirosValor = new System.Windows.Forms.TextBox();
-            this.Retiros = new System.Windows.Forms.Label();
-            this.SaldoNeto = new System.Windows.Forms.Label();
-            this.Depósitos = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.groupBox1.SuspendLayout();
-            this.AccionesRapidas.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.lblRetiros = new System.Windows.Forms.Label();
+            this.lblSaldoNeto = new System.Windows.Forms.Label();
+            this.lblDepositos = new System.Windows.Forms.Label();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.grpInformacionCuenta.SuspendLayout();
+            this.grpAccionesRapidas.SuspendLayout();
+            this.grpResumenMensual.SuspendLayout();
+            this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
-            // label1
+            // lblTituloPrincipal
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label1.Location = new System.Drawing.Point(36, 24);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(510, 38);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Detalle de Cuenta #ACC-2024-001234";
+            this.lblTituloPrincipal.AutoSize = true;
+            this.lblTituloPrincipal.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTituloPrincipal.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblTituloPrincipal.Location = new System.Drawing.Point(25, 20);
+            this.lblTituloPrincipal.Name = "lblTituloPrincipal";
+            this.lblTituloPrincipal.Size = new System.Drawing.Size(530, 32);
+            this.lblTituloPrincipal.TabIndex = 0;
+            this.lblTituloPrincipal.Text = "Detalle de Cuenta #ACC-2024-001234";
             // 
-            // groupBox1
+            // grpInformacionCuenta
             // 
-            this.groupBox1.Controls.Add(this.txtUltimoMovimientoValor);
-            this.groupBox1.Controls.Add(this.txtFechaAperturaValor);
-            this.groupBox1.Controls.Add(this.txtEstadoValor);
-            this.groupBox1.Controls.Add(this.txtSaldoActualValor);
-            this.groupBox1.Controls.Add(this.txtTipoCuentaValor);
-            this.groupBox1.Controls.Add(this.txtTitularValor);
-            this.groupBox1.Controls.Add(this.txtNumeroCuentaValor);
-            this.groupBox1.Controls.Add(this.UltimoMovimiento);
-            this.groupBox1.Controls.Add(this.FechadeApertura);
-            this.groupBox1.Controls.Add(this.Estado);
-            this.groupBox1.Controls.Add(this.SaldoActual);
-            this.groupBox1.Controls.Add(this.TipodeCuenta);
-            this.groupBox1.Controls.Add(this.Titular);
-            this.groupBox1.Controls.Add(this.Númerodecuenta);
-            this.groupBox1.Location = new System.Drawing.Point(41, 157);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(569, 519);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
+            this.grpInformacionCuenta.Controls.Add(this.txtUltimoMovimientoValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtFechaAperturaValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtEstadoValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtSaldoActualValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtTipoCuentaValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtTitularValor);
+            this.grpInformacionCuenta.Controls.Add(this.txtNumeroCuentaValor);
+            this.grpInformacionCuenta.Controls.Add(this.lblUltimoMovimiento);
+            this.grpInformacionCuenta.Controls.Add(this.lblFechaApertura);
+            this.grpInformacionCuenta.Controls.Add(this.lblEstado);
+            this.grpInformacionCuenta.Controls.Add(this.lblSaldoActual);
+            this.grpInformacionCuenta.Controls.Add(this.lblTipoCuenta);
+            this.grpInformacionCuenta.Controls.Add(this.lblTitular);
+            this.grpInformacionCuenta.Controls.Add(this.lblNumeroCuenta);
+            this.grpInformacionCuenta.Location = new System.Drawing.Point(41, 157);
+            this.grpInformacionCuenta.Name = "grpInformacionCuenta";
+            this.grpInformacionCuenta.Size = new System.Drawing.Size(569, 519);
+            this.grpInformacionCuenta.TabIndex = 1;
+            this.grpInformacionCuenta.TabStop = false;
             // 
             // txtUltimoMovimientoValor
             // 
@@ -155,75 +155,75 @@
             this.txtNumeroCuentaValor.Size = new System.Drawing.Size(170, 22);
             this.txtNumeroCuentaValor.TabIndex = 13;
             // 
-            // UltimoMovimiento
+            // lblUltimoMovimiento
             // 
-            this.UltimoMovimiento.AutoSize = true;
-            this.UltimoMovimiento.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.UltimoMovimiento.Location = new System.Drawing.Point(6, 399);
-            this.UltimoMovimiento.Name = "UltimoMovimiento";
-            this.UltimoMovimiento.Size = new System.Drawing.Size(152, 20);
-            this.UltimoMovimiento.TabIndex = 9;
-            this.UltimoMovimiento.Text = "Ultimo Movimiento:";
+            this.lblUltimoMovimiento.AutoSize = true;
+            this.lblUltimoMovimiento.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUltimoMovimiento.Location = new System.Drawing.Point(6, 399);
+            this.lblUltimoMovimiento.Name = "lblUltimoMovimiento";
+            this.lblUltimoMovimiento.Size = new System.Drawing.Size(152, 20);
+            this.lblUltimoMovimiento.TabIndex = 9;
+            this.lblUltimoMovimiento.Text = "Ultimo Movimiento:";
             // 
-            // FechadeApertura
+            // lblFechaApertura
             // 
-            this.FechadeApertura.AutoSize = true;
-            this.FechadeApertura.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FechadeApertura.Location = new System.Drawing.Point(6, 337);
-            this.FechadeApertura.Name = "FechadeApertura";
-            this.FechadeApertura.Size = new System.Drawing.Size(152, 20);
-            this.FechadeApertura.TabIndex = 8;
-            this.FechadeApertura.Text = "Fecha de Apertura:";
+            this.lblFechaApertura.AutoSize = true;
+            this.lblFechaApertura.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFechaApertura.Location = new System.Drawing.Point(6, 337);
+            this.lblFechaApertura.Name = "lblFechaApertura";
+            this.lblFechaApertura.Size = new System.Drawing.Size(152, 20);
+            this.lblFechaApertura.TabIndex = 8;
+            this.lblFechaApertura.Text = "Fecha de Apertura:";
             // 
-            // Estado
+            // lblEstado
             // 
-            this.Estado.AutoSize = true;
-            this.Estado.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Estado.Location = new System.Drawing.Point(6, 279);
-            this.Estado.Name = "Estado";
-            this.Estado.Size = new System.Drawing.Size(66, 20);
-            this.Estado.TabIndex = 7;
-            this.Estado.Text = "Estado:";
+            this.lblEstado.AutoSize = true;
+            this.lblEstado.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEstado.Location = new System.Drawing.Point(6, 279);
+            this.lblEstado.Name = "lblEstado";
+            this.lblEstado.Size = new System.Drawing.Size(66, 20);
+            this.lblEstado.TabIndex = 7;
+            this.lblEstado.Text = "Estado:";
             // 
-            // SaldoActual
+            // lblSaldoActual
             // 
-            this.SaldoActual.AutoSize = true;
-            this.SaldoActual.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SaldoActual.Location = new System.Drawing.Point(6, 219);
-            this.SaldoActual.Name = "SaldoActual";
-            this.SaldoActual.Size = new System.Drawing.Size(108, 20);
-            this.SaldoActual.TabIndex = 6;
-            this.SaldoActual.Text = "Saldo Actual:";
+            this.lblSaldoActual.AutoSize = true;
+            this.lblSaldoActual.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSaldoActual.Location = new System.Drawing.Point(6, 219);
+            this.lblSaldoActual.Name = "lblSaldoActual";
+            this.lblSaldoActual.Size = new System.Drawing.Size(108, 20);
+            this.lblSaldoActual.TabIndex = 6;
+            this.lblSaldoActual.Text = "Saldo Actual:";
             // 
-            // TipodeCuenta
+            // lblTipoCuenta
             // 
-            this.TipodeCuenta.AutoSize = true;
-            this.TipodeCuenta.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TipodeCuenta.Location = new System.Drawing.Point(6, 157);
-            this.TipodeCuenta.Name = "TipodeCuenta";
-            this.TipodeCuenta.Size = new System.Drawing.Size(127, 20);
-            this.TipodeCuenta.TabIndex = 5;
-            this.TipodeCuenta.Text = "Tipo de Cuenta:";
+            this.lblTipoCuenta.AutoSize = true;
+            this.lblTipoCuenta.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTipoCuenta.Location = new System.Drawing.Point(6, 157);
+            this.lblTipoCuenta.Name = "lblTipoCuenta";
+            this.lblTipoCuenta.Size = new System.Drawing.Size(127, 20);
+            this.lblTipoCuenta.TabIndex = 5;
+            this.lblTipoCuenta.Text = "Tipo de Cuenta:";
             // 
-            // Titular
+            // lblTitular
             // 
-            this.Titular.AutoSize = true;
-            this.Titular.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Titular.Location = new System.Drawing.Point(6, 96);
-            this.Titular.Name = "Titular";
-            this.Titular.Size = new System.Drawing.Size(61, 20);
-            this.Titular.TabIndex = 4;
-            this.Titular.Text = "Titular:";
+            this.lblTitular.AutoSize = true;
+            this.lblTitular.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTitular.Location = new System.Drawing.Point(6, 96);
+            this.lblTitular.Name = "lblTitular";
+            this.lblTitular.Size = new System.Drawing.Size(61, 20);
+            this.lblTitular.TabIndex = 4;
+            this.lblTitular.Text = "Titular:";
             // 
-            // Númerodecuenta
+            // lblNumeroCuenta
             // 
-            this.Númerodecuenta.AutoSize = true;
-            this.Númerodecuenta.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Númerodecuenta.Location = new System.Drawing.Point(6, 36);
-            this.Númerodecuenta.Name = "Númerodecuenta";
-            this.Númerodecuenta.Size = new System.Drawing.Size(151, 20);
-            this.Númerodecuenta.TabIndex = 3;
-            this.Númerodecuenta.Text = "Número de cuenta:";
+            this.lblNumeroCuenta.AutoSize = true;
+            this.lblNumeroCuenta.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNumeroCuenta.Location = new System.Drawing.Point(6, 36);
+            this.lblNumeroCuenta.Name = "lblNumeroCuenta";
+            this.lblNumeroCuenta.Size = new System.Drawing.Size(151, 20);
+            this.lblNumeroCuenta.TabIndex = 3;
+            this.lblNumeroCuenta.Text = "Número de cuenta:";
             // 
             // txtDepositosValor
             // 
@@ -234,35 +234,35 @@
             this.txtDepositosValor.Size = new System.Drawing.Size(100, 22);
             this.txtDepositosValor.TabIndex = 12;
             // 
-            // label2
+            // lblInformacionCuenta
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(36, 123);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(284, 31);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Información de la Cuenta";
+            this.lblInformacionCuenta.AutoSize = true;
+            this.lblInformacionCuenta.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblInformacionCuenta.Location = new System.Drawing.Point(36, 123);
+            this.lblInformacionCuenta.Name = "lblInformacionCuenta";
+            this.lblInformacionCuenta.Size = new System.Drawing.Size(284, 31);
+            this.lblInformacionCuenta.TabIndex = 2;
+            this.lblInformacionCuenta.Text = "Información de la Cuenta";
             // 
-            // label12
+            // lblAccionesRapidas
             // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(675, 129);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(160, 25);
-            this.label12.TabIndex = 3;
-            this.label12.Text = "Acciones Rápidas";
+            this.lblAccionesRapidas.AutoSize = true;
+            this.lblAccionesRapidas.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAccionesRapidas.Location = new System.Drawing.Point(675, 129);
+            this.lblAccionesRapidas.Name = "lblAccionesRapidas";
+            this.lblAccionesRapidas.Size = new System.Drawing.Size(160, 25);
+            this.lblAccionesRapidas.TabIndex = 3;
+            this.lblAccionesRapidas.Text = "Acciones Rápidas";
             // 
-            // AccionesRapidas
+            // grpAccionesRapidas
             // 
-            this.AccionesRapidas.Controls.Add(this.btnVerHistorial);
-            this.AccionesRapidas.Controls.Add(this.btnNuevaTransaccion);
-            this.AccionesRapidas.Location = new System.Drawing.Point(670, 157);
-            this.AccionesRapidas.Name = "AccionesRapidas";
-            this.AccionesRapidas.Size = new System.Drawing.Size(280, 228);
-            this.AccionesRapidas.TabIndex = 4;
-            this.AccionesRapidas.TabStop = false;
+            this.grpAccionesRapidas.Controls.Add(this.btnVerHistorial);
+            this.grpAccionesRapidas.Controls.Add(this.btnNuevaTransaccion);
+            this.grpAccionesRapidas.Location = new System.Drawing.Point(670, 157);
+            this.grpAccionesRapidas.Name = "grpAccionesRapidas";
+            this.grpAccionesRapidas.Size = new System.Drawing.Size(280, 228);
+            this.grpAccionesRapidas.TabIndex = 4;
+            this.grpAccionesRapidas.TabStop = false;
             // 
             // btnVerHistorial
             // 
@@ -286,29 +286,29 @@
             this.btnNuevaTransaccion.Text = "Nueva Transacción";
             this.btnNuevaTransaccion.UseVisualStyleBackColor = false;
             // 
-            // label13
+            // lblResumenMensual
             // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(675, 436);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(167, 25);
-            this.label13.TabIndex = 5;
-            this.label13.Text = "Resumen Mensual";
+            this.lblResumenMensual.AutoSize = true;
+            this.lblResumenMensual.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblResumenMensual.Location = new System.Drawing.Point(675, 436);
+            this.lblResumenMensual.Name = "lblResumenMensual";
+            this.lblResumenMensual.Size = new System.Drawing.Size(167, 25);
+            this.lblResumenMensual.TabIndex = 5;
+            this.lblResumenMensual.Text = "Resumen Mensual";
             // 
-            // groupBox2
+            // grpResumenMensual
             // 
-            this.groupBox2.Controls.Add(this.txtSaldoNetoValor);
-            this.groupBox2.Controls.Add(this.txtRetirosValor);
-            this.groupBox2.Controls.Add(this.txtDepositosValor);
-            this.groupBox2.Controls.Add(this.Retiros);
-            this.groupBox2.Controls.Add(this.SaldoNeto);
-            this.groupBox2.Controls.Add(this.Depósitos);
-            this.groupBox2.Location = new System.Drawing.Point(670, 469);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(280, 203);
-            this.groupBox2.TabIndex = 6;
-            this.groupBox2.TabStop = false;
+            this.grpResumenMensual.Controls.Add(this.txtSaldoNetoValor);
+            this.grpResumenMensual.Controls.Add(this.txtRetirosValor);
+            this.grpResumenMensual.Controls.Add(this.txtDepositosValor);
+            this.grpResumenMensual.Controls.Add(this.lblRetiros);
+            this.grpResumenMensual.Controls.Add(this.lblSaldoNeto);
+            this.grpResumenMensual.Controls.Add(this.lblDepositos);
+            this.grpResumenMensual.Location = new System.Drawing.Point(670, 469);
+            this.grpResumenMensual.Name = "grpResumenMensual";
+            this.grpResumenMensual.Size = new System.Drawing.Size(280, 203);
+            this.grpResumenMensual.TabIndex = 6;
+            this.grpResumenMensual.TabStop = false;
             // 
             // txtSaldoNetoValor
             // 
@@ -327,44 +327,44 @@
             this.txtRetirosValor.Size = new System.Drawing.Size(100, 22);
             this.txtRetirosValor.TabIndex = 15;
             // 
-            // Retiros
+            // lblRetiros
             // 
-            this.Retiros.AutoSize = true;
-            this.Retiros.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Retiros.Location = new System.Drawing.Point(6, 98);
-            this.Retiros.Name = "Retiros";
-            this.Retiros.Size = new System.Drawing.Size(68, 20);
-            this.Retiros.TabIndex = 14;
-            this.Retiros.Text = "Retiros:";
+            this.lblRetiros.AutoSize = true;
+            this.lblRetiros.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRetiros.Location = new System.Drawing.Point(6, 98);
+            this.lblRetiros.Name = "lblRetiros";
+            this.lblRetiros.Size = new System.Drawing.Size(68, 20);
+            this.lblRetiros.TabIndex = 14;
+            this.lblRetiros.Text = "Retiros:";
             // 
-            // SaldoNeto
+            // lblSaldoNeto
             // 
-            this.SaldoNeto.AutoSize = true;
-            this.SaldoNeto.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SaldoNeto.Location = new System.Drawing.Point(6, 155);
-            this.SaldoNeto.Name = "SaldoNeto";
-            this.SaldoNeto.Size = new System.Drawing.Size(96, 20);
-            this.SaldoNeto.TabIndex = 13;
-            this.SaldoNeto.Text = "Saldo Neto:";
+            this.lblSaldoNeto.AutoSize = true;
+            this.lblSaldoNeto.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSaldoNeto.Location = new System.Drawing.Point(6, 155);
+            this.lblSaldoNeto.Name = "lblSaldoNeto";
+            this.lblSaldoNeto.Size = new System.Drawing.Size(96, 20);
+            this.lblSaldoNeto.TabIndex = 13;
+            this.lblSaldoNeto.Text = "Saldo Neto:";
             // 
-            // Depósitos
+            // lblDepositos
             // 
-            this.Depósitos.AutoSize = true;
-            this.Depósitos.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Depósitos.Location = new System.Drawing.Point(6, 40);
-            this.Depósitos.Name = "Depósitos";
-            this.Depósitos.Size = new System.Drawing.Size(90, 20);
-            this.Depósitos.TabIndex = 12;
-            this.Depósitos.Text = "Depósitos:";
+            this.lblDepositos.AutoSize = true;
+            this.lblDepositos.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDepositos.Location = new System.Drawing.Point(6, 40);
+            this.lblDepositos.Name = "lblDepositos";
+            this.lblDepositos.Size = new System.Drawing.Size(90, 20);
+            this.lblDepositos.TabIndex = 12;
+            this.lblDepositos.Text = "Depósitos:";
             // 
-            // panel1
+            // pnlHeader
             // 
-            this.panel1.BackColor = System.Drawing.Color.SlateBlue;
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(-2, 1);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(999, 89);
-            this.panel1.TabIndex = 7;
+            this.pnlHeader.BackColor = System.Drawing.Color.SlateBlue;
+            this.pnlHeader.Controls.Add(this.lblTituloPrincipal);
+            this.pnlHeader.Location = new System.Drawing.Point(-2, 1);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(999, 89);
+            this.pnlHeader.TabIndex = 7;
             // 
             // DetalleDeCuenta
             // 
@@ -372,22 +372,22 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ClientSize = new System.Drawing.Size(997, 686);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label13);
-            this.Controls.Add(this.AccionesRapidas);
-            this.Controls.Add(this.label12);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.lblInformacionCuenta);
+            this.Controls.Add(this.pnlHeader);
+            this.Controls.Add(this.grpResumenMensual);
+            this.Controls.Add(this.lblResumenMensual);
+            this.Controls.Add(this.grpAccionesRapidas);
+            this.Controls.Add(this.lblAccionesRapidas);
+            this.Controls.Add(this.grpInformacionCuenta);
             this.Name = "DetalleDeCuenta";
             this.Text = "Form1";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.AccionesRapidas.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.grpInformacionCuenta.ResumeLayout(false);
+            this.grpInformacionCuenta.PerformLayout();
+            this.grpAccionesRapidas.ResumeLayout(false);
+            this.grpResumenMensual.ResumeLayout(false);
+            this.grpResumenMensual.PerformLayout();
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -395,25 +395,25 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label Estado;
-        private System.Windows.Forms.Label SaldoActual;
-        private System.Windows.Forms.Label TipodeCuenta;
-        private System.Windows.Forms.Label Titular;
-        private System.Windows.Forms.Label Númerodecuenta;
-        private System.Windows.Forms.Label UltimoMovimiento;
-        private System.Windows.Forms.Label FechadeApertura;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.GroupBox AccionesRapidas;
+        private System.Windows.Forms.Label lblTituloPrincipal;
+        private System.Windows.Forms.GroupBox grpInformacionCuenta;
+        private System.Windows.Forms.Label lblInformacionCuenta;
+        private System.Windows.Forms.Label lblEstado;
+        private System.Windows.Forms.Label lblSaldoActual;
+        private System.Windows.Forms.Label lblTipoCuenta;
+        private System.Windows.Forms.Label lblTitular;
+        private System.Windows.Forms.Label lblNumeroCuenta;
+        private System.Windows.Forms.Label lblUltimoMovimiento;
+        private System.Windows.Forms.Label lblFechaApertura;
+        private System.Windows.Forms.Label lblAccionesRapidas;
+        private System.Windows.Forms.GroupBox grpAccionesRapidas;
         private System.Windows.Forms.Button btnNuevaTransaccion;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label lblResumenMensual;
+        private System.Windows.Forms.GroupBox grpResumenMensual;
         private System.Windows.Forms.Button btnVerHistorial;
-        private System.Windows.Forms.Label Retiros;
-        private System.Windows.Forms.Label SaldoNeto;
-        private System.Windows.Forms.Label Depósitos;
+        private System.Windows.Forms.Label lblRetiros;
+        private System.Windows.Forms.Label lblSaldoNeto;
+        private System.Windows.Forms.Label lblDepositos;
         private System.Windows.Forms.TextBox txtDepositosValor;
         private System.Windows.Forms.TextBox txtUltimoMovimientoValor;
         private System.Windows.Forms.TextBox txtFechaAperturaValor;
@@ -424,7 +424,7 @@
         private System.Windows.Forms.TextBox txtNumeroCuentaValor;
         private System.Windows.Forms.TextBox txtSaldoNetoValor;
         private System.Windows.Forms.TextBox txtRetirosValor;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlHeader;
     }
 }
 

@@ -337,6 +337,29 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
                 $"/api/banco/clientes/{clienteId}/cuentas").ConfigureAwait(false);
 
+        // Obtener todas las transacciones (para filtrar localmente)
+        public async Task<IEnumerable<Dictionary<string, object>>> ObtenerTransaccionesAsync()
+        {
+            try
+            {
+                // Intentar obtener con paginación grande para obtener todas las transacciones
+                var response = await GetJsonAsync<PaginatedResponse<Dictionary<string, object>>>("/api/banco/transacciones?pageSize=1000").ConfigureAwait(false);
+                return response?.items ?? new List<Dictionary<string, object>>();
+            }
+            catch
+            {
+                // Fallback: intentar endpoint sin paginación
+                try
+                {
+                    return await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/transacciones").ConfigureAwait(false);
+                }
+                catch
+                {
+                    return new List<Dictionary<string, object>>();
+                }
+            }
+        }
+
         // DTOs para respuesta paginada
         public class PaginatedResponse<T>
         {

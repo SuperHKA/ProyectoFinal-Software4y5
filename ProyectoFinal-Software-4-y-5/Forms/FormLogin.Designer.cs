@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pnlLeftSide = new System.Windows.Forms.Panel();
+            this.picBankLogo = new System.Windows.Forms.PictureBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.lblAppName = new System.Windows.Forms.Label();
@@ -40,35 +40,35 @@
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.btnLogin = new System.Windows.Forms.Button();
             this.lnkRecuperar = new System.Windows.Forms.LinkLabel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.lblUsername = new System.Windows.Forms.Label();
+            this.pnlLeftSide.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBankLogo)).BeginInit();
             this.SuspendLayout();
             // 
-            // panel1
+            // pnlLeftSide
             // 
-            this.panel1.BackColor = System.Drawing.Color.SlateBlue;
-            this.panel1.Controls.Add(this.pictureBox1);
-            this.panel1.Controls.Add(this.lblDescription);
-            this.panel1.Controls.Add(this.lblSubtitle);
-            this.panel1.Controls.Add(this.lblAppName);
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(528, 814);
-            this.panel1.TabIndex = 0;
+            this.pnlLeftSide.BackColor = System.Drawing.Color.SlateBlue;
+            this.pnlLeftSide.Controls.Add(this.picBankLogo);
+            this.pnlLeftSide.Controls.Add(this.lblDescription);
+            this.pnlLeftSide.Controls.Add(this.lblSubtitle);
+            this.pnlLeftSide.Controls.Add(this.lblAppName);
+            this.pnlLeftSide.Location = new System.Drawing.Point(0, 0);
+            this.pnlLeftSide.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pnlLeftSide.Name = "pnlLeftSide";
+            this.pnlLeftSide.Size = new System.Drawing.Size(528, 814);
+            this.pnlLeftSide.TabIndex = 0;
             // 
-            // pictureBox1
+            // picBankLogo
             // 
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Image = global::ProyectoFinal_Software_4_y_5.Properties.Resources.Screenshot_2025_11_10_184112;
-            this.pictureBox1.Location = new System.Drawing.Point(16, 154);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(63, 100);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 6;
-            this.pictureBox1.TabStop = false;
+            this.picBankLogo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picBankLogo.Image = global::ProyectoFinal_Software_4_y_5.Properties.Resources.Screenshot_2025_11_10_184112;
+            this.picBankLogo.Location = new System.Drawing.Point(16, 154);
+            this.picBankLogo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.picBankLogo.Name = "picBankLogo";
+            this.picBankLogo.Size = new System.Drawing.Size(63, 100);
+            this.picBankLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picBankLogo.TabIndex = 6;
+            this.picBankLogo.TabStop = false;
             // 
             // lblDescription
             // 
@@ -187,23 +187,23 @@
             this.lnkRecuperar.TabStop = true;
             this.lnkRecuperar.Text = "¿Olvidaste tu contraseña? Recuperar";
             // 
-            // label1
+            // lblUsername
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(681, 204);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(68, 23);
-            this.label1.TabIndex = 10;
-            this.label1.Text = "Usuario";
+            this.lblUsername.AutoSize = true;
+            this.lblUsername.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUsername.Location = new System.Drawing.Point(681, 204);
+            this.lblUsername.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblUsername.Name = "lblUsername";
+            this.lblUsername.Size = new System.Drawing.Size(68, 23);
+            this.lblUsername.TabIndex = 10;
+            this.lblUsername.Text = "Usuario";
             // 
             // FormLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1081, 593);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblUsername);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.lnkRecuperar);
             this.Controls.Add(this.btnLogin);
@@ -211,16 +211,16 @@
             this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.txtUsuario);
             this.Controls.Add(this.lblSubtitle2);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.pnlLeftSide);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.Name = "FormLogin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "BankAdmin Pro - Login";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.pnlLeftSide.ResumeLayout(false);
+            this.pnlLeftSide.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBankLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -228,7 +228,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlLeftSide;
         private System.Windows.Forms.Label lblAppName;
         private System.Windows.Forms.Label lblSubtitle;
         private System.Windows.Forms.Label lblDescription;
@@ -239,8 +239,8 @@
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Button btnLogin;
         private System.Windows.Forms.LinkLabel lnkRecuperar;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.PictureBox picBankLogo;
+        private System.Windows.Forms.Label lblUsername;
     }
 }
 

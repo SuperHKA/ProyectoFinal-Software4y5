@@ -28,36 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.lblTituloHistorial = new System.Windows.Forms.Label();
             this.btnCerrar = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dgvHistorialTransacciones = new System.Windows.Forms.DataGridView();
             this.Fecha = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Monto = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Descripcion = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.pnlHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvHistorialTransacciones)).BeginInit();
             this.SuspendLayout();
             // 
-            // panel1
+            // pnlHeader
             // 
-            this.panel1.BackColor = System.Drawing.Color.SlateBlue;
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(742, 78);
-            this.panel1.TabIndex = 0;
+            this.pnlHeader.BackColor = System.Drawing.Color.SlateBlue;
+            this.pnlHeader.Controls.Add(this.lblTituloHistorial);
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(742, 70);
+            this.pnlHeader.TabIndex = 0;
             // 
-            // label1
+            // lblTituloHistorial
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label1.Location = new System.Drawing.Point(12, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(179, 38);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Ver Historial";
+            this.lblTituloHistorial.AutoSize = true;
+            this.lblTituloHistorial.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTituloHistorial.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblTituloHistorial.Location = new System.Drawing.Point(25, 18);
+            this.lblTituloHistorial.Name = "lblTituloHistorial";
+            this.lblTituloHistorial.Size = new System.Drawing.Size(180, 32);
+            this.lblTituloHistorial.TabIndex = 1;
+            this.lblTituloHistorial.Text = "Ver Historial";
             // 
             // btnCerrar
             // 
@@ -69,21 +69,21 @@
             this.btnCerrar.Text = "Cerrar";
             this.btnCerrar.UseVisualStyleBackColor = true;
             // 
-            // dataGridView1
+            // dgvHistorialTransacciones
             // 
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dgvHistorialTransacciones.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.dgvHistorialTransacciones.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvHistorialTransacciones.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Fecha,
             this.Monto,
             this.Descripcion});
-            this.dataGridView1.Location = new System.Drawing.Point(94, 108);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(551, 272);
-            this.dataGridView1.TabIndex = 3;
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dgvHistorialTransacciones.Location = new System.Drawing.Point(94, 108);
+            this.dgvHistorialTransacciones.Name = "dgvHistorialTransacciones";
+            this.dgvHistorialTransacciones.RowHeadersWidth = 51;
+            this.dgvHistorialTransacciones.RowTemplate.Height = 24;
+            this.dgvHistorialTransacciones.Size = new System.Drawing.Size(551, 272);
+            this.dgvHistorialTransacciones.TabIndex = 3;
+            this.dgvHistorialTransacciones.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // Fecha
             // 
@@ -106,30 +106,30 @@
             this.Descripcion.Name = "Descripcion";
             this.Descripcion.Width = 125;
             // 
-            // VerHostorial
+            // VerHistorial
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ClientSize = new System.Drawing.Size(742, 482);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.dgvHistorialTransacciones);
             this.Controls.Add(this.btnCerrar);
-            this.Controls.Add(this.panel1);
-            this.Name = "VerHostorial";
-            this.Text = "VerHostorial";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.Controls.Add(this.pnlHeader);
+            this.Name = "VerHistorial";
+            this.Text = "VerHistorial";
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvHistorialTransacciones)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Label lblTituloHistorial;
         private System.Windows.Forms.Button btnCerrar;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgvHistorialTransacciones;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fecha;
         private System.Windows.Forms.DataGridViewTextBoxColumn Monto;
         private System.Windows.Forms.DataGridViewTextBoxColumn Descripcion;
