@@ -9,8 +9,8 @@
     <!-- Working directory debe ser PaginaWeb -->
     <WorkingDirectory>$(MSBuildProjectDirectory)\PaginaWeb/html</WorkingDirectory>
     <BuildCommand>npm run dev || npx serve PaginaWeb/html</BuildCommand>
-    <StartupCommandWorkingDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginawebreact\PaginaWeb</StartupCommandWorkingDirectory>
-    <PackageJsonDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginawebreact</PackageJsonDirectory>
+    <StartupCommandWorkingDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginaweb\PaginaWeb</StartupCommandWorkingDirectory>
+    <PackageJsonDirectory>C:\Visual Studio Projects\ProyectoFinal-Software-4-y-5\paginaweb</PackageJsonDirectory>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".vscode\**" />

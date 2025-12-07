@@ -508,6 +508,115 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             btnGenerarReporte.Click += async (s, e) => await GenerarReporteTransaccionesAsync();
 
             btnEjecutarResumenes.Click += async (s, e) => await EjecutarResumenesDiariosAsync();
+
+            // NUEVO: Evento de doble clic en tablaResumen para mostrar detalles de cuenta
+            tablaResumen.CellDoubleClick += TablaResumen_CellDoubleClick;
+        }
+
+        // NUEVO: Método para manejar doble clic en resumen de clientes
+        private async void TablaResumen_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0) // Verificar que no se haga clic en el encabezado
+            {
+                try
+                {
+                    var row = tablaResumen.Rows[e.RowIndex];
+                    
+                    // Intentar obtener el número de cuenta de diferentes columnas posibles
+                    string numeroCuenta = null;
+                    int? clienteId = null;
+                    
+                    // Buscar en las columnas disponibles
+                    foreach (DataGridViewCell cell in row.Cells)
+                    {
+                        var columnName = tablaResumen.Columns[cell.ColumnIndex].Name;
+                        var cellValue = cell.Value?.ToString();
+                        
+                        // Debug: mostrar las columnas disponibles
+                        System.Diagnostics.Debug.WriteLine($"DEBUG: Column: {columnName}, Value: {cellValue}");
+                        
+                        // Buscar columnas que contengan número de cuenta
+                        if (!string.IsNullOrEmpty(cellValue))
+                        {
+                            if (columnName.ToLower().Contains("cuenta") || 
+                                columnName.ToLower().Contains("numero") ||
+                                columnName.ToLower() == "num_cuenta" ||
+                                columnName.ToLower() == "numero_cuenta")
+                            {
+                                numeroCuenta = cellValue;
+                            }
+                            
+                            // Buscar cliente_id
+                            if (columnName.ToLower().Contains("cliente") && 
+                                (columnName.ToLower().Contains("id") || columnName.ToLower() == "cliente_id"))
+                            {
+                                if (int.TryParse(cellValue, out int id))
+                                {
+                                    clienteId = id;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Si no encontramos número de cuenta directamente, intentar obtenerlo del cliente_id
+                    if (string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
+                    {
+                        try
+                        {
+                            var cuentas = await _apiCliente.ObtenerCuentasPorClienteAsync(clienteId.Value);
+                            var cuentaData = cuentas.FirstOrDefault();
+                            
+                            if (cuentaData != null && cuentaData.ContainsKey("numero_cuenta"))
+                            {
+                                numeroCuenta = cuentaData["numero_cuenta"]?.ToString();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"DEBUG: Error obteniendo cuentas: {ex.Message}");
+                        }
+                    }
+                    
+                    // Si tenemos número de cuenta y cliente ID, abrir DetalleDeCuenta
+                    if (!string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
+                    {
+                        try
+                        {
+                            var detalleForm = new DetalleDeCuenta(clienteId.Value, numeroCuenta);
+                            detalleForm.Show();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error al abrir detalles de cuenta: {ex.Message}", 
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    else
+                    {
+                        // Mostrar información disponible para debug
+                        var info = "Información disponible en la fila:\n\n";
+                        foreach (DataGridViewCell cell in row.Cells)
+                        {
+                            var columnName = tablaResumen.Columns[cell.ColumnIndex].Name;
+                            var cellValue = cell.Value?.ToString() ?? "N/A";
+                            info += $"{columnName}: {cellValue}\n";
+                        }
+                        
+                        MessageBox.Show($"No se pudo obtener suficiente información para mostrar detalles.\n\n" +
+                                      $"Número de cuenta: {numeroCuenta ?? "No encontrado"}\n" +
+                                      $"Cliente ID: {clienteId?.ToString() ?? "No encontrado"}\n\n" +
+                                      "Debug:\n" + info,
+                                      "Información insuficiente", 
+                                      MessageBoxButtons.OK, 
+                                      MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al procesar doble clic: {ex.Message}", 
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private async Task CargarDashboardAsync()
