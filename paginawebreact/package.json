@@ -12,10 +12,10 @@
   "type": "commonjs",
   "main": "html/Pagina_Principal.html",
   "scripts": {
-    "start": "live-server --port=3000 --host=localhost --open=html/Pagina_Principal.html",
-    "dev": "live-server --port=3000 --host=localhost --open=html/Pagina_Principal.html --watch=html,css,js",
-    "login": "live-server --port=3000 --host=localhost --open=html/Login.html",
-    "dashboard": "live-server --port=3000 --host=localhost --open=html/dashboard.html"
+    "start": "live-server --port=3000 --host=localhost --open=PaginaWeb/html/Pagina_Principal.html",
+    "dev": "live-server --port=3000 --host=localhost --open=PaginaWeb/html/Pagina_Principal.html --watch=html,css,js",
+    "login": "live-server --port=3000 --host=localhost --open=PaginaWeb/html/Login.html",
+    "dashboard": "live-server --port=3000 --host=localhost --open=PaginaWeb/html/dashboard.html"
   },
   "dependencies": {
     "accepts": "^1.3.8",

@@ -121,6 +121,16 @@ namespace API_BancoFisclase.Controllers
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 1000) pageSize = 100;
+            
+            // Si no se especifican parámetros de paginación, usar el método simple sin paginación
+            if (page == 1 && pageSize == 100 && string.IsNullOrWhiteSpace(search))
+            {
+                // Usar el método que ya funciona correctamente con el panel administrativo
+                var simpleResult = await _banco.ObtenerClientesAsync().ConfigureAwait(false);
+                return Ok(simpleResult);
+            }
+            
+            // Si se especifican parámetros, usar paginación
             var res = await _banco.ObtenerClientesPaginadoAsync(page, pageSize, search).ConfigureAwait(false);
             return Ok(new { items = res.Items, total = res.Total, page, pageSize });
         }
@@ -140,15 +150,22 @@ namespace API_BancoFisclase.Controllers
             return Ok(cuentas);
         }
 
-        // Devuelve cuentas por nombre de usuario (helper for clients when clienteId not present client-side)
+        // Devuelve información completa del cliente y sus cuentas por nombre de usuario
         [HttpGet("clientes/por-usuario")]
-        public async Task<IActionResult> ObtenerCuentasPorUsuario([FromQuery] string username)
+        public async Task<IActionResult> ObtenerClienteInfoPorUsuario([FromQuery] string username)
         {
             if (string.IsNullOrWhiteSpace(username)) return BadRequest("username required");
             var clienteId = await _banco.GetClienteIdByUsernameAsync(username.Trim()).ConfigureAwait(false);
             if (!clienteId.HasValue) return NotFound(new { message = "Cliente not found for username" });
+            
+            // Obtener información del cliente Y las cuentas
+            var cliente = await _banco.ObtenerClientePorIdAsync(clienteId.Value).ConfigureAwait(false);
             var cuentas = await _banco.ObtenerCuentasPorClienteAsync(clienteId.Value).ConfigureAwait(false);
-            return Ok(cuentas);
+            
+            return Ok(new { 
+                cliente = cliente,
+                cuentas = cuentas
+            });
         }
 
         // Transacciones recientes (paginated/filterable)
@@ -170,6 +187,21 @@ namespace API_BancoFisclase.Controllers
         [HttpGet("resumen-clientes")]
         public async Task<IActionResult> ResumenClientes()
             => Ok(await _banco.ObtenerResumenClientesAsync().ConfigureAwait(false));
+
+        // Notificaciones de un cliente específico
+        [HttpGet("clientes/{clienteId:int}/notificaciones")]
+        public async Task<IActionResult> ObtenerNotificacionesCliente(int clienteId, [FromQuery] int dias = 30)
+        {
+            try
+            {
+                var notificaciones = await _banco.ObtenerNotificacionesClienteAsync(clienteId, dias).ConfigureAwait(false);
+                return Ok(notificaciones);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
         // Usuarios bloqueados
         [HttpGet("usuarios-bloqueados")]
@@ -298,7 +330,15 @@ namespace API_BancoFisclase.Controllers
 
             try
             {
-                var (success, message, transaccionId) = await _banco.TransferenciaInternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, req.UsuarioId ?? 0).ConfigureAwait(false);
+                // Obtener usuarioId desde username si no viene en el request
+                int usuarioId = req.UsuarioId ?? 0;
+                if (usuarioId == 0 && !string.IsNullOrWhiteSpace(req.Username))
+                {
+                    var uid = await _banco.GetUsuarioIdByUsernameAsync(req.Username).ConfigureAwait(false);
+                    usuarioId = uid ?? 0;
+                }
+                
+                var (success, message, transaccionId) = await _banco.TransferenciaInternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, usuarioId).ConfigureAwait(false);
                 if (success) return Ok(new { success = true, transaccionId, message });
                 return BadRequest(new { success = false, message });
             }
@@ -325,7 +365,15 @@ namespace API_BancoFisclase.Controllers
 
             try
             {
-                var (success, message, transaccionId) = await _banco.TransferenciaExternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, req.UsuarioId ?? 0).ConfigureAwait(false);
+                // Obtener usuarioId desde username si no viene en el request
+                int usuarioId = req.UsuarioId ?? 0;
+                if (usuarioId == 0 && !string.IsNullOrWhiteSpace(req.Username))
+                {
+                    var uid = await _banco.GetUsuarioIdByUsernameAsync(req.Username).ConfigureAwait(false);
+                    usuarioId = uid ?? 0;
+                }
+                
+                var (success, message, transaccionId) = await _banco.TransferenciaExternaAsync(req.CuentaOrigen, req.CuentaDestino, req.Monto, req.Descripcion, usuarioId).ConfigureAwait(false);
                 if (success) return Ok(new { success = true, transaccionId, message });
                 return BadRequest(new { success = false, message });
             }
@@ -596,6 +644,9 @@ namespace API_BancoFisclase.Controllers
             
             // ID del usuario que realiza la transferencia
             public int? UsuarioId { get; set; }
+            
+            // Nombre de usuario que realiza la transferencia (alternativa a UsuarioId)
+            public string Username { get; set; }
         }
 
     }

@@ -363,13 +363,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 tablaClientes.DataSource = dt;
 
-                // hide helper columns from view
-                if (tablaClientes.Columns.Contains("UsuarioId")) tablaClientes.Columns["UsuarioId"].Visible = false;
-                if (tablaClientes.Columns.Contains("ClienteId")) tablaClientes.Columns["ClienteId"].Visible = false;
+                // hide helper columns from view but ensure they exist
+                if (tablaClientes.Columns.Contains("UsuarioId")) 
+                {
+                    tablaClientes.Columns["UsuarioId"].Visible = false;
+                }
+                if (tablaClientes.Columns.Contains("ClienteId")) 
+                {
+                    tablaClientes.Columns["ClienteId"].Visible = false;
+                }
+                
+                // Debug: Print column names
+                System.Diagnostics.Debug.WriteLine("DEBUG: Columns in DataTable:");
+                foreach (DataColumn col in dt.Columns)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - {col.ColumnName} ({col.DataType})");
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al poblar lista de clientes (DTO): {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al poblar lista de clientes (DTO): {ex.Message}\nDetalles: {ex.StackTrace}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -398,8 +411,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var clientes = await _servicioBancoApi.ObtenerTodosLosClientesAsync().ConfigureAwait(false);
-                this.BeginInvoke((Action)(() => PopulateClientesGrid(clientes)));
+                // Use the DTO method instead of the old one to maintain consistency
+                var clientes = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() => PopulateClientesGridFromDto(clientes)));
             }
             catch (Exception ex)
             {
@@ -576,29 +590,60 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 
                 try
                 {
-                    // txtId should hold cliente_id (for account creation) - read from hidden ClienteId column
-                    var clienteIdObj = row.Cells["ClienteId"].Value;
-                    var usuarioIdObj = row.Cells["UsuarioId"].Value;
+                    // Debug: print available columns
+                    System.Diagnostics.Debug.WriteLine("DEBUG: Available columns in selected row:");
+                    foreach (DataGridViewCell cell in row.Cells)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  - {tablaClientes.Columns[cell.ColumnIndex].Name}: {cell.Value}");
+                    }
+
+                    // Safely get IDs with fallback
+                    int clienteIdVal = 0;
+                    int usuarioIdVal = 0;
+                    
+                    // Try to get ClienteId
+                    if (tablaClientes.Columns.Contains("ClienteId"))
+                    {
+                        var clienteIdObj = row.Cells["ClienteId"].Value;
+                        if (clienteIdObj != null && clienteIdObj != DBNull.Value)
+                        {
+                            int.TryParse(clienteIdObj.ToString(), out clienteIdVal);
+                        }
+                    }
+                    
+                    // Try to get UsuarioId
+                    if (tablaClientes.Columns.Contains("UsuarioId"))
+                    {
+                        var usuarioIdObj = row.Cells["UsuarioId"].Value;
+                        if (usuarioIdObj != null && usuarioIdObj != DBNull.Value)
+                        {
+                            int.TryParse(usuarioIdObj.ToString(), out usuarioIdVal);
+                        }
+                    }
                     
                     // Use ClienteId if available and > 0, otherwise use UsuarioId
-                    if (clienteIdObj != null && clienteIdObj != DBNull.Value && 
-                        int.TryParse(clienteIdObj.ToString(), out var cid) && cid > 0)
+                    if (clienteIdVal > 0)
                     {
-                        txtId.Text = cid.ToString();
+                        txtId.Text = clienteIdVal.ToString();
                     }
-                    else if (usuarioIdObj != null && usuarioIdObj != DBNull.Value)
+                    else if (usuarioIdVal > 0)
                     {
-                        txtId.Text = usuarioIdObj.ToString();
+                        txtId.Text = usuarioIdVal.ToString();
                     }
                     else
                     {
                         txtId.Text = "";
                     }
 
-                    txtUsuario.Text = row.Cells["Usuario"].Value?.ToString() ?? "";
-                    txtNombre.Text = row.Cells["Nombre"].Value?.ToString() ?? "";
-                    txtEmail.Text = row.Cells["Email"].Value?.ToString() ?? "";
-                    txtTelefono.Text = row.Cells["Teléfono"].Value?.ToString() ?? "";
+                    // Safely get other field values
+                    txtUsuario.Text = tablaClientes.Columns.Contains("Usuario") && row.Cells["Usuario"].Value != null 
+                        ? row.Cells["Usuario"].Value.ToString() : "";
+                    txtNombre.Text = tablaClientes.Columns.Contains("Nombre") && row.Cells["Nombre"].Value != null 
+                        ? row.Cells["Nombre"].Value.ToString() : "";
+                    txtEmail.Text = tablaClientes.Columns.Contains("Email") && row.Cells["Email"].Value != null 
+                        ? row.Cells["Email"].Value.ToString() : "";
+                    txtTelefono.Text = tablaClientes.Columns.Contains("Teléfono") && row.Cells["Teléfono"].Value != null 
+                        ? row.Cells["Teléfono"].Value.ToString() : "";
 
                     // clear address fields -- API DTO does not include address in current contract
                     txtCalle.Text = "";
@@ -607,10 +652,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     txtEstado.Text = "";
                     txtCodigoPostal.Text = "";
                     txtPais.Text = "";
+                    
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Loaded client - ID: {txtId.Text}, Usuario: {txtUsuario.Text}, Nombre: {txtNombre.Text}");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al cargar cliente seleccionado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error al cargar cliente seleccionado: {ex.Message}\nDetalles: {ex.StackTrace}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     // Clear all fields on error
                     LimpiarFormulario();
                 }
@@ -735,8 +782,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var clientes = await _servicioBancoApi.ObtenerTodosLosClientesAsync().ConfigureAwait(false);
-                return clientes.Any(c => c.NombreUsuario != null && c.NombreUsuario.Equals(username, StringComparison.OrdinalIgnoreCase));
+                var clientes = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
+                return clientes.Any(c => c.username != null && c.username.Equals(username, StringComparison.OrdinalIgnoreCase));
             }
             catch
             {
@@ -748,8 +795,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var clientes = await _servicioBancoApi.ObtenerTodosLosClientesAsync().ConfigureAwait(false);
-                return clientes.Any(c => c.Email != null && c.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+                var clientes = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
+                return clientes.Any(c => c.email != null && c.email.Equals(email, StringComparison.OrdinalIgnoreCase));
             }
             catch
             {

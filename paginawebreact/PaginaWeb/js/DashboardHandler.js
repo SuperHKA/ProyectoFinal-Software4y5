@@ -16,8 +16,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function updateUserInfo() {
     try {
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data || (Array.isArray(data) ? data[0] : null);
-        const displayName = (cliente && (cliente.nombreCompleto || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
+        // Nueva estructura: { cliente: {...}, cuentas: [...] }
+        const cliente = data.cliente || data;
+        const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
         const userNameElements = document.querySelectorAll('.user-info span, h1');
         userNameElements.forEach(el => {
@@ -32,8 +33,9 @@ async function updateUserInfo() {
         });
 
         const avatar = document.querySelector('.user-avatar');
-        if (avatar && cliente && cliente.nombreCompleto) {
-            const initials = cliente.nombreCompleto.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+        if (avatar && cliente) {
+            const fullName = cliente.nombreCompleto || cliente.nombre || displayName;
+            const initials = fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
             avatar.textContent = initials;
         }
     } catch (error) {
@@ -46,17 +48,19 @@ async function loadDashboardData() {
         // Mostrar indicador de carga
         showLoading(true);
 
-        // Obtener cuentas del usuario
-        const cuentas = await authService.getCuentas();
+        // Obtener datos del cliente (incluye cliente + cuentas)
+        const data = await authService.getClienteInfo();
+        const cuentas = data.cuentas || data; // Compatibilidad con respuesta vieja
         
-        if (cuentas && cuentas.length > 0) {
+        if (Array.isArray(cuentas) && cuentas.length > 0) {
             displayCuentas(cuentas);
         } else {
             displayNoCuentas();
         }
 
-        // Cargar transacciones recientes
+        // Cargar transacciones recientes y calcular resumen mensual
         await loadTransaccionesRecientes();
+        await loadMonthlySummary();
 
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -204,4 +208,177 @@ function showLoading(show) {
 
 function showError(message) {
     alert(message); // Mejorar con un sistema de notificaciones más elegante
+}
+
+async function loadMonthlySummary() {
+    try {
+        const user = authService.getCurrentUser();
+        if (!user) return;
+
+        // Obtener transacciones del mes actual
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        const response = await fetch(
+            `${authService.baseURL}/banco/transacciones-recientes?page=1&pageSize=1000`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${authService.getAuthToken()}`
+                }
+            }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            const transacciones = data.items || [];
+            
+            // Calcular ingresos y gastos del mes actual
+            let totalIngresos = 0;
+            let totalGastos = 0;
+            
+            transacciones.forEach(trans => {
+                const transDate = new Date(trans.fecha);
+                // Solo contar transacciones del mes actual
+                if (transDate >= firstDay && transDate <= lastDay) {
+                    const esIngreso = trans.tipo === 'Deposito' || trans.tipo === 'Transferencia Recibida' || 
+                                     trans.descripcion?.toLowerCase().includes('depósito') || 
+                                     trans.descripcion?.toLowerCase().includes('recibida');
+                    
+                    if (esIngreso) {
+                        totalIngresos += parseFloat(trans.monto || 0);
+                    } else {
+                        totalGastos += parseFloat(trans.monto || 0);
+                    }
+                }
+            });
+            
+            const balance = totalIngresos - totalGastos;
+            
+            // Actualizar las tarjetas de resumen
+            const incomeCard = document.querySelector('.stat-card.income .stat-value');
+            const expensesCard = document.querySelector('.stat-card.expenses .stat-value');
+            const balanceCard = document.querySelector('.stat-card:not(.income):not(.expenses) .stat-value');
+            
+            if (incomeCard) incomeCard.textContent = `$${formatMoney(totalIngresos)}`;
+            if (expensesCard) expensesCard.textContent = `$${formatMoney(totalGastos)}`;
+            if (balanceCard) {
+                balanceCard.textContent = `$${formatMoney(balance)}`;
+                balanceCard.className = 'stat-value ' + (balance >= 0 ? 'income' : 'expenses');
+            }
+            
+            // Actualizar gráfica si existe
+            updateMonthlyChart(transacciones);
+        }
+    } catch (error) {
+        console.error('Error loading monthly summary:', error);
+    }
+}
+
+function updateMonthlyChart(transacciones) {
+    const canvas = document.getElementById('monthlyChart');
+    if (!canvas) return;
+    
+    try {
+        // Destruir gráfica existente si hay una
+        if (window.monthlyChartInstance) {
+            window.monthlyChartInstance.destroy();
+            window.monthlyChartInstance = null;
+        }
+        
+        // También destruir cualquier instancia de Chart.js asociada al canvas
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+        
+        // Agrupar por mes (últimos 12 meses)
+        const monthlyData = {};
+        const now = new Date();
+        
+        for (let i = 11; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            monthlyData[key] = { ingresos: 0, gastos: 0 };
+        }
+        
+        transacciones.forEach(trans => {
+            const transDate = new Date(trans.fecha);
+            const key = `${transDate.getFullYear()}-${String(transDate.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (monthlyData[key]) {
+                const esIngreso = trans.tipo === 'Deposito' || trans.tipo === 'Transferencia Recibida' || 
+                                 trans.descripcion?.toLowerCase().includes('depósito') || 
+                                 trans.descripcion?.toLowerCase().includes('recibida');
+                
+                if (esIngreso) {
+                    monthlyData[key].ingresos += parseFloat(trans.monto || 0);
+                } else {
+                    monthlyData[key].gastos += parseFloat(trans.monto || 0);
+                }
+            }
+        });
+        
+        const labels = [];
+        const ingresosData = [];
+        const gastosData = [];
+        
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        Object.keys(monthlyData).sort().forEach(key => {
+            const [year, month] = key.split('-');
+            labels.push(meses[parseInt(month) - 1]);
+            ingresosData.push(monthlyData[key].ingresos);
+            gastosData.push(monthlyData[key].gastos);
+        });
+        
+        // Crear nueva gráfica
+        window.monthlyChartInstance = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Ingresos',
+                        data: ingresosData,
+                        backgroundColor: 'rgba(52, 211, 153, 0.8)',
+                        borderColor: 'rgba(52, 211, 153, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Gastos',
+                        data: gastosData,
+                        backgroundColor: 'rgba(248, 113, 113, 0.8)',
+                        borderColor: 'rgba(248, 113, 113, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(0);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error updating chart:', error);
+    }
 }

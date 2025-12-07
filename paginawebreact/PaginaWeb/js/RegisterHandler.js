@@ -1,6 +1,6 @@
-// Manejador especÌfico para la p·gina de registro
+// Manejador espec√≠fico para la p√°gina de registro
 document.addEventListener('DOMContentLoaded', function () {
-    // Verificar si ya est· logueado
+    // Verificar si ya est√° logueado
     if (authService.isLoggedIn()) {
         if (authService.isAdmin()) {
             console.log('Todavia en desarrollo');
@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const formData = {
                 username: document.getElementById('usuario').value.trim(),
-                password: document.getElementById('contraseÒa').value,
-                confirmPassword: document.getElementById('confirmar-contraseÒa').value,
+                password: document.getElementById('contrase√±a').value,
+                confirmPassword: document.getElementById('confirmar-contrase√±a').value,
                 nombreCompleto: document.getElementById('nombre-completo').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 telefono: document.getElementById('telefono').value.trim(),
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ciudad: '',
                 estadoProvincia: '',
                 codigoPostal: '',
-                pais: 'MÈxico'
+                pais: ''
             };
 
             // Validaciones
@@ -68,16 +68,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (data.password.length < 6) {
-            return { valid: false, message: 'La contraseÒa debe tener al menos 6 caracteres' };
+            return { valid: false, message: 'La contrase√±a debe tener al menos 6 caracteres' };
         }
 
         if (data.password !== data.confirmPassword) {
-            return { valid: false, message: 'Las contraseÒas no coinciden' };
+            return { valid: false, message: 'Las contrase√±as no coinciden' };
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.email)) {
-            return { valid: false, message: 'El correo electrÛnico no es v·lido' };
+            return { valid: false, message: 'El correo electr√≥nico no es v√°lido' };
         }
 
         return { valid: true };

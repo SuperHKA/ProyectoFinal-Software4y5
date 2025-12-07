@@ -14,12 +14,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data || (Array.isArray(data) ? data[0] : null);
-        const displayName = (cliente && (cliente.nombreCompleto || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
+        // Nueva estructura: { cliente: {...}, cuentas: [...] }
+        const cliente = data.cliente || data;
+        const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
         if (userSpan) userSpan.textContent = displayName;
         if (avatar) {
-            const initials = (cliente && cliente.nombreCompleto) ? cliente.nombreCompleto.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() : (displayName.slice(0,2).toUpperCase());
+            const fullName = cliente ? (cliente.nombreCompleto || cliente.nombre || displayName) : displayName;
+            const initials = fullName.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
             avatar.textContent = initials;
         }
     } catch (err) {

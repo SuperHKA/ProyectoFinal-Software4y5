@@ -92,15 +92,9 @@ class AuthService {
             const clienteData = {
                 username: userData.username,
                 password: userData.password,
-                nombreCompleto: userData.nombreCompleto,
+                nombre: userData.nombreCompleto, // La API espera "Nombre", no "nombreCompleto"
                 email: userData.email,
-                telefono: userData.telefono,
-                calle: userData.calle || '',
-                numero: userData.numero || '',
-                ciudad: userData.ciudad || '',
-                estadoProvincia: userData.estadoProvincia || '',
-                codigoPostal: userData.codigoPostal || '',
-                pais: userData.pais || 'México'
+                telefono: userData.telefono
             };
 
             const response = await fetch(`${this.baseURL}/banco/clientes`, {
@@ -149,7 +143,9 @@ class AuthService {
             );
 
             if (response.ok) {
-                return await response.json();
+                const data = await response.json();
+                // Nueva estructura: { cliente: {...}, cuentas: [...] }
+                return data.cuentas || data; // Compatibilidad con respuesta vieja
             } else {
                 throw new Error('Error al obtener cuentas');
             }
@@ -191,13 +187,19 @@ class AuthService {
     // Realizar transferencia
     async transferir(transferData) {
         try {
+            // Agregar username al payload si está disponible
+            const payload = {
+                ...transferData,
+                username: this.currentUser?.username
+            };
+            
             const response = await fetch(`${this.baseURL}/banco/transfer/internal`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.getAuthToken()}`
                 },
-                body: JSON.stringify(transferData),
+                body: JSON.stringify(payload),
             });
 
             const data = await response.json();

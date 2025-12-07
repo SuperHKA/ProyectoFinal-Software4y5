@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         const data = await authService.getClienteInfo();
-        // La API puede devolver el cliente directamente o dentro de una propiedad
-        const cliente = data.cliente || data || (Array.isArray(data) ? data[0] : null);
+        // Nueva estructura: { cliente: {...}, cuentas: [...] }
+        const cliente = data.cliente || data;
+        const cuentas = data.cuentas || [];
 
         if (!cliente) {
             console.warn('No se encontró información del cliente en la respuesta:', data);

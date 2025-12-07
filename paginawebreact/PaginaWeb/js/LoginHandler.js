@@ -1,12 +1,8 @@
-// Manejador espec�fico para la p�gina de login
+// Manejador específico para la página de login
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si ya est� logueado
+    // Verificar si ya está logueado
     if (authService.isLoggedIn()) {
-        if (authService.isAdmin()) {
-            console.log('Todavia en desarrollo');
-        } else {
-            window.location.href = 'dashboard.html';
-        }
+        window.location.href = 'dashboard.html';
         return;
     }
 
@@ -30,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await authService.login(username, password);
 
                 if (result.success) {
-                    // Redirigir seg�n el tipo de usuario
+                    // Redirigir según el tipo de usuario
                     if (result.user && result.user.isAdmin) {
                         console.log('Todavia en desarrollo');
                     } else {
@@ -40,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showError(result.message);
                 }
             } catch (error) {
-                showError('Error al iniciar sesi�n. Intenta de nuevo.');
+                showError('Error al iniciar sesion. Intenta de nuevo.');
             } finally {
                 showLoading(false);
             }
@@ -73,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
 
-        // Ocultar despu�s de 5 segundos
+        // Ocultar después de 5 segundos
         setTimeout(() => {
             errorDiv.style.display = 'none';
         }, 5000);
@@ -85,10 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (submitButton) {
             if (loading) {
                 submitButton.disabled = true;
-                submitButton.textContent = 'Iniciando sesi�n...';
+                submitButton.textContent = 'Iniciando sesion...';
             } else {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Iniciar Sesi�n';
+                submitButton.textContent = 'Iniciar Sesion';
             }
         }
     }

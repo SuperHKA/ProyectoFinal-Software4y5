@@ -19,6 +19,7 @@ namespace API_BancoFisclase.Servicios
         Task<LoginResultDto> AuthenticateUserAsync(string username, string password);
         Task<bool> IsUsernameAdminAsync(string username);
         Task<int?> GetClienteIdByUsernameAsync(string username);
+        Task<int?> GetUsuarioIdByUsernameAsync(string username);
 
         // Consultas de solo lectura
         Task<IEnumerable<IDictionary<string, object>>> ObtenerEstadisticasGeneralesAsync();
@@ -31,6 +32,8 @@ namespace API_BancoFisclase.Servicios
         Task<IEnumerable<IDictionary<string, object>>> ObtenerNotificacionesSistemaAsync();
         Task<IEnumerable<IDictionary<string, object>>> ObtenerReporteTransaccionesPorFechaAsync(DateTime desde, DateTime hasta);
         Task<IEnumerable<IDictionary<string, object>>> ObtenerCuentasPorClienteAsync(int clienteId);
+        Task<IDictionary<string, object>> ObtenerClientePorIdAsync(int clienteId);
+        Task<IEnumerable<IDictionary<string, object>>> ObtenerNotificacionesClienteAsync(int clienteId, int dias = 30);
         Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerClientesPaginadoAsync(int page, int pageSize, string search);
         Task<(IEnumerable<IDictionary<string, object>> Items, int Total)> ObtenerTransaccionesPaginadasAsync(int page, int pageSize, DateTime? desde, DateTime? hasta, string q);
         Task<IEnumerable<IDictionary<string, object>>> ObtenerTransaccionesClienteAsync(int clienteId, int limit = 20);

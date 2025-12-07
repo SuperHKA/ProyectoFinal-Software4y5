@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // Obtener cuentas y transacciones recientes
-        const cuentasResp = await authService.getCuentas();
+        const cuentasResp = await authService.getCuentas(); // Ya devuelve sólo el array de cuentas
         // Intentamos obtener transacciones recientes (endpoint genérico)
-        const resp = await fetch(`http://localhost:5202/api/banco/transacciones-recientes?page=1&pageSize=50`, {
+        const resp = await fetch(`${authService.baseURL}/banco/transacciones-recientes?page=1&pageSize=50`, {
             headers: { 'Authorization': `Bearer ${authService.getAuthToken()}` }
         });
 

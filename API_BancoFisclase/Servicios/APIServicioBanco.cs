@@ -130,7 +130,25 @@ namespace API_BancoFisclase.Servicios
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerClientesAsync()
         {
-            const string sql = @"SELECT u.usuario_id, u.cliente_id, u.username, c.nombre AS nombre_completo, c.email, c.telefono, u.es_admin, u.bloqueado FROM Usuario u LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id ORDER BY u.usuario_id";
+            const string sql = @"
+                SELECT 
+                    u.usuario_id AS UsuarioId, 
+                    ISNULL(u.cliente_id, 0) AS ClienteId, 
+                    u.username AS username, 
+                    c.nombre AS nombre_completo, 
+                    c.email, 
+                    c.telefono, 
+                    u.es_admin, 
+                    u.bloqueado,
+                    c.calle,
+                    c.numero,
+                    c.ciudad,
+                    c.estado_provincia,
+                    c.codigo_postal,
+                    c.pais
+                FROM Usuario u 
+                LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id 
+                ORDER BY u.usuario_id";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
@@ -172,8 +190,60 @@ namespace API_BancoFisclase.Servicios
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerCuentasPorClienteAsync(int clienteId)
         {
-            const string sql = @"SELECT c.cuenta_id, c.numero_cuenta, tc.nombre AS tipo, c.saldo, c.activa FROM Cuenta c LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id WHERE c.cliente_id = @clienteId AND c.activa = 1 ORDER BY c.cuenta_id";
+            const string sql = @"
+                SELECT 
+                    c.cuenta_id AS cuentaId,
+                    c.numero_cuenta AS numeroCuenta,
+                    tc.nombre AS tipoCuenta,
+                    c.saldo,
+                    c.activa
+                FROM Cuenta c 
+                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
+                WHERE c.cliente_id = @clienteId AND c.activa = 1 
+                ORDER BY c.cuenta_id";
             return await ExecuteQueryAsync(sql, ("@clienteId", clienteId)).ConfigureAwait(false);
+        }
+
+        public async Task<IDictionary<string, object>> ObtenerClientePorIdAsync(int clienteId)
+        {
+            const string sql = @"
+                SELECT 
+                    c.cliente_id AS clienteId,
+                    c.nombre AS nombreCompleto,
+                    c.email,
+                    c.telefono,
+                    c.calle,
+                    c.numero,
+                    c.ciudad,
+                    c.estado_provincia AS estadoProvincia,
+                    c.codigo_postal AS codigoPostal,
+                    c.pais,
+                    c.fecha_registro AS fechaRegistro,
+                    u.username
+                FROM Cliente c
+                LEFT JOIN Usuario u ON c.cliente_id = u.cliente_id
+                WHERE c.cliente_id = @clienteId";
+            
+            var result = await ExecuteQueryAsync(sql, ("@clienteId", clienteId)).ConfigureAwait(false);
+            return result.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<IDictionary<string, object>>> ObtenerNotificacionesClienteAsync(int clienteId, int dias = 30)
+        {
+            const string sql = @"
+                SELECT 
+                    notificacion_id AS notificacionId,
+                    tipo,
+                    asunto,
+                    contenido,
+                    fecha_envio AS fechaEnvio,
+                    estado
+                FROM Notificacion
+                WHERE cliente_id = @clienteId
+                AND fecha_envio >= DATEADD(DAY, -@dias, GETDATE())
+                ORDER BY fecha_envio DESC";
+            
+            return await ExecuteQueryAsync(sql, ("@clienteId", clienteId), ("@dias", dias)).ConfigureAwait(false);
         }
 
         // NEW: Obtener transacciones específicas de un cliente
@@ -505,17 +575,23 @@ namespace API_BancoFisclase.Servicios
             var offset = (page - 1) * pageSize;
             var where = string.IsNullOrWhiteSpace(search) ? string.Empty : "WHERE (c.nombre LIKE @search OR c.email LIKE @search OR u.username LIKE @search)";
             
-            // Improved query to handle nulls better and ensure we get valid data
+            // Cambiar nombres de columnas para coincidir con el código C#
             var sql = $@"
                 SELECT 
-                    ISNULL(c.cliente_id, 0) as cliente_id, 
-                    c.nombre as nombre_completo, 
+                    ISNULL(c.cliente_id, 0) AS ClienteId, 
+                    c.nombre AS nombre_completo, 
                     c.email, 
                     c.telefono, 
-                    ISNULL(u.usuario_id, 0) as usuario_id, 
-                    ISNULL(u.username, '') as username, 
-                    ISNULL(u.es_admin, 0) as es_admin, 
-                    ISNULL(u.bloqueado, 0) as bloqueado 
+                    ISNULL(u.usuario_id, 0) AS UsuarioId, 
+                    ISNULL(u.username, '') AS username, 
+                    ISNULL(u.es_admin, 0) AS es_admin, 
+                    ISNULL(u.bloqueado, 0) AS bloqueado,
+                    c.calle,
+                    c.numero,
+                    c.ciudad,
+                    c.estado_provincia,
+                    c.codigo_postal,
+                    c.pais
                 FROM Cliente c 
                 LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id 
                 {where} 
@@ -540,11 +616,11 @@ namespace API_BancoFisclase.Servicios
                             var name = reader.GetName(i); 
                             var val = await reader.IsDBNullAsync(i).ConfigureAwait(false) ? null : reader.GetValue(i);
                             // Ensure critical fields are never null
-                            if (name == "usuario_id" && (val == null || val == DBNull.Value))
+                            if (name == "UsuarioId" && (val == null || val == DBNull.Value))
                             {
                                 val = 0;
                             }
-                            if (name == "cliente_id" && (val == null || val == DBNull.Value))
+                            if (name == "ClienteId" && (val == null || val == DBNull.Value))
                             {
                                 val = 0;
                             }
@@ -686,6 +762,21 @@ namespace API_BancoFisclase.Servicios
                 // Debug logging
                 Console.WriteLine($"DEBUG: GetClienteIdByUsernameAsync - username: {username}, result: {val ?? "NULL"}");
                 
+                if (val == null || val == DBNull.Value) return null;
+                return Convert.ToInt32(val);
+            }
+        }
+
+        public async Task<int?> GetUsuarioIdByUsernameAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return null;
+            const string sql = "SELECT TOP(1) usuario_id FROM Usuario WHERE username = @username";
+            using (var conn = new SqlConnection(_cs))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@username", username);
+                await conn.OpenAsync().ConfigureAwait(false);
+                var val = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                 if (val == null || val == DBNull.Value) return null;
                 return Convert.ToInt32(val);
             }
