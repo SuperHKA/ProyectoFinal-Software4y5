@@ -58,41 +58,50 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.splitContainerClientes = new System.Windows.Forms.SplitContainer();
             this.tablaClientes = new System.Windows.Forms.DataGridView();
             this.panelFormularioCliente = new System.Windows.Forms.Panel();
+            this.flowClienteBotones = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnNuevoCliente = new System.Windows.Forms.Button();
+            this.btnGuardarCliente = new System.Windows.Forms.Button();
+            this.btnEliminarCliente = new System.Windows.Forms.Button();
+            this.btnActualizarClientes = new System.Windows.Forms.Button();
+            this.btnCambiarContrasenaCliente = new System.Windows.Forms.Button();
+            this.btnCrearCuentaCliente = new System.Windows.Forms.Button();
+            this.btnActualizarSaldoCliente = new System.Windows.Forms.Button();
+            this.btnVerCuentasCliente = new System.Windows.Forms.Button();
             this.tabSeguridad = new System.Windows.Forms.TabPage();
             this.splitContainerSeguridad = new System.Windows.Forms.SplitContainer();
             this.panelUsuariosBloqueados = new System.Windows.Forms.Panel();
             this.btnDesbloquearUsuario = new System.Windows.Forms.Button();
             this.gridUsuariosBloqueados = new System.Windows.Forms.DataGridView();
-            this.label9 = new System.Windows.Forms.Label();
+            this.lblUsuariosBloqueadosTitle = new System.Windows.Forms.Label();
             this.panelCrearAdmin = new System.Windows.Forms.Panel();
             this.panelFormAdmin = new System.Windows.Forms.Panel();
             this.btnCrearAdministrador = new System.Windows.Forms.Button();
             this.tableLayoutAdmin = new System.Windows.Forms.TableLayoutPanel();
-            this.label10 = new System.Windows.Forms.Label();
+            this.lblAdminUsername = new System.Windows.Forms.Label();
             this.txtAdminUsername = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
+            this.lblAdminPassword = new System.Windows.Forms.Label();
             this.txtAdminPassword = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
+            this.lblAdminNombre = new System.Windows.Forms.Label();
             this.txtAdminNombre = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
+            this.lblAdminEmail = new System.Windows.Forms.Label();
             this.txtAdminEmail = new System.Windows.Forms.TextBox();
-            this.label15 = new System.Windows.Forms.Label();
+            this.lblCrearAdminTitle = new System.Windows.Forms.Label();
             this.tabReportes = new System.Windows.Forms.TabPage();
             this.panelReportes = new System.Windows.Forms.Panel();
             this.gridReporteTransacciones = new System.Windows.Forms.DataGridView();
             this.panelFiltrosReporte = new System.Windows.Forms.Panel();
             this.btnGenerarReporte = new System.Windows.Forms.Button();
             this.dtpFechaFin = new System.Windows.Forms.DateTimePicker();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lblFechaFin = new System.Windows.Forms.Label();
             this.dtpFechaInicio = new System.Windows.Forms.DateTimePicker();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lblFechaInicio = new System.Windows.Forms.Label();
+            this.lblFiltrarPor = new System.Windows.Forms.Label();
             this.tabNotificaciones = new System.Windows.Forms.TabPage();
             this.panelNotificaciones = new System.Windows.Forms.Panel();
             this.gridNotificacionesSistema = new System.Windows.Forms.DataGridView();
             this.panelControlesNotificaciones = new System.Windows.Forms.Panel();
             this.btnEjecutarResumenes = new System.Windows.Forms.Button();
-            this.label16 = new System.Windows.Forms.Label();
+            this.lblNotificacionesTitulo = new System.Windows.Forms.Label();
             this.tabMovimientos = new System.Windows.Forms.TabPage();
             this.tablaMovimientos = new System.Windows.Forms.DataGridView();
             this.tabAnalisis = new System.Windows.Forms.TabPage();
@@ -490,6 +499,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormularioCliente.Size = new System.Drawing.Size(581, 539);
             this.panelFormularioCliente.TabIndex = 0;
             // 
+            // flowClienteBotones
+            // 
+            this.flowClienteBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.flowClienteBotones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            this.flowClienteBotones.Location = new System.Drawing.Point(0, 479);
+            this.flowClienteBotones.Name = "flowClienteBotones";
+            this.flowClienteBotones.Padding = new System.Windows.Forms.Padding(10);
+            this.flowClienteBotones.Size = new System.Drawing.Size(581, 60);
+            this.flowClienteBotones.TabIndex = 0;
+            // 
             // tabSeguridad
             // 
             this.tabSeguridad.Controls.Add(this.splitContainerSeguridad);
@@ -522,7 +541,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.panelUsuariosBloqueados.Controls.Add(this.btnDesbloquearUsuario);
             this.panelUsuariosBloqueados.Controls.Add(this.gridUsuariosBloqueados);
-            this.panelUsuariosBloqueados.Controls.Add(this.label9);
+            this.panelUsuariosBloqueados.Controls.Add(this.lblUsuariosBloqueadosTitle);
             this.panelUsuariosBloqueados.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelUsuariosBloqueados.Location = new System.Drawing.Point(0, 0);
             this.panelUsuariosBloqueados.Name = "panelUsuariosBloqueados";
@@ -554,23 +573,23 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridUsuariosBloqueados.Size = new System.Drawing.Size(1389, 241);
             this.gridUsuariosBloqueados.TabIndex = 1;
             // 
-            // label9
+            // lblUsuariosBloqueadosTitle
             // 
-            this.label9.BackColor = System.Drawing.Color.SlateBlue;
-            this.label9.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label9.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(0, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(1389, 30);
-            this.label9.TabIndex = 0;
-            this.label9.Text = "Usuarios Bloqueados";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblUsuariosBloqueadosTitle.BackColor = System.Drawing.Color.SlateBlue;
+            this.lblUsuariosBloqueadosTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblUsuariosBloqueadosTitle.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUsuariosBloqueadosTitle.ForeColor = System.Drawing.Color.White;
+            this.lblUsuariosBloqueadosTitle.Location = new System.Drawing.Point(0, 0);
+            this.lblUsuariosBloqueadosTitle.Name = "lblUsuariosBloqueadosTitle";
+            this.lblUsuariosBloqueadosTitle.Size = new System.Drawing.Size(1389, 30);
+            this.lblUsuariosBloqueadosTitle.TabIndex = 0;
+            this.lblUsuariosBloqueadosTitle.Text = "Usuarios Bloqueados";
+            this.lblUsuariosBloqueadosTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // panelCrearAdmin
             // 
             this.panelCrearAdmin.Controls.Add(this.panelFormAdmin);
-            this.panelCrearAdmin.Controls.Add(this.label15);
+            this.panelCrearAdmin.Controls.Add(this.lblCrearAdminTitle);
             this.panelCrearAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCrearAdmin.Location = new System.Drawing.Point(0, 0);
             this.panelCrearAdmin.Name = "panelCrearAdmin";
@@ -603,13 +622,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tableLayoutAdmin.ColumnCount = 2;
             this.tableLayoutAdmin.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
             this.tableLayoutAdmin.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
-            this.tableLayoutAdmin.Controls.Add(this.label10, 0, 0);
+            this.tableLayoutAdmin.Controls.Add(this.lblAdminUsername, 0, 0);
             this.tableLayoutAdmin.Controls.Add(this.txtAdminUsername, 1, 0);
-            this.tableLayoutAdmin.Controls.Add(this.label12, 0, 1);
+            this.tableLayoutAdmin.Controls.Add(this.lblAdminPassword, 0, 1);
             this.tableLayoutAdmin.Controls.Add(this.txtAdminPassword, 1, 1);
-            this.tableLayoutAdmin.Controls.Add(this.label13, 0, 2);
+            this.tableLayoutAdmin.Controls.Add(this.lblAdminNombre, 0, 2);
             this.tableLayoutAdmin.Controls.Add(this.txtAdminNombre, 1, 2);
-            this.tableLayoutAdmin.Controls.Add(this.label14, 0, 3);
+            this.tableLayoutAdmin.Controls.Add(this.lblAdminEmail, 0, 3);
             this.tableLayoutAdmin.Controls.Add(this.txtAdminEmail, 1, 3);
             this.tableLayoutAdmin.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutAdmin.Location = new System.Drawing.Point(10, 10);
@@ -622,15 +641,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tableLayoutAdmin.Size = new System.Drawing.Size(1369, 200);
             this.tableLayoutAdmin.TabIndex = 0;
             // 
-            // label10
+            // lblAdminUsername
             // 
-            this.label10.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 15);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(74, 19);
-            this.label10.TabIndex = 0;
-            this.label10.Text = "Username:";
+            this.lblAdminUsername.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAdminUsername.AutoSize = true;
+            this.lblAdminUsername.Location = new System.Drawing.Point(3, 15);
+            this.lblAdminUsername.Name = "lblAdminUsername";
+            this.lblAdminUsername.Size = new System.Drawing.Size(74, 19);
+            this.lblAdminUsername.TabIndex = 0;
+            this.lblAdminUsername.Text = "Username:";
             // 
             // txtAdminUsername
             // 
@@ -640,15 +659,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminUsername.Size = new System.Drawing.Size(953, 25);
             this.txtAdminUsername.TabIndex = 1;
             // 
-            // label12
+            // lblAdminPassword
             // 
-            this.label12.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 65);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(70, 19);
-            this.label12.TabIndex = 2;
-            this.label12.Text = "Password:";
+            this.lblAdminPassword.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAdminPassword.AutoSize = true;
+            this.lblAdminPassword.Location = new System.Drawing.Point(3, 65);
+            this.lblAdminPassword.Name = "lblAdminPassword";
+            this.lblAdminPassword.Size = new System.Drawing.Size(70, 19);
+            this.lblAdminPassword.TabIndex = 2;
+            this.lblAdminPassword.Text = "Password:";
             // 
             // txtAdminPassword
             // 
@@ -659,15 +678,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminPassword.Size = new System.Drawing.Size(953, 25);
             this.txtAdminPassword.TabIndex = 3;
             // 
-            // label13
+            // lblAdminNombre
             // 
-            this.label13.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(3, 115);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(62, 19);
-            this.label13.TabIndex = 4;
-            this.label13.Text = "Nombre:";
+            this.lblAdminNombre.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAdminNombre.AutoSize = true;
+            this.lblAdminNombre.Location = new System.Drawing.Point(3, 115);
+            this.lblAdminNombre.Name = "lblAdminNombre";
+            this.lblAdminNombre.Size = new System.Drawing.Size(62, 19);
+            this.lblAdminNombre.TabIndex = 4;
+            this.lblAdminNombre.Text = "Nombre:";
             // 
             // txtAdminNombre
             // 
@@ -677,15 +696,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminNombre.Size = new System.Drawing.Size(953, 25);
             this.txtAdminNombre.TabIndex = 5;
             // 
-            // label14
+            // lblAdminEmail
             // 
-            this.label14.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(3, 165);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(44, 19);
-            this.label14.TabIndex = 6;
-            this.label14.Text = "Email:";
+            this.lblAdminEmail.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAdminEmail.AutoSize = true;
+            this.lblAdminEmail.Location = new System.Drawing.Point(3, 165);
+            this.lblAdminEmail.Name = "lblAdminEmail";
+            this.lblAdminEmail.Size = new System.Drawing.Size(44, 19);
+            this.lblAdminEmail.TabIndex = 6;
+            this.lblAdminEmail.Text = "Email:";
             // 
             // txtAdminEmail
             // 
@@ -695,18 +714,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.txtAdminEmail.Size = new System.Drawing.Size(953, 25);
             this.txtAdminEmail.TabIndex = 7;
             // 
-            // label15
+            // lblCrearAdminTitle
             // 
-            this.label15.BackColor = System.Drawing.Color.SlateBlue;
-            this.label15.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label15.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.ForeColor = System.Drawing.Color.White;
-            this.label15.Location = new System.Drawing.Point(0, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(1389, 30);
-            this.label15.TabIndex = 0;
-            this.label15.Text = "Crear Nuevo Administrador";
-            this.label15.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblCrearAdminTitle.BackColor = System.Drawing.Color.SlateBlue;
+            this.lblCrearAdminTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblCrearAdminTitle.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCrearAdminTitle.ForeColor = System.Drawing.Color.White;
+            this.lblCrearAdminTitle.Location = new System.Drawing.Point(0, 0);
+            this.lblCrearAdminTitle.Name = "lblCrearAdminTitle";
+            this.lblCrearAdminTitle.Size = new System.Drawing.Size(1389, 30);
+            this.lblCrearAdminTitle.TabIndex = 0;
+            this.lblCrearAdminTitle.Text = "Crear Nuevo Administrador";
+            this.lblCrearAdminTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tabReportes
             // 
@@ -748,10 +767,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFiltrosReporte.BackColor = System.Drawing.Color.SlateBlue;
             this.panelFiltrosReporte.Controls.Add(this.btnGenerarReporte);
             this.panelFiltrosReporte.Controls.Add(this.dtpFechaFin);
-            this.panelFiltrosReporte.Controls.Add(this.label7);
+            this.panelFiltrosReporte.Controls.Add(this.lblFechaFin);
             this.panelFiltrosReporte.Controls.Add(this.dtpFechaInicio);
-            this.panelFiltrosReporte.Controls.Add(this.label5);
-            this.panelFiltrosReporte.Controls.Add(this.label3);
+            this.panelFiltrosReporte.Controls.Add(this.lblFechaInicio);
+            this.panelFiltrosReporte.Controls.Add(this.lblFiltrarPor);
             this.panelFiltrosReporte.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelFiltrosReporte.Location = new System.Drawing.Point(0, 0);
             this.panelFiltrosReporte.Name = "panelFiltrosReporte";
@@ -774,15 +793,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.dtpFechaFin.Size = new System.Drawing.Size(200, 25);
             this.dtpFechaFin.TabIndex = 4;
             // 
-            // label7
+            // lblFechaFin
             // 
-            this.label7.AutoSize = true;
-            this.label7.ForeColor = System.Drawing.Color.White;
-            this.label7.Location = new System.Drawing.Point(470, 32);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(69, 19);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Fecha Fin:";
+            this.lblFechaFin.AutoSize = true;
+            this.lblFechaFin.ForeColor = System.Drawing.Color.White;
+            this.lblFechaFin.Location = new System.Drawing.Point(470, 32);
+            this.lblFechaFin.Name = "lblFechaFin";
+            this.lblFechaFin.Size = new System.Drawing.Size(69, 19);
+            this.lblFechaFin.TabIndex = 3;
+            this.lblFechaFin.Text = "Fecha Fin:";
             // 
             // dtpFechaInicio
             // 
@@ -791,26 +810,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.dtpFechaInicio.Size = new System.Drawing.Size(200, 25);
             this.dtpFechaInicio.TabIndex = 2;
             // 
-            // label5
+            // lblFechaInicio
             // 
-            this.label5.AutoSize = true;
-            this.label5.ForeColor = System.Drawing.Color.White;
-            this.label5.Location = new System.Drawing.Point(120, 32);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(83, 19);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Fecha Inicio:";
+            this.lblFechaInicio.AutoSize = true;
+            this.lblFechaInicio.ForeColor = System.Drawing.Color.White;
+            this.lblFechaInicio.Location = new System.Drawing.Point(120, 32);
+            this.lblFechaInicio.Name = "lblFechaInicio";
+            this.lblFechaInicio.Size = new System.Drawing.Size(83, 19);
+            this.lblFechaInicio.TabIndex = 1;
+            this.lblFechaInicio.Text = "Fecha Inicio:";
             // 
-            // label3
+            // lblFiltrarPor
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(20, 30);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(81, 16);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Filtrar por:";
+            this.lblFiltrarPor.AutoSize = true;
+            this.lblFiltrarPor.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFiltrarPor.ForeColor = System.Drawing.Color.White;
+            this.lblFiltrarPor.Location = new System.Drawing.Point(20, 30);
+            this.lblFiltrarPor.Name = "lblFiltrarPor";
+            this.lblFiltrarPor.Size = new System.Drawing.Size(81, 16);
+            this.lblFiltrarPor.TabIndex = 0;
+            this.lblFiltrarPor.Text = "Filtrar por:";
             // 
             // tabNotificaciones
             // 
@@ -851,7 +870,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.panelControlesNotificaciones.BackColor = System.Drawing.Color.SlateBlue;
             this.panelControlesNotificaciones.Controls.Add(this.btnEjecutarResumenes);
-            this.panelControlesNotificaciones.Controls.Add(this.label16);
+            this.panelControlesNotificaciones.Controls.Add(this.lblNotificacionesTitulo);
             this.panelControlesNotificaciones.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelControlesNotificaciones.Location = new System.Drawing.Point(0, 0);
             this.panelControlesNotificaciones.Name = "panelControlesNotificaciones";
@@ -867,16 +886,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.btnEjecutarResumenes.Text = "Ejecutar Resúmenes Diarios Manualmente";
             this.btnEjecutarResumenes.UseVisualStyleBackColor = true;
             // 
-            // label16
+            // lblNotificacionesTitulo
             // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.ForeColor = System.Drawing.Color.White;
-            this.label16.Location = new System.Drawing.Point(400, 32);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(192, 16);
-            this.label16.TabIndex = 0;
-            this.label16.Text = "Notificaciones del Sistema";
+            this.lblNotificacionesTitulo.AutoSize = true;
+            this.lblNotificacionesTitulo.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblNotificacionesTitulo.ForeColor = System.Drawing.Color.White;
+            this.lblNotificacionesTitulo.Location = new System.Drawing.Point(400, 32);
+            this.lblNotificacionesTitulo.Name = "lblNotificacionesTitulo";
+            this.lblNotificacionesTitulo.Size = new System.Drawing.Size(192, 16);
+            this.lblNotificacionesTitulo.TabIndex = 0;
+            this.lblNotificacionesTitulo.Text = "Notificaciones del Sistema";
             // 
             // tabMovimientos
             // 
@@ -1045,46 +1064,56 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private SplitContainer splitContainerClientes;
         private DataGridView tablaClientes;
         private Panel panelFormularioCliente;
+        private FlowLayoutPanel flowClienteBotones;
+        private Button btnNuevoCliente;
+        private Button btnGuardarCliente;
+        private Button btnEliminarCliente;
+        private Button btnActualizarClientes;
+        private Button btnCambiarContrasenaCliente;
+        private Button btnCrearCuentaCliente;
+        private Button btnActualizarSaldoCliente;
+        private Button btnVerCuentasCliente;
         private TabPage tabSeguridad;
         private SplitContainer splitContainerSeguridad;
         private Panel panelUsuariosBloqueados;
         private Button btnDesbloquearUsuario;
         private DataGridView gridUsuariosBloqueados;
-        private Label label9;
+        private Label lblUsuariosBloqueadosTitle;
         private Panel panelCrearAdmin;
         private Panel panelFormAdmin;
         private Button btnCrearAdministrador;
         private TableLayoutPanel tableLayoutAdmin;
-        private Label label10;
+        private Label lblAdminUsername;
         private TextBox txtAdminUsername;
-        private Label label12;
+        private Label lblAdminPassword;
         private TextBox txtAdminPassword;
-        private Label label13;
+        private Label lblAdminNombre;
         private TextBox txtAdminNombre;
-        private Label label14;
+        private Label lblAdminEmail;
         private TextBox txtAdminEmail;
-        private Label label15;
+        private Label lblCrearAdminTitle;
         private TabPage tabReportes;
         private Panel panelReportes;
         private DataGridView gridReporteTransacciones;
         private Panel panelFiltrosReporte;
         private Button btnGenerarReporte;
         private DateTimePicker dtpFechaFin;
-        private Label label7;
+        private Label lblFechaFin;
         private DateTimePicker dtpFechaInicio;
-        private Label label5;
-        private Label label3;
+        private Label lblFechaInicio;
+        private Label lblFiltrarPor;
         private TabPage tabNotificaciones;
         private Panel panelNotificaciones;
         private DataGridView gridNotificacionesSistema;
         private Panel panelControlesNotificaciones;
         private Button btnEjecutarResumenes;
-        private Label label16;
+        private Label lblNotificacionesTitulo;
         private TabPage tabMovimientos;
         private DataGridView tablaMovimientos;
         private TabPage tabAnalisis;
         private DataGridView tablaAnalisis;
         private TabPage tabResumen;
         private DataGridView tablaResumen;
+        private Button btnLogout;
     }
 }

@@ -16,10 +16,32 @@
     <None Remove=".vscode\**" />
     <None Remove="node_modules\**" />
     <None Remove="PaginaWebReact\**" />
+    <None Remove="PaginaWeb\.idea\**" />
     <TypeScriptConfiguration Remove=".vscode\**" />
     <TypeScriptConfiguration Remove="node_modules\**" />
     <!-- Incluir todos los archivos de PaginaWeb -->
     <TypeScriptConfiguration Remove="PaginaWebReact\**" />
+    <TypeScriptConfiguration Remove="PaginaWeb\.idea\**" />
     <None Include="PaginaWeb\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="PaginaWeb\.idea\.gitignore" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\.gitignore" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\.name" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\copilot.data.migration.agent.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\copilot.data.migration.ask.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\copilot.data.migration.ask2agent.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\copilot.data.migration.edit.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\discord.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\encodings.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\indexLayout.xml" />
+    <None Remove="PaginaWeb\.idea\.idea.ProyectoFinal-Software-4-y-5\.idea\vcs.xml" />
+    <None Remove="PaginaWeb\.idea\copilot.data.migration.agent.xml" />
+    <None Remove="PaginaWeb\.idea\copilot.data.migration.ask.xml" />
+    <None Remove="PaginaWeb\.idea\copilot.data.migration.ask2agent.xml" />
+    <None Remove="PaginaWeb\.idea\copilot.data.migration.edit.xml" />
+    <None Remove="PaginaWeb\.idea\misc.xml" />
+    <None Remove="PaginaWeb\.idea\modules.xml" />
+    <None Remove="PaginaWeb\.idea\vcs.xml" />
   </ItemGroup>
 </Project>

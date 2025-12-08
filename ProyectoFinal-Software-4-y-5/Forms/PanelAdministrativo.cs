@@ -19,17 +19,29 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private Button btnNuevo, btnGuardar, btnEliminar, btnActualizar;
         private Button btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo;
         private Button btnVerCuentas; // Nuevo botón para ver cuentas del cliente
-        private Button btnLogout; // New logout button
 
         // Use the API adapter exclusively
         private readonly ServicioBancoApi _servicioBancoApi;
         private readonly ApiAdmin _apiCliente;
+
+        // Flag para evitar loops de cierre y reentradas
+        private bool _isShuttingDown;
 
         public PanelAdministrativo()
         {
             try
             {
                 InitializeComponent();
+
+                // Map designer buttons to existing fields expected by logic (with null checks)
+                btnNuevo = this.btnNuevoCliente ?? btnNuevo;
+                btnGuardar = this.btnGuardarCliente ?? btnGuardar;
+                btnEliminar = this.btnEliminarCliente ?? btnEliminar;
+                btnActualizar = this.btnActualizarClientes ?? btnActualizar;
+                btnCambiarContrasena = this.btnCambiarContrasenaCliente ?? btnCambiarContrasena;
+                btnCrearCuenta = this.btnCrearCuentaCliente ?? btnCrearCuenta;
+                btnActualizarSaldo = this.btnActualizarSaldoCliente ?? btnActualizarSaldo;
+                btnVerCuentas = this.btnVerCuentasCliente ?? btnVerCuentas;
 
                 // Use API adapter (single instance)
                 _apiCliente = new ApiAdmin("http://localhost:5202", allowInvalidSsl: false);
@@ -38,7 +50,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Aplicar estilos modernos
                 AplicarEstilosModernos();
 
-                // Crear formulario de cliente dinámicamente
+                // Crear formulario de cliente dinámicamente (sin botones aquí)
                 CrearFormularioCliente();
 
                 // Conectar eventos
@@ -129,6 +141,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 try
                 {
+                    _isShuttingDown = true; // Evitar OnFormClosing loops y reabrir login automáticamente
+
                     // Clear any sensitive data or perform cleanup
                     LimpiarDatosSesion();
 
@@ -141,7 +155,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     // Close current form
                     this.Close();
 
-                    // Mostrar login form
+                    // Mostrar login form si la app sigue abierta
                     var loginForm = new FormLogin();
                     loginForm.Show();
                 }
@@ -150,7 +164,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     MessageBox.Show($"Error al cerrar sesión: {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    // Si hay error, forzar cierre seguro
+                    // Forzar cierre seguro de la app
                     Program.ExitApplication(1);
                 }
             }
@@ -159,6 +173,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         // Override form closing to ensure proper cleanup
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            // Si el cierre fue iniciado por la aplicación o estamos en proceso de cierre, no pedir confirmación ni reabrir login
+            if (_isShuttingDown || e.CloseReason == CloseReason.ApplicationExitCall)
+            {
+                base.OnFormClosing(e);
+                return;
+            }
+
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 var resultado = MessageBox.Show(
@@ -175,12 +196,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 try
                 {
-                    // Limpiar datos de sesión
+                    _isShuttingDown = true; // marcamos para evitar reentradas
                     LimpiarDatosSesion();
-
-                    // Limpiar recursos de API
                     _apiCliente?.Dispose();
-
                     System.Diagnostics.Debug.WriteLine("INFO: PanelAdministrativo cerrándose correctamente");
                 }
                 catch (Exception ex)
@@ -188,10 +206,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     System.Diagnostics.Debug.WriteLine($"ERROR: Error en OnFormClosing: {ex.Message}");
                 }
 
-                // Si es el último formulario, usar cierre seguro
+                // Determinar si es el último formulario
                 var openForms = Application.OpenForms;
                 bool isLastForm = true;
-
                 foreach (Form form in openForms)
                 {
                     if (form != this && !(form is FormLogin))
@@ -204,27 +221,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 if (isLastForm)
                 {
                     System.Diagnostics.Debug.WriteLine("INFO: Es el último formulario, cerrando aplicación");
-                    e.Cancel = true; // Cancelar cierre normal
-                    Program.ExitApplication(0); // Usar cierre seguro
+                    e.Cancel = true; // Cancelar cierre normal y usar salida segura
+                    Program.ExitApplication(0);
                     return;
                 }
 
-                // Si no es el último formulario, asegurar que hay un FormLogin
-                bool loginFormExists = false;
-                foreach (Form form in openForms)
-                {
-                    if (form is FormLogin)
-                    {
-                        loginFormExists = true;
-                        break;
-                    }
-                }
-
-                if (!loginFormExists)
-                {
-                    var loginForm = new FormLogin();
-                    loginForm.Show();
-                }
+                // No reabrir login aquí para evitar loops; si se necesita, se gestionará externamente
             }
 
             base.OnFormClosing(e);
@@ -476,7 +478,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private void CrearFormularioCliente()
         {
             var panel = panelFormularioCliente;
+            // Preservar el flow de botones si existe en el Designer
+            var flow = this.flowClienteBotones;
+
+            // Limpiar solo los controles existentes, pero volver a agregar el flow al final
             panel.Controls.Clear();
+
             var tableLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -489,29 +496,33 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
 
             int row = 0;
-            AgregarControl(tableLayout, "ID:", txtId = new TextBox { ReadOnly = true }, row++);
-            AgregarControl(tableLayout, "Usuario:", txtUsuario = new TextBox(), row++);
-            AgregarControl(tableLayout, "Nombre:", txtNombre = new TextBox(), row++);
-            AgregarControl(tableLayout, "Email:", txtEmail = new TextBox(), row++);
-            AgregarControl(tableLayout, "Teléfono:", txtTelefono = new TextBox(), row++);
+            AgregarControl(tableLayout, "ID:", txtId = new TextBox { ReadOnly = true, Name = "txtClienteId" }, row++);
+            AgregarControl(tableLayout, "Usuario:", txtUsuario = new TextBox { Name = "txtClienteUsuario" }, row++);
+            AgregarControl(tableLayout, "Nombre:", txtNombre = new TextBox { Name = "txtClienteNombre" }, row++);
+            AgregarControl(tableLayout, "Email:", txtEmail = new TextBox { Name = "txtClienteEmail" }, row++);
+            AgregarControl(tableLayout, "Teléfono:", txtTelefono = new TextBox { Name = "txtClienteTelefono" }, row++);
 
-            tableLayout.Controls.Add(new Label { Text = "Dirección", Font = new Font("Arial", 9, FontStyle.Bold) }, 0, row++);
+            tableLayout.Controls.Add(new Label { Text = "Dirección", Font = new Font("Arial", 9, FontStyle.Bold), Name = "lblDireccionTitulo" }, 0, row++);
             tableLayout.SetColumnSpan(tableLayout.Controls[tableLayout.Controls.Count - 1], 2);
 
-            AgregarControl(tableLayout, "Calle:", txtCalle = new TextBox(), row++);
-            AgregarControl(tableLayout, "Número:", txtNumero = new TextBox(), row++);
-            AgregarControl(tableLayout, "Ciudad:", txtCiudad = new TextBox(), row++);
-            AgregarControl(tableLayout, "Estado:", txtEstado = new TextBox(), row++);
-            AgregarControl(tableLayout, "Código Postal:", txtCodigoPostal = new TextBox(), row++);
-            AgregarControl(tableLayout, "País:", txtPais = new TextBox(), row++);
+            AgregarControl(tableLayout, "Calle:", txtCalle = new TextBox { Name = "txtClienteCalle" }, row++);
+            AgregarControl(tableLayout, "Número:", txtNumero = new TextBox { Name = "txtClienteNumero" }, row++);
+            AgregarControl(tableLayout, "Ciudad:", txtCiudad = new TextBox { Name = "txtClienteCiudad" }, row++);
+            AgregarControl(tableLayout, "Estado:", txtEstado = new TextBox { Name = "txtClienteEstado" }, row++);
+            AgregarControl(tableLayout, "Código Postal:", txtCodigoPostal = new TextBox { Name = "txtClienteCodigoPostal" }, row++);
+            AgregarControl(tableLayout, "País:", txtPais = new TextBox { Name = "txtClientePais" }, row++);
 
-            AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true }, row++);
+            AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true, Name = "txtClienteContrasena" }, row++);
 
-            var panelBotones = CrearPanelBotones();
-            tableLayout.Controls.Add(panelBotones, 0, row++);
-            tableLayout.SetColumnSpan(panelBotones, 2);
-
+            // Agregar el layout al panel
             panel.Controls.Add(tableLayout);
+
+            // Volver a agregar el flow si existe para que quede abajo
+            if (flow != null)
+            {
+                flow.Dock = DockStyle.Bottom;
+                panel.Controls.Add(flow);
+            }
         }
 
         private void AgregarControl(TableLayoutPanel tableLayout, string labelText, Control control, int row)
@@ -520,57 +531,32 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             tableLayout.Controls.Add(control, 1, row);
         }
 
-        private Panel CrearPanelBotones()
-        {
-            var panel = new Panel { Height = 150, Dock = DockStyle.Top };
-            var flowLayout = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight };
-
-            btnNuevo = new Button { Text = "Nuevo", Size = new Size(100, 30) };
-            btnGuardar = new Button { Text = "Guardar", Size = new Size(100, 30) };
-            btnEliminar = new Button { Text = "Eliminar", Size = new Size(100, 30) };
-            btnActualizar = new Button { Text = "Actualizar", Size = new Size(100, 30) };
-            btnCambiarContrasena = new Button { Text = "Cambiar Contraseña", Size = new Size(120, 30) };
-            btnCrearCuenta = new Button { Text = "Crear Cuenta", Size = new Size(100, 30) };
-            btnActualizarSaldo = new Button { Text = "Actualizar Saldo", Size = new Size(120, 30) };
-            btnVerCuentas = new Button { Text = "Ver Cuentas", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
-
-            flowLayout.Controls.AddRange(new Control[]
-            {
-                btnNuevo, btnGuardar, btnEliminar, btnActualizar,
-                btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo, btnVerCuentas
-            });
-
-            panel.Controls.Add(flowLayout);
-            return panel;
-        }
-
         private void ConectarEventos()
         {
             tablaClientes.SelectionChanged += (s, e) => CargarClienteSeleccionado();
-            btnNuevo.Click += (s, e) => LimpiarFormulario();
-            btnGuardar.Click += async (s, e) => await GuardarClienteAsync();
-            btnEliminar.Click += (s, e) => EliminarCliente();
-            btnActualizar.Click += async (s, e) => await CargarDatosClientes();
-            btnCambiarContrasena.Click += async (s, e) => await CambiarContrasenaAsync();
-            btnCrearCuenta.Click += async (s, e) => await CrearCuentaBancariaAsync();
-            btnActualizarSaldo.Click += (s, e) => ActualizarSaldoCuenta();
-            btnVerCuentas.Click += (s, e) => AbrirCuentasCliente();
 
-            btnDesbloquearUsuario.Click += async (s, e) => await DesbloquearUsuarioAsync();
-            btnCrearAdministrador.Click += async (s, e) => await CrearAdministradorAsync();
+            if (btnNuevo != null) btnNuevo.Click += (s, e) => LimpiarFormulario();
+            if (btnGuardar != null) btnGuardar.Click += async (s, e) => await GuardarClienteAsync();
+            if (btnEliminar != null) btnEliminar.Click += (s, e) => EliminarCliente();
+            if (btnActualizar != null) btnActualizar.Click += async (s, e) => await CargarDatosClientes();
+            if (btnCambiarContrasena != null) btnCambiarContrasena.Click += async (s, e) => await CambiarContrasenaAsync();
+            if (btnCrearCuenta != null) btnCrearCuenta.Click += async (s, e) => await CrearCuentaBancariaAsync();
+            if (btnActualizarSaldo != null) btnActualizarSaldo.Click += (s, e) => ActualizarSaldoCuenta();
+            if (btnVerCuentas != null) btnVerCuentas.Click += (s, e) => AbrirCuentasCliente();
 
-            btnGenerarReporte.Click += async (s, e) => await GenerarReporteTransaccionesAsync();
+            if (btnDesbloquearUsuario != null) btnDesbloquearUsuario.Click += async (s, e) => await DesbloquearUsuarioAsync();
+            if (btnCrearAdministrador != null) btnCrearAdministrador.Click += async (s, e) => await CrearAdministradorAsync();
+            if (btnGenerarReporte != null) btnGenerarReporte.Click += async (s, e) => await GenerarReporteTransaccionesAsync();
+            if (btnEjecutarResumenes != null) btnEjecutarResumenes.Click += async (s, e) => await EjecutarResumenesDiariosAsync();
 
-            btnEjecutarResumenes.Click += async (s, e) => await EjecutarResumenesDiariosAsync();
-
-            // NUEVO: Evento de doble clic en tablaResumen para mostrar detalles de cuenta
-            tablaResumen.CellDoubleClick += TablaResumen_CellDoubleClick;
+            if (tablaResumen != null) tablaResumen.CellDoubleClick += TablaResumen_CellDoubleClick;
         }
 
         // NUEVO: Método para manejar doble clic en resumen de clientes
         private async void TablaResumen_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0) // Verificar que no se haga clic en el encabezado
+            if (e.RowIndex >= 0 // Verificar que no se haga clic en el encabezado
+            )
             {
                 try
                 {
