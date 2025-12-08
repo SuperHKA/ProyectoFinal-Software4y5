@@ -4,16 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 18.0.11205.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProyectoFinal-Software-4-y-5", "ProyectoFinal-Software-4-y-5\ProyectoFinal-Software-4-y-5.csproj", "{2F939420-1B7B-457C-AAF8-AF35719642CE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{992E038C-9B10-4328-ADCC-4C5338F017B0} = {992E038C-9B10-4328-ADCC-4C5338F017B0}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_BancoFisclase", "API_BancoFisclase\API_BancoFisclase.csproj", "{992E038C-9B10-4328-ADCC-4C5338F017B0}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "paginaweb", "paginaweb\paginaweb.esproj", "{027E5BAE-05DA-016D-1FDB-136071EB87EC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{992E038C-9B10-4328-ADCC-4C5338F017B0} = {992E038C-9B10-4328-ADCC-4C5338F017B0}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

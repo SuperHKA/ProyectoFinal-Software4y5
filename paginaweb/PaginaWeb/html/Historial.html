@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Historial - FisClase</title>
-    <link rel="stylesheet" href="../css/Diseño.css">
+    <link rel="stylesheet" href="../css/Diseno.css">
     <link rel="stylesheet" href="../css/HistorialDiseño.css">
     <link rel="stylesheet" href="../css/ApiStatus.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="../js/AuthService.js"></script>
     <script src="../js/ApiStatusChecker.js"></script>
     <script src="../js/HeaderUser.js"></script>
+    <script src="../js/HistorialHandler.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
@@ -28,12 +29,10 @@
     <a href="Profile.html">
         <div class="user-info">
             <div class="user-avatar">JS</div>
-            <span>Juan Sánchez</span>
+            <span>Usuario</span>
         </div>
     </a>
-
 </header>
-
 
 <div class="dashboard-container">
     <!-- SIDEBAR -->
@@ -46,33 +45,60 @@
             <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i>Transacciones</a></li>
             <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i>Transferencias</a></li>
             <li><a href="Historial.html" class="active"><i class="fas fa-history"></i>Historial</a></li>
-            <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</a></li>
+            <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</a></li>
         </ul>
     </aside>
 
     <!-- ÁREA DE CONTENIDO -->
     <main class="content-area">
-        <h1>Historial de Transacciones Bancarias</h1>
+        <div class="page-header">
+            <h1><i class="fas fa-history"></i> Historial de Transacciones</h1>
+            <div class="header-actions">
+                <button class="btn-export" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
 
         <!-- RESUMEN DEL MES -->
         <section class="resumen-mes">
-            <h2><i class="fas fa-chart-line"></i> Resumen del Mes - Noviembre 2025</h2>
+            <h2><i class="fas fa-chart-line"></i> Resumen del Mes - <span id="currentMonth">Noviembre 2024</span></h2>
             <div class="stats-grid">
                 <div class="stat-card saldo-actual">
-                    <div class="stat-label">Saldo Actual</div>
-                    <div class="stat-value">$1,500.00</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Saldo Actual</div>
+                        <div class="stat-value">$0.00</div>
+                    </div>
                 </div>
                 <div class="stat-card ingresos">
-                    <div class="stat-label">Ingresos del Mes</div>
-                    <div class="stat-value">+$2,300.00</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Ingresos del Mes</div>
+                        <div class="stat-value">+$0.00</div>
+                    </div>
                 </div>
                 <div class="stat-card egresos">
-                    <div class="stat-label">Egresos del Mes</div>
-                    <div class="stat-value">-$800.00</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Egresos del Mes</div>
+                        <div class="stat-value">-$0.00</div>
+                    </div>
                 </div>
                 <div class="stat-card transacciones">
-                    <div class="stat-label">Total Transacciones</div>
-                    <div class="stat-value">15</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Transacciones</div>
+                        <div class="stat-value">0</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -81,17 +107,17 @@
         <section class="seccion-tarjeta">
             <div class="tarjeta-cuenta">
                 <div class="tarjeta-header">
-                    <h3 class="nom-cuenta">Cuenta de Ricardo Pérez</h3>
-                    <p class="num-cuenta">12345678</p>
+                    <h3 class="nom-cuenta">Cuenta Principal</h3>
+                    <p class="num-cuenta">••••••••</p>
                 </div>
                 <div class="saldo-info">
                     <div class="saldo-item">
                         <span class="titulo">Saldo Total:</span>
-                        <span class="saldo">1,500.00 USD</span>
+                        <span class="saldo">0.00 USD</span>
                     </div>
                     <div class="saldo-item">
                         <span class="titulo">Saldo Disponible:</span>
-                        <span class="saldo">1,000.00 USD</span>
+                        <span class="saldo">0.00 USD</span>
                     </div>
                 </div>
             </div>
@@ -101,88 +127,69 @@
         <section class="seccion-transacciones">
             <h2><i class="fas fa-clock"></i> Últimas Transacciones</h2>
             <div class="transacciones-lista">
-                <div class="transaccion-item">
-                    <div class="transaccion-info">
-                        <div class="merchant">Tienda ABC</div>
-                        <div class="fecha">2025-11-05</div>
-                    </div>
-                    <div class="monto negativo">-200.00 USD</div>
-                </div>
-                <div class="transaccion-item">
-                    <div class="transaccion-info">
-                        <div class="merchant">Depósito de Nómina</div>
-                        <div class="fecha">2025-11-01</div>
-                    </div>
-                    <div class="monto positivo">+1,500.00 USD</div>
-                </div>
-                <div class="transaccion-item">
-                    <div class="transaccion-info">
-                        <div class="merchant">Cafetería XYZ</div>
-                        <div class="fecha">2025-11-10</div>
-                    </div>
-                    <div class="monto negativo">-5.50 USD</div>
-                </div>
-                <div class="transaccion-item">
-                    <div class="transaccion-info">
-                        <div class="merchant">Supermercado 24/7</div>
-                        <div class="fecha">2025-11-15</div>
-                    </div>
-                    <div class="monto negativo">-42.30 USD</div>
+                <!-- Se cargarán dinámicamente -->
+                <div class="loading-transactions">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Cargando transacciones recientes...</span>
                 </div>
             </div>
         </section>
 
         <!-- HISTORIAL GENERAL -->
         <section class="seccion-historial">
-            <h2><i class="fas fa-list"></i> Historial General</h2>
+            <!-- Los filtros se agregarán dinámicamente aquí -->
+            
+            <h2><i class="fas fa-list"></i> Historial Completo</h2>
             <div class="tabla-wrapper">
                 <table class="historial-tabla">
                     <thead>
                     <tr>
-                        <th>Fecha</th>
-                        <th>Descripción</th>
-                        <th>Monto</th>
-                        <th>Saldo</th>
+                        <th>
+                            <span>Fecha</span>
+                            <i class="fas fa-sort"></i>
+                        </th>
+                        <th>
+                            <span>Descripción</span>
+                            <i class="fas fa-sort"></i>
+                        </th>
+                        <th>
+                            <span>Monto</span>
+                            <i class="fas fa-sort"></i>
+                        </th>
+                        <th>
+                            <span>Saldo</span>
+                            <i class="fas fa-sort"></i>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>2025-11-01</td>
-                        <td>Depósito de sueldo</td>
-                        <td class="monto-positivo">+1,500.00 USD</td>
-                        <td>1,500.00 USD</td>
-                    </tr>
-                    <tr>
-                        <td>2025-11-05</td>
-                        <td>Compra en tienda</td>
-                        <td class="monto-negativo">-200.00 USD</td>
-                        <td>1,300.00 USD</td>
-                    </tr>
-                    <tr>
-                        <td>2025-11-10</td>
-                        <td>Transferencia a cuenta externa</td>
-                        <td class="monto-negativo">-500.00 USD</td>
-                        <td>800.00 USD</td>
-                    </tr>
-                    <tr>
-                        <td>2025-11-15</td>
-                        <td>Pago de factura</td>
-                        <td class="monto-negativo">-100.00 USD</td>
-                        <td>700.00 USD</td>
-                    </tr>
-                    <tr>
-                        <td>2025-11-18</td>
-                        <td>Depósito ATM</td>
-                        <td class="monto-positivo">+800.00 USD</td>
-                        <td>1,500.00 USD</td>
-                    </tr>
+                        <!-- Se cargará dinámicamente -->
+                        <tr>
+                            <td colspan="4" class="loading-cell">
+                                <div class="loading-transaction">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Cargando historial...</span>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="btn-ver-mas">Ver más</button>
+            <div class="pagination-container">
+                <button type="button" class="btn-ver-mas">
+                    <i class="fas fa-chevron-down"></i>
+                    Ver más transacciones
+                </button>
+            </div>
         </section>
 
-
+        <!-- GRÁFICO DE TRANSACCIONES (OPCIONAL) -->
+        <section class="seccion-grafico" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Gráfico de Transacciones</h2>
+            <div class="chart-container">
+                <canvas id="transactionChart"></canvas>
+            </div>
+        </section>
     </main>
 </div>
 
@@ -200,6 +207,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../js/Opciones.js"></script>
-<script src="../js/HistorialHandler.js"></script>
 </body>
 </html>

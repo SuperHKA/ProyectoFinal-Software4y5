@@ -745,7 +745,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // panelFiltrosReporte
             // 
-            this.panelFiltrosReporte.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.panelFiltrosReporte.BackColor = System.Drawing.Color.SlateBlue;
             this.panelFiltrosReporte.Controls.Add(this.btnGenerarReporte);
             this.panelFiltrosReporte.Controls.Add(this.dtpFechaFin);
             this.panelFiltrosReporte.Controls.Add(this.label7);
@@ -777,6 +777,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // label7
             // 
             this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.White;
             this.label7.Location = new System.Drawing.Point(470, 32);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(69, 19);
@@ -793,6 +794,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // label5
             // 
             this.label5.AutoSize = true;
+            this.label5.ForeColor = System.Drawing.Color.White;
             this.label5.Location = new System.Drawing.Point(120, 32);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(83, 19);
@@ -803,6 +805,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(20, 30);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(81, 16);
@@ -846,7 +849,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // panelControlesNotificaciones
             // 
-            this.panelControlesNotificaciones.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.panelControlesNotificaciones.BackColor = System.Drawing.Color.SlateBlue;
             this.panelControlesNotificaciones.Controls.Add(this.btnEjecutarResumenes);
             this.panelControlesNotificaciones.Controls.Add(this.label16);
             this.panelControlesNotificaciones.Dock = System.Windows.Forms.DockStyle.Top;
@@ -868,6 +871,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.label16.AutoSize = true;
             this.label16.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.ForeColor = System.Drawing.Color.White;
             this.label16.Location = new System.Drawing.Point(400, 32);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(192, 16);

@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ProyectoFinal_Software_4_y_5.Entidades.DTOs;
 
 
 namespace ProyectoFinal_Software_4_y_5.Forms

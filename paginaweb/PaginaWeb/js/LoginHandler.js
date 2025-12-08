@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.success) {
                     // Redirigir según el tipo de usuario
                     if (result.user && result.user.isAdmin) {
-                        console.log('Todavia en desarrollo');
+                        alert('Todavía en desarrollo');
                     } else {
                         window.location.href = 'dashboard.html';
                     }

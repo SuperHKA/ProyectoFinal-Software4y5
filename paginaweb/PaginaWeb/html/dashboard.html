@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard - FisClase</title>
-    <link rel="stylesheet" href="../css/Diseño.css">
+    <link rel="stylesheet" href="../css/Diseno.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/ApiStatus.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -11,13 +11,14 @@
     <script src="../js/AuthService.js"></script>
     <script src="../js/ApiStatusChecker.js"></script>
     <script src="../js/HeaderUser.js"></script>
+    <script src="../js/Router.js"></script>
     <script src="../js/DashboardHandler.js" defer></script>
     <script src="../js/Opciones.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
     <header class="site-header">
-        <a href="Pagina_Principal.html" class="container logo">
+        <a href="Pagina_Principal.html">
             <img class="Titulo" src="../src/noname-cutout.png" alt="FisClase - Inicio">
         </div>
 
@@ -46,6 +47,7 @@
                 <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
                 <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
                 <li><a href="transferencias.html" class="transfers-link"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+                <li><a href="cuentas.html"><i class="fas fa-university"></i> Mis Cuentas</a></li>
                 <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
                 <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
             </ul>
@@ -141,13 +143,13 @@
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
                     </button>
+                    <button class="action-card" onclick="router.navigateTo('cuentas.html')">
+                        <i class="fas fa-university"></i>
+                        <span>Mis Cuentas</span>
+                    </button>
                     <button class="action-card" onclick="router.navigateTo('transacciones.html')">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span>Pagar Servicio</span>
-                    </button>
-                    <button class="action-card" onclick="router.navigateTo('tarjetas.html')">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Mis Tarjetas</span>
                     </button>
                     <button class="action-card" onclick="router.navigateTo('Historial.html')">
                         <i class="fas fa-history"></i>

@@ -3,6 +3,62 @@ class AuthService {
     constructor() {
         this.baseURL = 'http://localhost:5202/api';
         this.currentUser = this.getCurrentUser();
+        this.inactivityThresholdMs = 5 * 60 * 1000; // 5 minutos
+        this._inactivityTimer = null;
+
+        // Sincronizar cambios entre pestañas
+        if (typeof window !== 'undefined') {
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'user') {
+                    try {
+                        this.currentUser = e.newValue ? JSON.parse(e.newValue) : null;
+                    } catch {
+                        this.currentUser = null;
+                    }
+                }
+                if (e.key === 'authToken' && e.newValue === null) {
+                    // Token removido en otra pestaña
+                    this.currentUser = null;
+                    if (!window.location.pathname.toLowerCase().includes('login')) {
+                        window.location.href = 'Login.html';
+                    }
+                }
+            });
+        }
+
+        // Configurar monitor de inactividad global
+        this.setupInactivityMonitor();
+    }
+
+    setupInactivityMonitor() {
+        if (typeof window === 'undefined') return;
+
+        const touch = () => this.touchActivity();
+        const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+        events.forEach(ev => window.addEventListener(ev, touch, { passive: true }));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') touch();
+        });
+
+        // Iniciar el timestamp si ya hay sesión
+        if (this.isLoggedIn()) this.touchActivity();
+
+        // Revisar inactividad periódicamente
+        if (this._inactivityTimer) clearInterval(this._inactivityTimer);
+        this._inactivityTimer = setInterval(() => {
+            try {
+                if (!this.isLoggedIn()) return;
+                const last = this.getLastActivity();
+                if (!last) return;
+                const inactiveMs = Date.now() - last;
+                if (inactiveMs >= this.inactivityThresholdMs) {
+                    // Expirar sesión por inactividad
+                    alert('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.');
+                    this.clearUser();
+                    window.location.href = 'Login.html';
+                }
+            } catch { /* noop */ }
+        }, 15000); // cada 15s
     }
 
     // Obtener usuario actual del localStorage
@@ -26,6 +82,8 @@ class AuthService {
         try {
             localStorage.setItem('user', JSON.stringify(userData));
             localStorage.setItem('authToken', token);
+            // Registrar última actividad al iniciar sesión
+            localStorage.setItem('lastActivity', Date.now().toString());
             this.currentUser = userData;
         } catch (error) {
             console.error('Error saving user:', error);
@@ -36,6 +94,7 @@ class AuthService {
     clearUser() {
         localStorage.removeItem('user');
         localStorage.removeItem('authToken');
+        localStorage.removeItem('lastActivity');
         this.currentUser = null;
     }
 
@@ -187,7 +246,6 @@ class AuthService {
     // Realizar transferencia
     async transferir(transferData) {
         try {
-            // Agregar username al payload si está disponible
             const payload = {
                 ...transferData,
                 username: this.currentUser?.username
@@ -244,6 +302,21 @@ class AuthService {
     // Obtener token de autorización
     getAuthToken() {
         return localStorage.getItem('authToken');
+    }
+
+    // Tocar actividad para anti-expiración por inactividad
+    touchActivity() {
+        try {
+            if (this.isLoggedIn()) {
+                localStorage.setItem('lastActivity', Date.now().toString());
+            }
+        } catch {}
+    }
+
+    // Obtener última actividad
+    getLastActivity() {
+        const v = localStorage.getItem('lastActivity');
+        return v ? parseInt(v, 10) : null;
     }
 
     // Verificar conexión con la API

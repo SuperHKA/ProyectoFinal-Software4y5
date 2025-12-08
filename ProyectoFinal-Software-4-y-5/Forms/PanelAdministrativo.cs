@@ -132,10 +132,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     // Clear any sensitive data or perform cleanup
                     LimpiarDatosSesion();
 
-                    
+                    // Cerrar de forma segura usando ProcessManager
+                    System.Diagnostics.Debug.WriteLine("INFO: Cerrando sesión administrativa");
+
+                    // Limpiar recursos de API
+                    _apiCliente?.Dispose();
 
                     // Close current form
                     this.Close();
+
+                    // Mostrar login form
                     var loginForm = new FormLogin();
                     loginForm.Show();
                 }
@@ -143,56 +149,11 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 {
                     MessageBox.Show($"Error al cerrar sesión: {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    // Si hay error, forzar cierre seguro
+                    Program.ExitApplication(1);
                 }
             }
-        }
-
-        private void LimpiarDatosSesion()
-        {
-            // Clear form data
-            LimpiarFormulario();
-
-            // Clear any cached data
-            if (tablaClientes.DataSource != null)
-            {
-                tablaClientes.DataSource = null;
-            }
-
-            if (gridTransaccionesRecientes.DataSource != null)
-            {
-                gridTransaccionesRecientes.DataSource = null;
-            }
-
-            if (tablaMovimientos.DataSource != null)
-            {
-                tablaMovimientos.DataSource = null;
-            }
-
-            if (tablaAnalisis.DataSource != null)
-            {
-                tablaAnalisis.DataSource = null;
-            }
-
-            if (tablaResumen.DataSource != null)
-            {
-                tablaResumen.DataSource = null;
-            }
-
-            if (gridUsuariosBloqueados.DataSource != null)
-            {
-                gridUsuariosBloqueados.DataSource = null;
-            }
-
-            if (gridNotificacionesSistema.DataSource != null)
-            {
-                gridNotificacionesSistema.DataSource = null;
-            }
-
-            // Clear dashboard labels
-            lblTotalClientes.Text = "0";
-            lblTotalCuentas.Text = "0";
-            lblSaldoTotal.Text = "$0.00";
-            lblTransaccionesHoy.Text = "0";
         }
 
         // Override form closing to ensure proper cleanup
@@ -212,10 +173,44 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     return;
                 }
 
-                // If closing, ensure login form is available
-                var openForms = Application.OpenForms;
-                bool loginFormExists = false;
+                try
+                {
+                    // Limpiar datos de sesión
+                    LimpiarDatosSesion();
 
+                    // Limpiar recursos de API
+                    _apiCliente?.Dispose();
+
+                    System.Diagnostics.Debug.WriteLine("INFO: PanelAdministrativo cerrándose correctamente");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ERROR: Error en OnFormClosing: {ex.Message}");
+                }
+
+                // Si es el último formulario, usar cierre seguro
+                var openForms = Application.OpenForms;
+                bool isLastForm = true;
+
+                foreach (Form form in openForms)
+                {
+                    if (form != this && !(form is FormLogin))
+                    {
+                        isLastForm = false;
+                        break;
+                    }
+                }
+
+                if (isLastForm)
+                {
+                    System.Diagnostics.Debug.WriteLine("INFO: Es el último formulario, cerrando aplicación");
+                    e.Cancel = true; // Cancelar cierre normal
+                    Program.ExitApplication(0); // Usar cierre seguro
+                    return;
+                }
+
+                // Si no es el último formulario, asegurar que hay un FormLogin
+                bool loginFormExists = false;
                 foreach (Form form in openForms)
                 {
                     if (form is FormLogin)
@@ -290,8 +285,21 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 {
                     try
                     {
+                        // Convert clientes to our DTO format before populating
+                        var clientesDto = clientes.Select(c => new ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto
+                        {
+                            usuario_id = c.usuario_id,
+                            cliente_id = c.cliente_id,
+                            username = c.username,
+                            nombre_completo = c.nombre_completo,
+                            email = c.email,
+                            telefono = c.telefono,
+                            es_admin = c.es_admin,
+                            bloqueado = c.bloqueado
+                        }).ToList();
+
                         // populate UI with results
-                        PopulateClientesGridFromDto(clientes);
+                        PopulateClientesGridFromDto(clientesDto);
                         PopulateDashboard(stats, trans);
                         tablaMovimientos.DataSource = movimientos;
                         // Use async results for small views
@@ -351,7 +359,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        private void PopulateClientesGridFromDto(System.Collections.Generic.IEnumerable<ApiAdmin.ClienteDto> clientes)
+        private void PopulateClientesGridFromDto(System.Collections.Generic.IEnumerable<ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto> clientes)
         {
             try
             {
@@ -394,15 +402,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 tablaClientes.DataSource = dt;
 
                 // hide helper columns from view but ensure they exist
-                if (tablaClientes.Columns.Contains("UsuarioId")) 
+                if (tablaClientes.Columns.Contains("UsuarioId"))
                 {
                     tablaClientes.Columns["UsuarioId"].Visible = false;
                 }
-                if (tablaClientes.Columns.Contains("ClienteId")) 
+                if (tablaClientes.Columns.Contains("ClienteId"))
                 {
                     tablaClientes.Columns["ClienteId"].Visible = false;
                 }
-                
+
                 // Debug: Print column names
                 System.Diagnostics.Debug.WriteLine("DEBUG: Columns in DataTable:");
                 foreach (DataColumn col in dt.Columns)
@@ -443,7 +451,21 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 // Use the DTO method instead of the old one to maintain consistency
                 var clientes = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
-                this.BeginInvoke((Action)(() => PopulateClientesGridFromDto(clientes)));
+                
+                // Convert to our DTO format
+                var clientesDto = clientes.Select(c => new ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto
+                {
+                    usuario_id = c.usuario_id,
+                    cliente_id = c.cliente_id,
+                    username = c.username,
+                    nombre_completo = c.nombre_completo,
+                    email = c.email,
+                    telefono = c.telefono,
+                    es_admin = c.es_admin,
+                    bloqueado = c.bloqueado
+                }).ToList();
+                
+                this.BeginInvoke((Action)(() => PopulateClientesGridFromDto(clientesDto)));
             }
             catch (Exception ex)
             {
@@ -553,33 +575,33 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 try
                 {
                     var row = tablaResumen.Rows[e.RowIndex];
-                    
+
                     // Intentar obtener el número de cuenta de diferentes columnas posibles
                     string numeroCuenta = null;
                     int? clienteId = null;
-                    
+
                     // Buscar en las columnas disponibles
                     foreach (DataGridViewCell cell in row.Cells)
                     {
                         var columnName = tablaResumen.Columns[cell.ColumnIndex].Name;
                         var cellValue = cell.Value?.ToString();
-                        
+
                         // Debug: mostrar las columnas disponibles
                         System.Diagnostics.Debug.WriteLine($"DEBUG: Column: {columnName}, Value: {cellValue}");
-                        
+
                         // Buscar columnas que contengan número de cuenta
                         if (!string.IsNullOrEmpty(cellValue))
                         {
-                            if (columnName.ToLower().Contains("cuenta") || 
+                            if (columnName.ToLower().Contains("cuenta") ||
                                 columnName.ToLower().Contains("numero") ||
                                 columnName.ToLower() == "num_cuenta" ||
                                 columnName.ToLower() == "numero_cuenta")
                             {
                                 numeroCuenta = cellValue;
                             }
-                            
+
                             // Buscar cliente_id
-                            if (columnName.ToLower().Contains("cliente") && 
+                            if (columnName.ToLower().Contains("cliente") &&
                                 (columnName.ToLower().Contains("id") || columnName.ToLower() == "cliente_id"))
                             {
                                 if (int.TryParse(cellValue, out int id))
@@ -589,7 +611,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                             }
                         }
                     }
-                    
+
                     // Si no encontramos número de cuenta directamente, intentar obtenerlo del cliente_id
                     if (string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
                     {
@@ -597,7 +619,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         {
                             var cuentas = await _apiCliente.ObtenerCuentasPorClienteAsync(clienteId.Value);
                             var cuentaData = cuentas.FirstOrDefault();
-                            
+
                             if (cuentaData != null && cuentaData.ContainsKey("numero_cuenta"))
                             {
                                 numeroCuenta = cuentaData["numero_cuenta"]?.ToString();
@@ -608,7 +630,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                             System.Diagnostics.Debug.WriteLine($"DEBUG: Error obteniendo cuentas: {ex.Message}");
                         }
                     }
-                    
+
                     // Si tenemos número de cuenta y cliente ID, abrir DetalleDeCuenta
                     if (!string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
                     {
@@ -619,7 +641,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error al abrir detalles de cuenta: {ex.Message}", 
+                            MessageBox.Show($"Error al abrir detalles de cuenta: {ex.Message}",
                                 "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
@@ -633,19 +655,19 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                             var cellValue = cell.Value?.ToString() ?? "N/A";
                             info += $"{columnName}: {cellValue}\n";
                         }
-                        
+
                         MessageBox.Show($"No se pudo obtener suficiente información para mostrar detalles.\n\n" +
                                       $"Número de cuenta: {numeroCuenta ?? "No encontrado"}\n" +
                                       $"Cliente ID: {clienteId?.ToString() ?? "No encontrado"}\n\n" +
                                       "Debug:\n" + info,
-                                      "Información insuficiente", 
-                                      MessageBoxButtons.OK, 
+                                      "Información insuficiente",
+                                      MessageBoxButtons.OK,
                                       MessageBoxIcon.Information);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al procesar doble clic: {ex.Message}", 
+                    MessageBox.Show($"Error al procesar doble clic: {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -728,7 +750,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             if (tablaClientes.SelectedRows.Count > 0)
             {
                 var row = tablaClientes.SelectedRows[0];
-                
+
                 try
                 {
                     // Debug: print available columns
@@ -741,7 +763,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     // Safely get IDs with fallback
                     int clienteIdVal = 0;
                     int usuarioIdVal = 0;
-                    
+
                     // Try to get ClienteId
                     if (tablaClientes.Columns.Contains("ClienteId"))
                     {
@@ -751,7 +773,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                             int.TryParse(clienteIdObj.ToString(), out clienteIdVal);
                         }
                     }
-                    
+
                     // Try to get UsuarioId
                     if (tablaClientes.Columns.Contains("UsuarioId"))
                     {
@@ -761,7 +783,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                             int.TryParse(usuarioIdObj.ToString(), out usuarioIdVal);
                         }
                     }
-                    
+
                     // Use ClienteId if available and > 0, otherwise use UsuarioId
                     if (clienteIdVal > 0)
                     {
@@ -777,13 +799,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     }
 
                     // Safely get other field values
-                    txtUsuario.Text = tablaClientes.Columns.Contains("Usuario") && row.Cells["Usuario"].Value != null 
+                    txtUsuario.Text = tablaClientes.Columns.Contains("Usuario") && row.Cells["Usuario"].Value != null
                         ? row.Cells["Usuario"].Value.ToString() : "";
-                    txtNombre.Text = tablaClientes.Columns.Contains("Nombre") && row.Cells["Nombre"].Value != null 
+                    txtNombre.Text = tablaClientes.Columns.Contains("Nombre") && row.Cells["Nombre"].Value != null
                         ? row.Cells["Nombre"].Value.ToString() : "";
-                    txtEmail.Text = tablaClientes.Columns.Contains("Email") && row.Cells["Email"].Value != null 
+                    txtEmail.Text = tablaClientes.Columns.Contains("Email") && row.Cells["Email"].Value != null
                         ? row.Cells["Email"].Value.ToString() : "";
-                    txtTelefono.Text = tablaClientes.Columns.Contains("Teléfono") && row.Cells["Teléfono"].Value != null 
+                    txtTelefono.Text = tablaClientes.Columns.Contains("Teléfono") && row.Cells["Teléfono"].Value != null
                         ? row.Cells["Teléfono"].Value.ToString() : "";
 
                     // clear address fields -- API DTO does not include address in current contract
@@ -793,7 +815,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     txtEstado.Text = "";
                     txtCodigoPostal.Text = "";
                     txtPais.Text = "";
-                    
+
                     System.Diagnostics.Debug.WriteLine($"DEBUG: Loaded client - ID: {txtId.Text}, Usuario: {txtUsuario.Text}, Nombre: {txtNombre.Text}");
                 }
                 catch (Exception ex)
@@ -1033,28 +1055,28 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Verificar que hay un cliente seleccionado
                 if (tablaClientes.SelectedRows.Count == 0)
                 {
-                    MessageBox.Show("Por favor, seleccione un cliente de la lista primero.", 
+                    MessageBox.Show("Por favor, seleccione un cliente de la lista primero.",
                         "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 var row = tablaClientes.SelectedRows[0];
-                
+
                 // Obtener el ClienteId de las columnas ocultas
                 int clienteId = 0;
                 if (row.DataBoundItem is DataRowView dataRowView)
                 {
                     var dataRow = dataRowView.Row;
-                    
+
                     // Intentar obtener cliente_id primero
-                    if (dataRow.Table.Columns.Contains("ClienteId") && 
+                    if (dataRow.Table.Columns.Contains("ClienteId") &&
                         dataRow["ClienteId"] != DBNull.Value)
                     {
                         clienteId = Convert.ToInt32(dataRow["ClienteId"]);
                     }
-                    
+
                     // Si no hay cliente_id válido, usar usuario_id
-                    if (clienteId == 0 && dataRow.Table.Columns.Contains("UsuarioId") && 
+                    if (clienteId == 0 && dataRow.Table.Columns.Contains("UsuarioId") &&
                         dataRow["UsuarioId"] != DBNull.Value)
                     {
                         clienteId = Convert.ToInt32(dataRow["UsuarioId"]);
@@ -1066,7 +1088,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 if (clienteId == 0)
                 {
-                    MessageBox.Show("No se pudo obtener el ID del cliente seleccionado.", 
+                    MessageBox.Show("No se pudo obtener el ID del cliente seleccionado.",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -1077,7 +1099,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al abrir las cuentas del cliente: {ex.Message}\n\nDetalles: {ex.StackTrace}", 
+                MessageBox.Show($"Error al abrir las cuentas del cliente: {ex.Message}\n\nDetalles: {ex.StackTrace}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1200,10 +1222,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Build display array
                 var items = cuentas.Select(c => new ComboItem
                 {
-                    Id = c.ContainsKey("cuenta_id") && c["cuenta_id"] != null && c["cuenta_id"] != DBNull.Value ? 
+                    Id = c.ContainsKey("cuenta_id") && c["cuenta_id"] != null && c["cuenta_id"] != DBNull.Value ?
                         Convert.ToInt32(c["cuenta_id"]) : 0,
-                    Display = c.ContainsKey("numero_cuenta") && c["numero_cuenta"] != null ? 
-                        c["numero_cuenta"].ToString() : 
+                    Display = c.ContainsKey("numero_cuenta") && c["numero_cuenta"] != null ?
+                        c["numero_cuenta"].ToString() :
                         (c.ContainsKey("cuenta_id") && c["cuenta_id"] != null ? c["cuenta_id"].ToString() : "Sin número")
                 }).ToArray();
 
@@ -1328,19 +1350,93 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 var label = new Label { Text = prompt, Left = 10, Top = 20, Width = 280 };
                 var comboBox = new ComboBox
-                    { Left = 10, Top = 50, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
+                { Left = 10, Top = 50, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
                 comboBox.Items.AddRange(items);
                 if (items.Length > 0) comboBox.SelectedIndex = 0;
 
                 var btnOk = new Button { Text = "OK", Left = 130, Top = 80, Width = 75, DialogResult = DialogResult.OK };
                 var btnCancel = new Button
-                    { Text = "Cancel", Left = 210, Top = 80, Width = 75, DialogResult = DialogResult.Cancel };
+                { Text = "Cancel", Left = 210, Top = 80, Width = 75, DialogResult = DialogResult.Cancel };
 
                 form.Controls.AddRange(new Control[] { label, comboBox, btnOk, btnCancel });
                 form.AcceptButton = btnOk;
                 form.CancelButton = btnCancel;
 
                 return form.ShowDialog() == DialogResult.OK ? comboBox.SelectedItem : null;
+            }
+        }
+
+        private void LimpiarDatosSesion()
+        {
+            try
+            {
+                // Limpiar cualquier dato sensible en memoria
+                if (tablaClientes?.DataSource != null)
+                {
+                    tablaClientes.DataSource = null;
+                }
+
+                // Limpiar otras estructuras de datos si existen
+                System.Diagnostics.Debug.WriteLine("INFO: Datos de sesión limpiados correctamente");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR: Error limpiando datos de sesión: {ex.Message}");
+            }
+        }
+
+        // Fix for the conversion issue - convert the ApiAdmin.ClienteDto collection to our DTO collection
+        private async void CargarClientes()
+        {
+            try
+            {
+                var clientes = await _apiCliente.ObtenerClientesAsync();
+                if (clientes != null)
+                {
+                    // Convert ApiAdmin.ClienteDto to our DTOs.ClienteDto
+                    var clientesDto = clientes.Select(c => new ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto
+                    {
+                        usuario_id = c.usuario_id,
+                        cliente_id = c.cliente_id,
+                        username = c.username,
+                        nombre_completo = c.nombre_completo,
+                        email = c.email,
+                        telefono = c.telefono,
+                        es_admin = c.es_admin,
+                        bloqueado = c.bloqueado
+                    }).ToList();
+
+                    if (this.InvokeRequired)
+                    {
+                        this.BeginInvoke((Action)(() => PopulateClientesGridFromDto(clientesDto)));
+                    }
+                    else
+                    {
+                        PopulateClientesGridFromDto(clientesDto);
+                    }
+                }
+                else
+                {
+                    if (this.InvokeRequired)
+                    {
+                        this.BeginInvoke((Action)(() => MessageBox.Show("No se pudieron cargar los clientes.", "Información")));
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se pudieron cargar los clientes.", "Información");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (this.InvokeRequired)
+                {
+                    this.BeginInvoke((Action)(() => MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                }
+                else
+                {
+                    MessageBox.Show($"Error al cargar clientes: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }

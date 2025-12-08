@@ -72,6 +72,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entidades\Cuenta.cs" />
+    <Compile Include="Entidades\DTOs\ClienteDto.cs" />
+    <Compile Include="Entidades\DTOs\LoginDtos.cs" />
+    <Compile Include="Entidades\DTOs\PaginatedResponse.cs" />
+    <Compile Include="Entidades\DTOs\TransaccionDto.cs" />
     <Compile Include="Entidades\Transaccion.cs" />
     <Compile Include="Entidades\Usuario.cs" />
     <Compile Include="Forms\ApiAdmin.cs" />
@@ -87,12 +91,6 @@
     </Compile>
     <Compile Include="Forms\DetalleDeCuenta.Designer.cs">
       <DependentUpon>DetalleDeCuenta.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\GenerarEstados.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\GenerarEstados.Designer.cs">
-      <DependentUpon>GenerarEstados.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Modelos.cs" />
     <Compile Include="Forms\FormLogin.cs">
@@ -122,6 +120,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicios\ServicioBancoApi.cs" />
+    <Compile Include="Utilidades\ProcessManager.cs" />
     <EmbeddedResource Include="Forms\CuentasCliente.resx">
       <DependentUpon>CuentasCliente.cs</DependentUpon>
     </EmbeddedResource>
@@ -130,9 +129,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormLogin.resx">
       <DependentUpon>FormLogin.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\GenerarEstados.resx">
-      <DependentUpon>GenerarEstados.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\NuevaTransaccion.resx">
       <DependentUpon>NuevaTransaccion.cs</DependentUpon>

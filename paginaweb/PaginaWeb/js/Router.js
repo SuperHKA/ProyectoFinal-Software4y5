@@ -16,6 +16,7 @@ class Router {
             'transacciones.html': { protected: true, adminOnly: false },
             'transferencias.html': { protected: true, adminOnly: false },
             'notificaciones.html': { protected: true, adminOnly: false },
+            'cuentas.html': { protected: true, adminOnly: false },
 
             // Rutas para administradores
             'admin-dashboard.html': { protected: true, adminOnly: true }

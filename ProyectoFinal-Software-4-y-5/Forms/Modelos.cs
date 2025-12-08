@@ -1,7 +1,8 @@
-﻿using System;
+﻿        // DTOs
+using System;
 using System.Collections.Generic;
 
-namespace datellees_de_cuentas
+namespace ProyectoFinal_Software_4_y_5.Forms
 {
     // Clase de Cuenta Bancaria
     public class CuentaBancaria

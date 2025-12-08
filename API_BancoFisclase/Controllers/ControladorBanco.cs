@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LoginResultDto = API_BancoFisclase.Servicios.LoginResultDto;
+using EstatusLogin = API_BancoFisclase.Servicios.EstatusLogin;
+using API_BancoFisclase.DTOs;
 
 namespace API_BancoFisclase.Controllers
 {

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using ProyectoFinal_Software_4_y_5.Entidades.DTOs;
 
 namespace ProyectoFinal_Software_4_y_5.Forms
 {
@@ -17,7 +18,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
      - Provee métodos para obtener datos, autenticar usuarios y ejecutar acciones remotas.
      - Diseñado para uso por la capa de UI WinForms (adapter ligero).
     */
-    public class ApiAdmin
+    public class ApiAdmin : IDisposable
     {
         private readonly HttpClient _http;
         private readonly string _baseUrl;
@@ -40,6 +41,19 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             _http.Timeout = TimeSpan.FromSeconds(30);
         }
 
+        // Método para liberar recursos correctamente
+        public void Dispose()
+        {
+            try
+            {
+                _http?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error disposing HttpClient: {ex.Message}");
+            }
+        }
+
         private async Task<T> GetJsonAsync<T>(string url)
         {
             using (var res = await _http.GetAsync(url).ConfigureAwait(false))
@@ -53,26 +67,80 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         // Método público para POST con JSON (uso general desde la UI)
         public async Task<TResponse> PostJsonAsync<TRequest, TResponse>(string url, TRequest payload)
         {
-            var json = JsonConvert.SerializeObject(payload);
-            using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
-            using (var res = await _http.PostAsync(url, content).ConfigureAwait(false))
+            try
             {
-                var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
-                res.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<TResponse>(body);
+                var json = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat
+                });
+                
+                // DEBUG: Log para ver qué se está enviando
+                System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PostJsonAsync: URL = {url}");
+                System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PostJsonAsync: JSON = {json}");
+                
+                using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
+                using (var res = await _http.PostAsync(url, content).ConfigureAwait(false))
+                {
+                    var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    
+                    // DEBUG: Log de la respuesta
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PostJsonAsync: Status = {res.StatusCode}");
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PostJsonAsync: Response = {body}");
+                    
+                    if (!res.IsSuccessStatusCode)
+                    {
+                        // Lanzar excepción con detalles específicos
+                        throw new HttpRequestException($"HTTP {(int)res.StatusCode} {res.StatusCode}: {body}");
+                    }
+                    
+                    return JsonConvert.DeserializeObject<TResponse>(body);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ApiAdmin PostJsonAsync: {ex.Message}");
+                throw;
             }
         }
 
         // Implementado PutJsonAsync para uso en ServicioBancoApi
         public async Task<TResponse> PutJsonAsync<TRequest, TResponse>(string url, TRequest payload)
         {
-            var json = JsonConvert.SerializeObject(payload);
-            using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
-            using (var res = await _http.PutAsync(url, content).ConfigureAwait(false))
+            try
             {
-                var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
-                res.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<TResponse>(body);
+                var json = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat
+                });
+                
+                // DEBUG: Log para ver qué se está enviando
+                System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PutJsonAsync: URL = {url}");
+                System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PutJsonAsync: JSON = {json}");
+                
+                using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
+                using (var res = await _http.PutAsync(url, content).ConfigureAwait(false))
+                {
+                    var body = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    
+                    // DEBUG: Log de la respuesta
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PutJsonAsync: Status = {res.StatusCode}");
+                    System.Diagnostics.Debug.WriteLine($"DEBUG ApiAdmin PutJsonAsync: Response = {body}");
+                    
+                    if (!res.IsSuccessStatusCode)
+                    {
+                        // Lanzar excepción con detalles específicos
+                        throw new HttpRequestException($"HTTP {(int)res.StatusCode} {res.StatusCode}: {body}");
+                    }
+                    
+                    return JsonConvert.DeserializeObject<TResponse>(body);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ApiAdmin PutJsonAsync: {ex.Message}");
+                throw;
             }
         }
 
@@ -337,6 +405,143 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
                 $"/api/banco/clientes/{clienteId}/cuentas").ConfigureAwait(false);
 
+        // Método específico para actualizar cliente
+        public async Task<bool> ActualizarClienteAsync(object clienteData)
+        {
+            try
+            {
+                // Limpiar y preparar los datos del cliente
+                var clienteRequest = PrepararDatosClienteUpdate(clienteData);
+                var usuarioId = ObtenerUsuarioId(clienteData);
+                
+                if (usuarioId == 0)
+                {
+                    throw new Exception("ID de usuario requerido para actualizar cliente");
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Actualizando cliente {usuarioId} con datos: {JsonConvert.SerializeObject(clienteRequest)}");
+                
+                var response = await PutJsonAsync<object, object>(
+                    $"/api/banco/clientes/{usuarioId}", clienteRequest).ConfigureAwait(false);
+                
+                return response != null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ActualizarClienteAsync: {ex.Message}");
+                throw new Exception($"Error al actualizar cliente: {ex.Message}", ex);
+            }
+        }
+
+        // Método para crear cliente
+        public async Task<bool> CrearClienteAsync(object clienteData, string password)
+        {
+            try
+            {
+                var clienteRequest = PrepararDatosClienteCreate(clienteData, password);
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Creando cliente con datos: {JsonConvert.SerializeObject(clienteRequest)}");
+                
+                var response = await PostJsonAsync<object, object>(
+                    "/api/banco/clientes", clienteRequest).ConfigureAwait(false);
+                
+                return response != null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR CrearClienteAsync: {ex.Message}");
+                throw new Exception($"Error al crear cliente: {ex.Message}", ex);
+            }
+        }
+
+        private int ObtenerUsuarioId(object clienteData)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(clienteData);
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                
+                if (dict.ContainsKey("IdUsuario") && dict["IdUsuario"] != null)
+                {
+                    return Convert.ToInt32(dict["IdUsuario"]);
+                }
+                
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private object PrepararDatosClienteCreate(object clienteData, string password)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(clienteData);
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                
+                // Crear objeto según DTO esperado por la API
+                var resultado = new
+                {
+                    Username = GetSafeString(dict, "NombreUsuario"),
+                    Nombre = GetSafeString(dict, "NombreCompleto"),
+                    Email = GetSafeString(dict, "Email"),
+                    Telefono = GetSafeString(dict, "Telefono"),
+                    Password = password
+                };
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG PrepararDatosClienteCreate: {JsonConvert.SerializeObject(resultado)}");
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR PrepararDatosClienteCreate: {ex.Message}");
+                throw;
+            }
+        }
+
+        private object PrepararDatosClienteUpdate(object clienteData)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(clienteData);
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                
+                // Crear objeto según ClienteUpdateDto
+                var resultado = new
+                {
+                    Nombre = GetSafeString(dict, "NombreCompleto"),
+                    Email = GetSafeString(dict, "Email"),
+                    Telefono = GetSafeString(dict, "Telefono"),
+                    Calle = GetSafeString(dict, "Calle"),
+                    Numero = GetSafeString(dict, "Numero"),
+                    Ciudad = GetSafeString(dict, "Ciudad"),
+                    EstadoProvincia = GetSafeString(dict, "EstadoProvincia"),
+                    CodigoPostal = GetSafeString(dict, "CodigoPostal"),
+                    Pais = GetSafeString(dict, "Pais")
+                };
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG PrepararDatosClienteUpdate: {JsonConvert.SerializeObject(resultado)}");
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR PrepararDatosClienteUpdate: {ex.Message}");
+                throw;
+            }
+        }
+
+        private string GetSafeString(Dictionary<string, object> dict, string key)
+        {
+            if (dict.ContainsKey(key) && dict[key] != null)
+            {
+                var value = dict[key].ToString().Trim();
+                return string.IsNullOrEmpty(value) ? null : value;
+            }
+            return null;
+        }
+
         // Obtener todas las transacciones (para filtrar localmente)
         public async Task<IEnumerable<Dictionary<string, object>>> ObtenerTransaccionesAsync()
         {
@@ -351,7 +556,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Fallback: intentar endpoint sin paginación
                 try
                 {
-                    return await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/transacciones").ConfigureAwait(false);
+                    return await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/transacciones-recientes?pageSize=1000").ConfigureAwait(false);
                 }
                 catch
                 {
@@ -359,57 +564,5 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
             }
         }
-
-        // DTOs para respuesta paginada
-        public class PaginatedResponse<T>
-        {
-            public IEnumerable<T> items { get; set; }
-            public int total { get; set; }
-            public int page { get; set; }
-            public int pageSize { get; set; }
-        }
-
-        // DTOs - FIX: Agregados valores por defecto para evitar problemas de deserialización
-        public class ClienteDto
-        {
-            public int usuario_id { get; set; } = 0; // Default value
-            public int? cliente_id { get; set; }
-            public string username { get; set; } = ""; // Default empty string
-            public string nombre_completo { get; set; } = ""; // Default empty string
-            public string email { get; set; } = ""; // Default empty string
-            public string telefono { get; set; } = ""; // Default empty string
-            public bool es_admin { get; set; } = false; // Default value
-            public bool bloqueado { get; set; } = false; // Default value
-        }
-
-        public class TransaccionDto
-        {
-            public int transaccion_id { get; set; } = 0; // Default value
-            public DateTime fecha { get; set; } = DateTime.MinValue; // Default value
-            public string tipo_transaccion { get; set; } = ""; // Default empty string
-            public string estado { get; set; } = ""; // Default empty string
-            public decimal monto { get; set; } = 0; // Default value
-            public string descripcion { get; set; } = ""; // Default empty string
-        }
-    }
-
-    // DTOs deben coincidir con las formas devueltas por la API
-    public enum EstatusLogin { Success, NotFound, Locked, BadCredentials, Forbidden, Error }
-
-    public class LoginResultDto
-    {
-        public EstatusLogin Status { get; set; }
-        public string Message { get; set; }
-        public UserDto User { get; set; }
-    }
-
-    public class UserDto
-    {
-        public int Id { get; set; }
-        public string Username { get; set; }
-        // ClienteId: the customer id associated to this user (if any)
-        public int? ClienteId { get; set; }
-        // IsAdmin flag reflected from DB
-        public bool IsAdmin { get; set; }
     }
 }

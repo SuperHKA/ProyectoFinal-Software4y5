@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mi Perfil - FisClase</title>
-    <link rel="stylesheet" href="../css/Diseño.css">
+    <link rel="stylesheet" href="../css/Diseno.css">
     <link rel="stylesheet" href="../css/Profile.css">
     <link rel="stylesheet" href="../css/ApiStatus.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -105,6 +105,23 @@
                     <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()"></div>
                 </div>
             </div>
+
+            <!-- Security Settings -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-shield-alt"></i> Seguridad
+                </h2>
+                <div class="security-item">
+                    <span class="info-label">Cambiar Contraseña</span>
+                    <button class="btn-primary" id="changePasswordBtn">
+                        <i class="fas fa-key"></i> Cambiar
+                    </button>
+                </div>
+                <div class="security-item">
+                    <span class="info-label">Autenticación de Dos Factores</span>
+                    <div class="toggle-switch" id="twoFactorToggle"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -119,7 +136,6 @@
             <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
         </ul>
     </div>
-</footer>
 </footer>
 
 <script src="../js/ProfileHandler.js"></script>

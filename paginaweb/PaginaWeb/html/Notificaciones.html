@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FisClase - Construimos tu futuro</title>
-    <link rel="stylesheet" href="../css/Diseño.css">
+    <title>Notificaciones - FisClase</title>
+    <link rel="stylesheet" href="../css/Diseno.css">
     <link rel="stylesheet" href="../css/NotificacionDiseño.css">
     <link rel="stylesheet" href="../css/ApiStatus.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="../js/ApiStatusChecker.js"></script>
     <script src="../js/AuthService.js"></script>
     <script src="../js/HeaderUser.js"></script>
+    <script src="../js/NotificacionesHandler.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
@@ -29,11 +30,10 @@
     <a href="Profile.html">
         <div class="user-info">
             <div class="user-avatar">JS</div>
-            <span>Juan Sánchez</span>
+            <span>Usuario</span>
         </div>
     </a>
 </header>
-
 
 <div class="dashboard-container">
     <aside class="sidebar">
@@ -45,37 +45,28 @@
             <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
             <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
             <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
-            <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
         </ul>
     </aside>
 
     <main class="main-content">
-        <h1>📢 Notificaciones</h1>
+        <div class="notifications-header">
+            <h1><i class="fas fa-bell"></i> Notificaciones</h1>
+            <div class="notifications-actions">
+                <button class="btn-outline" onclick="markAllAsRead()" title="Marcar todas como leídas">
+                    <i class="fas fa-check-double"></i> Marcar todas como leídas
+                </button>
+                <button class="btn-outline" onclick="clearReadNotifications()" title="Limpiar leídas">
+                    <i class="fas fa-broom"></i> Limpiar leídas
+                </button>
+            </div>
+        </div>
 
         <div class="notificaciones-container">
-            <div class="notificacion2">
-                <p class="titulo">🔔 Notificación</p>
-                <p class="mensaje">Tienes una factura pendiente aún.</p>
-            </div>
-
-            <div class="notificacion3">
-                <p class="titulo">🔔 Notificación</p>
-                <p class="mensaje">Depósito de $1,000.00 USD realizado exitosamente.</p>
-            </div>
-
-            <div class="notificacion3">
-                <p class="titulo">🔔 Notificación</p>
-                <p class="mensaje">Pago de factura realizado por $250.00 USD.</p>
-            </div>
-
-            <div class="notificacion1">
-                <p class="titulo">🔔 Notificación</p>
-                <p class="mensaje">Tu saldo es bajo. Quedan $50.00 USD disponibles.</p>
-            </div>
-
-            <div class="notificacion3">
-                <p class="titulo">🔔 Notificación</p>
-                <p class="mensaje">Has recibido una transferencia de $500.00 USD.</p>
+            <!-- Las notificaciones se cargarán dinámicamente aquí -->
+            <div class="loading-notificaciones">
+                <div class="loading-spinner"></div>
+                <p>Cargando notificaciones...</p>
             </div>
         </div>
     </main>

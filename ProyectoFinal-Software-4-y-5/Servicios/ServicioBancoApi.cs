@@ -103,28 +103,60 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
 
         public async Task<bool> CrearClienteCompletoAsync(Usuario usuario, string password)
         {
-            var dto = new
+            try
             {
-                Username = usuario.NombreUsuario,
-                Nombre = usuario.NombreCompleto,
-                Email = usuario.Email,
-                Telefono = usuario.Telefono,
-                Password = password
-            };
-            var res = await _api.PostJsonAsync<object, object>("/api/banco/clientes", dto).ConfigureAwait(false);
-            return res != null;
+                // Usar el nuevo método de ApiAdmin que maneja mejor los datos
+                var clienteData = new
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    NombreUsuario = usuario.NombreUsuario,
+                    NombreCompleto = usuario.NombreCompleto,
+                    Email = usuario.Email,
+                    Telefono = usuario.Telefono,
+                    Calle = usuario.Calle,
+                    Numero = usuario.Numero,
+                    Ciudad = usuario.Ciudad,
+                    EstadoProvincia = usuario.EstadoProvincia,
+                    CodigoPostal = usuario.CodigoPostal,
+                    Pais = usuario.Pais
+                };
+
+                return await _api.CrearClienteAsync(clienteData, password).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR CrearClienteCompletoAsync: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> ActualizarClienteAsync(Usuario usuario)
         {
-            var dto = new
+            try
             {
-                Nombre = usuario.NombreCompleto,
-                Email = usuario.Email,
-                Telefono = usuario.Telefono
-            };
-            var res = await _api.PutJsonAsync<object, object>($"/api/banco/clientes/{usuario.IdUsuario}", dto).ConfigureAwait(false);
-            return res != null;
+                // Usar el nuevo método de ApiAdmin que maneja mejor los datos
+                var clienteData = new
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    NombreUsuario = usuario.NombreUsuario,
+                    NombreCompleto = usuario.NombreCompleto,
+                    Email = usuario.Email,
+                    Telefono = usuario.Telefono,
+                    Calle = usuario.Calle,
+                    Numero = usuario.Numero,
+                    Ciudad = usuario.Ciudad,
+                    EstadoProvincia = usuario.EstadoProvincia,
+                    CodigoPostal = usuario.CodigoPostal,
+                    Pais = usuario.Pais
+                };
+
+                return await _api.ActualizarClienteAsync(clienteData).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ActualizarClienteAsync: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> CambiarContrasenaAsync(int usuarioId, string nuevaContrasena)

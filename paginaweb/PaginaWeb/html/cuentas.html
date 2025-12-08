@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Cuentas - FisClase</title>
+    <link rel="stylesheet" href="../css/Diseno.css">
+    <link rel="stylesheet" href="../css/cuentas.css">
+    <link rel="stylesheet" href="../css/ApiStatus.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="../js/AuthService.js"></script>
+    <script src="../js/ApiStatusChecker.js"></script>
+    <script src="../js/HeaderUser.js"></script>
+    <script src="../js/CuentasHandler.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+<header class="site-header">
+    <a href="Pagina_Principal.html" class="container logo">
+        <img class="Titulo" src="../src/noname-cutout.png" alt="FisClase - Inicio">
+    </a>
+
+    <nav class="main-nav">
+        <ul>
+            <li><a href="Pagina_Principal.html">Inicio</a></li>
+            <li><a href="quienes-somos.html">¿Quienes Somos?</a></li>
+            <li><a href="contactenos.html">Contactenos</a></li>
+        </ul>
+    </nav>
+
+    <a href="Profile.html">
+        <div class="user-info">
+            <div class="user-avatar">JS</div>
+            <span>Usuario</span>
+        </div>
+    </a>
+</header>
+
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <h3>Menú Principal</h3>
+        <ul class="sidebar-menu">
+            <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
+            <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="notificaciones.html"><i class="fas fa-bell"></i> Notificaciones</a></li>
+            <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
+            <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+            <li><a href="cuentas.html" class="active"><i class="fas fa-university"></i> Mis Cuentas</a></li>
+            <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
+            <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <main class="accounts-content">
+        <div class="page-header">
+            <h1><i class="fas fa-university"></i> Mis Cuentas Bancarias</h1>
+            <div class="header-actions">
+                <button class="btn-toggle-saldos" onclick="toggleSaldosVisibility()">
+                    <i class="fas fa-eye"></i> Ocultar Saldos
+                </button>
+                <button class="btn-new-account-header" onclick="solicitarNuevaCuenta()">
+                    <i class="fas fa-plus"></i> Nueva Cuenta
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de estadísticas -->
+        <div class="cuentas-stats">
+            <!-- Se carga dinámicamente -->
+            <div class="loading-stats">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Cargando estadísticas...</span>
+            </div>
+        </div>
+
+        <!-- Grid de cuentas -->
+        <section class="cuentas-section">
+            <div class="cuentas-grid">
+                <!-- Se carga dinámicamente -->
+                <div class="loading-cuentas">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando tus cuentas bancarias...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Información adicional -->
+        <section class="info-section">
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Seguridad Garantizada</h3>
+                        <p>Todas tus cuentas están protegidas con encriptación de nivel bancario y monitoreo 24/7.</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Acceso Móvil</h3>
+                        <p>Gestiona tus cuentas desde cualquier dispositivo, en cualquier momento y lugar.</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Soporte 24/7</h3>
+                        <p>Nuestro equipo de atención al cliente está disponible para ayudarte cuando lo necesites.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Productos disponibles -->
+        <section class="productos-section">
+            <h2><i class="fas fa-star"></i> Productos Disponibles</h2>
+            <div class="productos-grid">
+                <div class="producto-card">
+                    <div class="producto-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>Cuenta Corriente</h3>
+                    <p>Para tu día a día con chequera, tarjeta de débito y acceso completo a servicios bancarios.</p>
+                    <ul class="producto-features">
+                        <li><i class="fas fa-check"></i> Tarjeta de débito incluida</li>
+                        <li><i class="fas fa-check"></i> Chequera gratuita</li>
+                        <li><i class="fas fa-check"></i> Transferencias ilimitadas</li>
+                    </ul>
+                    <button class="btn-solicitar" onclick="solicitarNuevaCuenta('Corriente')">Solicitar</button>
+                </div>
+                
+                <div class="producto-card">
+                    <div class="producto-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <h3>Cuenta de Ahorro</h3>
+                    <p>Haz crecer tu dinero con tasas de interés competitivas y sin comisiones por mantenimiento.</p>
+                    <ul class="producto-features">
+                        <li><i class="fas fa-check"></i> Intereses mensuales</li>
+                        <li><i class="fas fa-check"></i> Sin comisiones</li>
+                        <li><i class="fas fa-check"></i> Retiros flexibles</li>
+                    </ul>
+                    <button class="btn-solicitar" onclick="solicitarNuevaCuenta('Ahorro')">Solicitar</button>
+                </div>
+                
+                <div class="producto-card featured">
+                    <div class="producto-badge">Popular</div>
+                    <div class="producto-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3>Cuenta en Dólares</h3>
+                    <p>Protege tu dinero de la inflación con una cuenta en moneda extranjera y acceso global.</p>
+                    <ul class="producto-features">
+                        <li><i class="fas fa-check"></i> Protección cambiaria</li>
+                        <li><i class="fas fa-check"></i> Transferencias internacionales</li>
+                        <li><i class="fas fa-check"></i> Inversiones en USD</li>
+                    </ul>
+                    <button class="btn-solicitar" onclick="solicitarNuevaCuenta('Dolares')">Solicitar</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modal para detalles (se crea dinámicamente) -->
+
+<footer>
+    <div class="link_footer">
+        <ul>
+            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook"></i></a></li>
+            <li><a href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i></a></li>
+            <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i></a></li>
+            <li><a href="https://web.whatsapp.com" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="../js/Opciones.js"></script>
+</body>
+</html>

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using datellees_de_cuentas;
 
 namespace ProyectoFinal_Software_4_y_5.Forms
 {
@@ -78,17 +77,25 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                if (cuentaActual != null && !string.IsNullOrEmpty(cuentaActual.NumeroCuenta))
+                VerHistorial formVerHistorial;
+                
+                if (cuentaActual != null && !string.IsNullOrEmpty(cuentaActual.NumeroCuenta) && _clienteId > 0)
                 {
-                    // Usar constructor sin parámetros
-                    var formVerHistorial = new VerHistorial();
-                    formVerHistorial.ShowDialog();
+                    // Crear VerHistorial con información específica de la cuenta
+                    formVerHistorial = new VerHistorial(_clienteId, cuentaActual.NumeroCuenta);
+                }
+                else if (_clienteId > 0 && !string.IsNullOrEmpty(_numeroCuenta))
+                {
+                    // Usar los datos almacenados de la cuenta
+                    formVerHistorial = new VerHistorial(_clienteId, _numeroCuenta);
                 }
                 else
                 {
-                    var formVerHistorial = new VerHistorial();
-                    formVerHistorial.ShowDialog();
+                    // Sin información específica, mostrar historial general
+                    formVerHistorial = new VerHistorial();
                 }
+                
+                formVerHistorial.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -160,7 +167,21 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Crear objeto CuentaBancaria con datos reales
                 this.BeginInvoke((Action)(() =>
                 {
-                    CrearCuentaBancariaConDatos(clienteInfo, cuentaData, transaccionesCuenta);
+                    // Convert ApiAdmin.ClienteDto to our DTOs.ClienteDto
+                    var clienteDto = new ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto
+                    {
+                        usuario_id = clienteInfo.usuario_id,
+                        cliente_id = clienteInfo.cliente_id,
+                        username = clienteInfo.username,
+                        nombre_completo = clienteInfo.nombre_completo,
+                        email = clienteInfo.email,
+                        telefono = clienteInfo.telefono,
+                        es_admin = clienteInfo.es_admin,
+                        bloqueado = clienteInfo.bloqueado
+                    };
+
+                    // Usar la versión convertida
+                    CrearCuentaBancariaConDatos(clienteDto, cuentaData, transaccionesCuenta);
                     MostrarDatos();
                 }));
             }
@@ -176,7 +197,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         }
 
         private void CrearCuentaBancariaConDatos(
-            ApiAdmin.ClienteDto clienteInfo, 
+            ProyectoFinal_Software_4_y_5.Entidades.DTOs.ClienteDto clienteInfo, 
             IDictionary<string, object> cuentaData,
             IEnumerable<IDictionary<string, object>> transacciones)
         {

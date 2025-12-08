@@ -44,8 +44,9 @@
             this.pnlHeader.BackColor = System.Drawing.Color.SlateBlue;
             this.pnlHeader.Controls.Add(this.lblTituloHistorial);
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(742, 70);
+            this.pnlHeader.Size = new System.Drawing.Size(607, 57);
             this.pnlHeader.TabIndex = 0;
             // 
             // lblTituloHistorial
@@ -53,18 +54,20 @@
             this.lblTituloHistorial.AutoSize = true;
             this.lblTituloHistorial.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTituloHistorial.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblTituloHistorial.Location = new System.Drawing.Point(25, 18);
+            this.lblTituloHistorial.Location = new System.Drawing.Point(19, 15);
+            this.lblTituloHistorial.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblTituloHistorial.Name = "lblTituloHistorial";
-            this.lblTituloHistorial.Size = new System.Drawing.Size(180, 32);
+            this.lblTituloHistorial.Size = new System.Drawing.Size(155, 32);
             this.lblTituloHistorial.TabIndex = 1;
             this.lblTituloHistorial.Text = "Ver Historial";
             // 
             // btnCerrar
             // 
             this.btnCerrar.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCerrar.Location = new System.Drawing.Point(277, 406);
+            this.btnCerrar.Location = new System.Drawing.Point(234, 387);
+            this.btnCerrar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnCerrar.Name = "btnCerrar";
-            this.btnCerrar.Size = new System.Drawing.Size(171, 49);
+            this.btnCerrar.Size = new System.Drawing.Size(128, 40);
             this.btnCerrar.TabIndex = 2;
             this.btnCerrar.Text = "Cerrar";
             this.btnCerrar.UseVisualStyleBackColor = true;
@@ -77,13 +80,14 @@
             this.Fecha,
             this.Monto,
             this.Descripcion});
-            this.dgvHistorialTransacciones.Location = new System.Drawing.Point(94, 108);
+            this.dgvHistorialTransacciones.Location = new System.Drawing.Point(94, 147);
+            this.dgvHistorialTransacciones.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.dgvHistorialTransacciones.Name = "dgvHistorialTransacciones";
             this.dgvHistorialTransacciones.RowHeadersWidth = 51;
             this.dgvHistorialTransacciones.RowTemplate.Height = 24;
-            this.dgvHistorialTransacciones.Size = new System.Drawing.Size(551, 272);
+            this.dgvHistorialTransacciones.Size = new System.Drawing.Size(413, 221);
             this.dgvHistorialTransacciones.TabIndex = 3;
-            this.dgvHistorialTransacciones.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dgvHistorialTransacciones.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DgvHistorialTransacciones_CellContentClick);
             // 
             // Fecha
             // 
@@ -108,13 +112,14 @@
             // 
             // VerHistorial
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ClientSize = new System.Drawing.Size(742, 482);
+            this.ClientSize = new System.Drawing.Size(606, 438);
             this.Controls.Add(this.dgvHistorialTransacciones);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.pnlHeader);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "VerHistorial";
             this.Text = "VerHistorial";
             this.pnlHeader.ResumeLayout(false);
