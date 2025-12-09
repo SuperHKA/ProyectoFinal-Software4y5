@@ -246,11 +246,34 @@ namespace API_BancoFisclase.Controllers
 
         // Actualizar cliente
         [HttpPut("clientes/{id:int}")]
-        public async Task<IActionResult> ActualizarCliente(int id, [FromBody] ClienteUpdateDto payload)
+        public async Task<IActionResult> ActualizarCliente(int id, [FromBody] object payload)
         {
             if (payload == null) return BadRequest("payload required");
             var ok = await _banco.ActualizarClienteAsync(id, payload).ConfigureAwait(false);
             return Ok(ok);
+        }
+
+        // Eliminar cliente (soft delete)
+        [HttpDelete("clientes/{id:int}")]
+        public async Task<IActionResult> EliminarCliente(int id, [FromQuery] int usuarioIdAdmin = 1)
+        {
+            try
+            {
+                var resultado = await _banco.EliminarClienteAsync(id, usuarioIdAdmin).ConfigureAwait(false);
+                
+                if (resultado.Success)
+                {
+                    return Ok(new { success = true, message = resultado.Message });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = resultado.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error al eliminar cliente: {ex.Message}" });
+            }
         }
 
         // Cambiar contraseña de usuario
@@ -260,6 +283,38 @@ namespace API_BancoFisclase.Controllers
             if (body == null || string.IsNullOrEmpty(body.Password)) return BadRequest("Password required");
             var ok = await _banco.CambiarContrasenaAsync(id, body.Password).ConfigureAwait(false);
             return Ok(ok);
+        }
+
+        // Actualizar saldo de cuenta (solo administradores)
+        [HttpPost("cuentas/actualizar-saldo")]
+        public async Task<IActionResult> ActualizarSaldo([FromBody] ActualizarSaldoDto dto)
+        {
+            if (dto == null || string.IsNullOrEmpty(dto.NumeroCuenta))
+                return BadRequest(new { success = false, message = "Datos inválidos" });
+
+            if (dto.NuevoSaldo < 0)
+                return BadRequest(new { success = false, message = "El saldo no puede ser negativo" });
+
+            if (string.IsNullOrEmpty(dto.Motivo))
+                return BadRequest(new { success = false, message = "Debe especificar un motivo para el ajuste" });
+
+            try
+            {
+                var resultado = await _banco.ActualizarSaldoCuentaAsync(dto.NumeroCuenta, dto.NuevoSaldo, dto.Motivo, dto.UsuarioId).ConfigureAwait(false);
+                
+                if (resultado.Success)
+                {
+                    return Ok(new { success = true, message = resultado.Message });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = resultado.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error al actualizar saldo: {ex.Message}" });
+            }
         }
 
         // Crear cuenta bancaria
@@ -652,6 +707,182 @@ namespace API_BancoFisclase.Controllers
             public string Username { get; set; }
         }
 
+        // DTO para depósitos y retiros
+        public class TransaccionSimpleDto
+        {
+            public string NumeroCuenta { get; set; }
+            public decimal Monto { get; set; }
+            public string Descripcion { get; set; }
+            public string TipoTransaccion { get; set; }
+        }
+
+        // Endpoint para realizar depósito
+        [HttpPost("transacciones/deposito")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(typeof(object), 400)]
+        [ProducesResponseType(typeof(object), 500)]
+        public async Task<IActionResult> RealizarDeposito([FromBody] TransaccionSimpleDto request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.NumeroCuenta))
+                    return BadRequest(new { error = "Datos inválidos", message = "El número de cuenta es requerido" });
+
+                if (request.Monto <= 0)
+                    return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
+
+                // Por ahora, usar usuario ID 1 como predeterminado (administrador)
+                // En producción, esto debería venir del token de autenticación
+                var resultado = await _banco.TransferenciaInternaAsync(
+                    request.NumeroCuenta, 
+                    request.NumeroCuenta, 
+                    request.Monto, 
+                    request.Descripcion ?? "Depósito", 
+                    1
+                ).ConfigureAwait(false);
+
+                if (resultado.Success)
+                {
+                    return Ok(new { 
+                        success = true, 
+                        message = resultado.Message,
+                        transaccionId = resultado.TransaccionId
+                    });
+                }
+
+                return BadRequest(new { error = "Depósito fallido", message = resultado.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno", message = ex.Message });
+            }
+        }
+
+        // Endpoint para realizar retiro
+        [HttpPost("transacciones/retiro")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(typeof(object), 400)]
+        [ProducesResponseType(typeof(object), 500)]
+        public async Task<IActionResult> RealizarRetiro([FromBody] TransaccionSimpleDto request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.NumeroCuenta))
+                    return BadRequest(new { error = "Datos inválidos", message = "El número de cuenta es requerido" });
+
+                if (request.Monto <= 0)
+                    return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
+
+                // Implementar lógica de retiro (debitar la cuenta)
+                // Por ahora usar transferencia interna con monto negativo
+                var resultado = await _banco.TransferenciaInternaAsync(
+                    request.NumeroCuenta, 
+                    request.NumeroCuenta, 
+                    -Math.Abs(request.Monto), 
+                    request.Descripcion ?? "Retiro", 
+                    1
+                ).ConfigureAwait(false);
+
+                if (resultado.Success)
+                {
+                    return Ok(new { 
+                        success = true, 
+                        message = resultado.Message,
+                        transaccionId = resultado.TransaccionId
+                    });
+                }
+
+                return BadRequest(new { error = "Retiro fallido", message = resultado.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno", message = ex.Message });
+            }
+        }
+
+        // Endpoint para transferencia interna
+        [HttpPost("transacciones/transferencia-interna")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(typeof(object), 400)]
+        [ProducesResponseType(typeof(object), 500)]
+        public async Task<IActionResult> RealizarTransferenciaInterna([FromBody] TransferRequestDto request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.CuentaOrigen) || string.IsNullOrWhiteSpace(request.CuentaDestino))
+                    return BadRequest(new { error = "Datos inválidos", message = "Las cuentas de origen y destino son requeridas" });
+
+                if (request.Monto <= 0)
+                    return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
+
+                if (request.CuentaOrigen == request.CuentaDestino)
+                    return BadRequest(new { error = "Cuentas inválidas", message = "La cuenta origen y destino no pueden ser iguales" });
+
+                var resultado = await _banco.TransferenciaInternaAsync(
+                    request.CuentaOrigen,
+                    request.CuentaDestino,
+                    request.Monto,
+                    request.Descripcion ?? "Transferencia interna",
+                    request.UsuarioId ?? 1
+                ).ConfigureAwait(false);
+
+                if (resultado.Success)
+                {
+                    return Ok(new { 
+                        success = true, 
+                        message = resultado.Message,
+                        transaccionId = resultado.TransaccionId
+                    });
+                }
+
+                return BadRequest(new { error = "Transferencia fallida", message = resultado.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno", message = ex.Message });
+            }
+        }
+
+        // Endpoint para transferencia externa
+        [HttpPost("transacciones/transferencia-externa")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(typeof(object), 400)]
+        [ProducesResponseType(typeof(object), 500)]
+        public async Task<IActionResult> RealizarTransferenciaExterna([FromBody] TransferRequestDto request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.CuentaOrigen) || string.IsNullOrWhiteSpace(request.CuentaDestino))
+                    return BadRequest(new { error = "Datos inválidos", message = "Las cuentas de origen y destino son requeridas" });
+
+                if (request.Monto <= 0)
+                    return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
+
+                var resultado = await _banco.TransferenciaExternaAsync(
+                    request.CuentaOrigen,
+                    request.CuentaDestino,
+                    request.Monto,
+                    request.Descripcion ?? "Transferencia externa",
+                    request.UsuarioId ?? 1
+                ).ConfigureAwait(false);
+
+                if (resultado.Success)
+                {
+                    return Ok(new { 
+                        success = true, 
+                        message = resultado.Message,
+                        transaccionId = resultado.TransaccionId
+                    });
+                }
+
+                return BadRequest(new { error = "Transferencia fallida", message = resultado.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error interno", message = ex.Message });
+            }
+        }
+
     }
 
     // DTOs de solicitud (duplicados aquí por ahora; mover a proyecto compartido más adelante)
@@ -698,6 +929,19 @@ namespace API_BancoFisclase.Controllers
     }
 
     public class ChangePasswordDto { public string Password { get; set; } }
+
+    public class ActualizarSaldoDto 
+    { 
+        public string NumeroCuenta { get; set; }
+        public decimal NuevoSaldo { get; set; }
+        public string Motivo { get; set; }
+        public int UsuarioId { get; set; }
+    }
+
+    public class EliminarClienteDto
+    {
+        public int UsuarioIdAdmin { get; set; }
+    }
 
     public class CuentaCreateDto
     {

@@ -68,6 +68,10 @@ async function cargarCuentasUsuario() {
 
         const data = await response.json();
         userAccounts = data.cuentas || [];
+        
+        // Normalizar los datos de las cuentas
+        userAccounts = userAccounts.map(normalizeCuentaData);
+        
         console.log('✅ Cuentas recibidas del servidor:', userAccounts);
         console.log('✅ Total de cuentas:', userAccounts.length);
         
@@ -77,6 +81,43 @@ async function cargarCuentasUsuario() {
         console.error('Error al cargar cuentas:', error);
         mostrarMensaje('Error al cargar las cuentas: ' + error.message, 'error');
     }
+}
+
+// Normalizar datos de cuenta desde la API
+function normalizeCuentaData(cuenta) {
+    if (!cuenta) return null;
+    
+    return {
+        cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
+        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
+        saldo: cuenta['Saldo'] || cuenta.saldo || 0,
+        activa: cuenta['Activa'] !== false && cuenta.activa !== false,
+        ...cuenta
+    };
+}
+
+// Normalizar datos de transacción desde la API
+function normalizeTransaccionData(transaccion) {
+    if (!transaccion) return null;
+    
+    return {
+        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        tipo_transaccion: transaccion['Tipo Transacción'] || transaccion['Tipo de Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        tipoTransaccion: transaccion['Tipo Transacción'] || transaccion['Tipo de Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
+        fecha: transaccion['Fecha'] || transaccion.fecha || transaccion.fechaTransaccion,
+        fechaTransaccion: transaccion['Fecha'] || transaccion.fecha || transaccion.fechaTransaccion,
+        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        estado: transaccion['Estado'] || transaccion.estado || 'Completado',
+        cuenta_origen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
+        cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
+        cuenta_destino: transaccion['Cuenta Destino'] || transaccion.cuenta_destino || transaccion.cuentaDestino,
+        cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuenta_destino || transaccion.cuentaDestino,
+        cuentaDestinoNumero: transaccion['Cuenta Destino'] || transaccion.cuentaDestinoNumero || transaccion.numero_cuenta_destino,
+        clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
+        ...transaccion
+    };
 }
 
 // Renderizar las cuentas en el select
@@ -99,9 +140,9 @@ function renderizarCuentasEnSelect() {
 // Crear opción de cuenta para el select
 function crearOpcionCuenta(cuenta) {
     const option = document.createElement('option');
-    const cuentaId = cuenta.cuentaId || cuenta.cuenta_id || cuenta.cuentaID;
-    const numeroCuenta = cuenta.numeroCuenta || cuenta.numero_cuenta || cuenta.numero || '';
-    const tipoCuenta = cuenta.tipoCuenta || cuenta.tipo || 'Cuenta';
+    const cuentaId = cuenta.cuentaId;
+    const numeroCuenta = cuenta.numeroCuenta || '';
+    const tipoCuenta = cuenta.tipoCuenta || 'Cuenta';
     const saldo = cuenta.saldo || 0;
 
     option.value = cuentaId;
@@ -320,8 +361,11 @@ async function cargarUltimasTransacciones() {
             return;
         }
 
-        const transacciones = await response.json();
-        console.log('✅ Transacciones cargadas:', transacciones);
+        const transaccionesRaw = await response.json();
+        const transacciones = Array.isArray(transaccionesRaw) 
+            ? transaccionesRaw.map(normalizeTransaccionData) 
+            : [];
+        console.log('✅ Transacciones cargadas y normalizadas:', transacciones);
         actualizarTablaTransacciones(transacciones);
 
     } catch (error) {
@@ -358,7 +402,7 @@ function actualizarTablaTransacciones(transacciones) {
 
 // Crear fila de transacción
 function crearFilaTransaccion(trans) {
-    const fecha = new Date(trans.fecha || trans.fechaTransaccion);
+    const fecha = new Date(trans.fecha);
     
     // Determinar si es ingreso o egreso basándose en las cuentas del usuario
     const esIngreso = esIngresoParaUsuario(trans);
@@ -371,28 +415,28 @@ function crearFilaTransaccion(trans) {
         </td>
         <td class="transaction-description">
             <div class="transaction-icon">
-                <i class="fas fa-${obtenerIconoTransaccion(trans.tipo_transaccion || trans.tipoTransaccion)}"></i>
+                <i class="fas fa-${obtenerIconoTransaccion(trans.tipoTransaccion)}"></i>
             </div>
             <div class="transaction-info">
-                <strong>${trans.descripcion || trans.tipo_transaccion || trans.tipoTransaccion}</strong>
-                <span>Cuenta ****${(trans.cuenta_destino || trans.cuentaDestino || trans.cuentaDestinoNumero || '0000').toString().slice(-4)}</span>
+                <strong>${trans.descripcion || trans.tipoTransaccion}</strong>
+                <span>Cuenta ****${(trans.cuentaDestinoNumero || trans.cuentaDestino || '0000').toString().slice(-4)}</span>
             </div>
         </td>
-        <td><span class="category-tag ${obtenerClaseCategoria(trans.tipo_transaccion || trans.tipoTransaccion)}">${trans.tipo_transaccion || trans.tipoTransaccion}</span></td>
-        <td class="transaction-amount ${esIngreso ? 'positive' : 'negative'}">${esIngreso ? '+' : '-'}$${(trans.monto || 0).toFixed(2)}</td>
-        <td><span class="status-badge ${obtenerEstadoBadge(trans.estado)}">${trans.estado || 'Completado'}</span></td>
+        <td><span class="category-tag ${obtenerClaseCategoria(trans.tipoTransaccion)}">${trans.tipoTransaccion}</span></td>
+        <td class="transaction-amount ${esIngreso ? 'positive' : 'negative'}">${esIngreso ? '+' : '-'}$${trans.monto.toFixed(2)}</td>
+        <td><span class="status-badge ${obtenerEstadoBadge(trans.estado)}">${trans.estado}</span></td>
     `;
     return row;
 }
 
 // Determinar si una transacción es ingreso para el usuario actual
 function esIngresoParaUsuario(trans) {
-    const userAccountsNumbers = userAccounts.map(c => c.numeroCuenta || c.numero_cuenta || c.numero).filter(Boolean);
+    const userAccountsNumbers = userAccounts.map(c => c.numeroCuenta).filter(Boolean);
     
-    const tipo = (trans.tipo_transaccion || trans.tipoTransaccion || '').toLowerCase();
+    const tipo = (trans.tipoTransaccion || '').toLowerCase();
     const descripcion = (trans.descripcion || '').toLowerCase();
-    const cuentaOrigen = trans.cuenta_origen || trans.cuentaOrigen;
-    const cuentaDestino = trans.cuenta_destino || trans.cuentaDestino;
+    const cuentaOrigen = trans.cuentaOrigen;
+    const cuentaDestino = trans.cuentaDestino;
     
     // Si es un depósito directo o nómina, siempre es ingreso
     if (tipo.includes('deposito') || descripcion.includes('nomina') || descripcion.includes('sueldo')) {

@@ -13,11 +13,60 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadDashboardData();
 });
 
+// Normalizar datos del cliente desde la API
+function normalizeClienteData(cliente) {
+    if (!cliente) return null;
+    
+    return {
+        clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
+        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
+        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        email: cliente['Email'] || cliente.email,
+        telefono: cliente['Teléfono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        ...cliente
+    };
+}
+
+// Normalizar datos de cuenta desde la API
+function normalizeCuentaData(cuenta) {
+    if (!cuenta) return null;
+    
+    return {
+        cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
+        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
+        saldo: cuenta['Saldo'] || cuenta.saldo || 0,
+        activa: cuenta['Activa'] !== false && cuenta.activa !== false,
+        ...cuenta
+    };
+}
+
+// Normalizar datos de transacción desde la API
+function normalizeTransaccionData(transaccion) {
+    if (!transaccion) return null;
+    
+    return {
+        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        fecha: transaccion['Fecha'] || transaccion.fecha,
+        tipo: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
+        tipoTransaccion: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
+        estado: transaccion['Estado'] || transaccion.estado,
+        monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
+        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuentaOrigen || transaccion.cuenta_origen,
+        cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuentaDestino || transaccion.cuenta_destino,
+        clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
+        ...transaccion
+    };
+}
+
 async function updateUserInfo() {
     try {
         const data = await authService.getClienteInfo();
         // Nueva estructura: { cliente: {...}, cuentas: [...] }
-        const cliente = data.cliente || data;
+        const clienteRaw = data.cliente || data;
+        const cliente = normalizeClienteData(clienteRaw);
         const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
         const userNameElements = document.querySelectorAll('.user-info span, h1');
@@ -50,7 +99,8 @@ async function loadDashboardData() {
 
         // Obtener datos del cliente (incluye cliente + cuentas)
         const data = await authService.getClienteInfo();
-        const cuentas = data.cuentas || data; // Compatibilidad con respuesta vieja
+        const cuentasRaw = data.cuentas || data; // Compatibilidad con respuesta vieja
+        const cuentas = Array.isArray(cuentasRaw) ? cuentasRaw.map(normalizeCuentaData) : [];
         
         // Guardar info del cliente en sessionStorage para usarla después
         sessionStorage.setItem('clienteInfo', JSON.stringify(data));
@@ -83,10 +133,13 @@ function displayCuentas(cuentas) {
         const card = document.createElement('div');
         card.className = 'account-card';
         
-        const tipoCuenta = cuenta.tipoCuenta || 'Cuenta';
+        const tipoCuenta = cuenta.tipoCuenta || cuenta['Tipo de Cuenta'] || 'Cuenta';
         const icon = getTipoCuentaIcon(tipoCuenta);
-        const last4 = cuenta && cuenta.numeroCuenta ? String(cuenta.numeroCuenta).slice(-4) : '----';
+        const numeroCuenta = cuenta.numeroCuenta || cuenta['Número de Cuenta'] || '';
+        const last4 = numeroCuenta ? String(numeroCuenta).slice(-4) : '----';
 
+        const saldo = cuenta.saldo || cuenta['Saldo'] || 0;
+        
         card.innerHTML = `
             <div class="account-header">
                 <span class="account-type">
@@ -95,7 +148,7 @@ function displayCuentas(cuentas) {
                 </span>
                 <i class="fas fa-ellipsis-h"></i>
             </div>
-            <div class="account-balance">$${formatMoney(cuenta.saldo)}</div>
+            <div class="account-balance">$${formatMoney(saldo)}</div>
             <div class="account-number">** ** ** ${last4}</div>
         `;
         
@@ -165,7 +218,8 @@ function displayTransacciones(transacciones) {
 
     transactionsList.innerHTML = '';
     
-    transacciones.forEach(trans => {
+    transacciones.forEach(transRaw => {
+        const trans = normalizeTransaccionData(transRaw);
         const item = document.createElement('div');
         item.className = 'transaction-item';
         
@@ -181,7 +235,7 @@ function displayTransacciones(transacciones) {
                 <i class="fas ${icon}"></i>
             </div>
             <div class="transaction-details">
-                <div class="transaction-name">${trans.descripcion || trans.tipo_transaccion || trans.tipo || 'Transacción'}</div>
+                <div class="transaction-name">${trans.descripcion || trans.tipo || 'Transacción'}</div>
                 <div class="transaction-date">${formatDate(trans.fecha)}</div>
             </div>
             <div class="transaction-amount ${amountClass}">${sign}$${formatMoney(trans.monto)}</div>
@@ -239,10 +293,10 @@ function esIngresoParaCliente(trans) {
     // Obtener las cuentas del usuario del cache
     const userAccounts = getUserAccountNumbers();
     
-    const tipo = (trans.tipo_transaccion || trans.tipo || '').toLowerCase();
+    const tipo = (trans.tipoTransaccion || trans.tipo || '').toLowerCase();
     const descripcion = (trans.descripcion || '').toLowerCase();
-    const cuentaOrigen = trans.cuenta_origen || trans.cuentaOrigen;
-    const cuentaDestino = trans.cuenta_destino || trans.cuentaDestino;
+    const cuentaOrigen = trans.cuentaOrigen;
+    const cuentaDestino = trans.cuentaDestino;
     
     // Si es un depósito directo o nómina, siempre es ingreso
     if (tipo.includes('deposito') || descripcion.includes('nomina') || descripcion.includes('sueldo')) {
@@ -269,8 +323,9 @@ function getUserAccountNumbers() {
         const cachedData = sessionStorage.getItem('clienteInfo');
         if (cachedData) {
             const data = JSON.parse(cachedData);
-            const cuentas = data.cuentas || [];
-            return cuentas.map(c => c.numeroCuenta || c.numero_cuenta).filter(Boolean);
+            const cuentasRaw = data.cuentas || [];
+            const cuentas = cuentasRaw.map(normalizeCuentaData);
+            return cuentas.map(c => c.numeroCuenta).filter(Boolean);
         }
     } catch (e) {
         console.warn('Error obteniendo cuentas del cache:', e);
@@ -299,7 +354,8 @@ async function loadMonthlySummary() {
 
         if (response.ok) {
             const data = await response.json();
-            const transacciones = Array.isArray(data) ? data : (data.items || []);
+            const transaccionesRaw = Array.isArray(data) ? data : (data.items || []);
+            const transacciones = transaccionesRaw.map(normalizeTransaccionData);
             
             // Calcular ingresos y gastos del mes actual
             let totalIngresos = 0;
@@ -322,22 +378,58 @@ async function loadMonthlySummary() {
             const balance = totalIngresos - totalGastos;
             
             // Actualizar las tarjetas de resumen
-            const incomeCard = document.querySelector('.stat-card.income .stat-value');
-            const expensesCard = document.querySelector('.stat-card.expenses .stat-value');
-            const balanceCard = document.querySelector('.stat-card:not(.income):not(.expenses) .stat-value');
-            
-            if (incomeCard) incomeCard.textContent = `$${formatMoney(totalIngresos)}`;
-            if (expensesCard) expensesCard.textContent = `$${formatMoney(totalGastos)}`;
-            if (balanceCard) {
-                balanceCard.textContent = `$${formatMoney(balance)}`;
-                balanceCard.className = 'stat-value ' + (balance >= 0 ? 'income' : 'expenses');
-            }
+            updateSummaryCards(totalIngresos, totalGastos, balance);
+            // Actualizar las tarjetas de resumen
+            updateSummaryCards(totalIngresos, totalGastos, balance);
             
             // Actualizar gráfica si existe
             updateMonthlyChart(transacciones);
         }
     } catch (error) {
         console.error('Error loading monthly summary:', error);
+    }
+}
+
+// Actualizar las tarjetas de resumen mensual
+function updateSummaryCards(ingresos, gastos, balance) {
+    // Buscar las tarjetas por diferentes selectores posibles
+    const summarySection = document.querySelector('.monthly-summary') || document.querySelector('.summary-cards');
+    
+    if (summarySection) {
+        // Buscar dentro de la sección de resumen
+        const cards = summarySection.querySelectorAll('.stat-card, .summary-card, .card');
+        
+        cards.forEach(card => {
+            const label = card.querySelector('.stat-label, .card-label, h3, .label');
+            const value = card.querySelector('.stat-value, .card-value, .value, .amount');
+            
+            if (label && value) {
+                const labelText = label.textContent.toLowerCase();
+                
+                if (labelText.includes('ingreso') || labelText.includes('income')) {
+                    value.textContent = `$${formatMoney(ingresos)}`;
+                    value.style.color = '#10b981'; // Verde
+                } else if (labelText.includes('gasto') || labelText.includes('expense')) {
+                    value.textContent = `$${formatMoney(gastos)}`;
+                    value.style.color = '#ef4444'; // Rojo
+                } else if (labelText.includes('balance') || labelText.includes('saldo')) {
+                    value.textContent = `$${formatMoney(balance)}`;
+                    value.style.color = balance >= 0 ? '#10b981' : '#ef4444';
+                }
+            }
+        });
+    }
+    
+    // También actualizar si hay elementos con IDs específicos
+    const ingresosEl = document.getElementById('total-ingresos');
+    const gastosEl = document.getElementById('total-gastos');
+    const balanceEl = document.getElementById('balance-mensual');
+    
+    if (ingresosEl) ingresosEl.textContent = `$${formatMoney(ingresos)}`;
+    if (gastosEl) gastosEl.textContent = `$${formatMoney(gastos)}`;
+    if (balanceEl) {
+        balanceEl.textContent = `$${formatMoney(balance)}`;
+        balanceEl.style.color = balance >= 0 ? '#10b981' : '#ef4444';
     }
 }
 

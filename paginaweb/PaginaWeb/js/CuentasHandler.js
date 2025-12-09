@@ -1,12 +1,12 @@
 // Manejador mejorado de cuentas bancarias para clientes
 document.addEventListener('DOMContentLoaded', async function() {
-    // Verificar autenticación
+    // Verificar autenticaciÃ³n
     if (!authService.isLoggedIn()) {
         window.location.href = 'Login.html';
         return;
     }
 
-    // Actualizar información del usuario
+    // Actualizar informaciÃ³n del usuario
     await updateUserInfo();
 
     // Cargar cuentas del cliente
@@ -16,10 +16,40 @@ document.addEventListener('DOMContentLoaded', async function() {
 let cuentasData = [];
 let showSaldos = true;
 
+// Normalizar datos del cliente desde la API
+function normalizeClienteData(cliente) {
+    if (!cliente) return null;
+    
+    return {
+        clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
+        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
+        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        email: cliente['Email'] || cliente.email,
+        telefono: cliente['TelÃ©fono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        ...cliente
+    };
+}
+
+// Normalizar datos de cuenta desde la API
+function normalizeCuentaData(cuenta) {
+    if (!cuenta) return null;
+    
+    return {
+        cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
+        numeroCuenta: cuenta['NÃºmero de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
+        saldo: cuenta['Saldo'] || cuenta.saldo || 0,
+        activa: cuenta['Activa'] !== false && cuenta.activa !== false,
+        ...cuenta
+    };
+}
+
 async function updateUserInfo() {
     try {
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data;
+        const clienteRaw = data.cliente || data;
+        const cliente = normalizeClienteData(clienteRaw);
         const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || 
                           (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
@@ -32,12 +62,12 @@ async function updateUserInfo() {
         const avatar = document.querySelector('.user-avatar');
         if (avatar && cliente) {
             const fullName = cliente.nombreCompleto || cliente.nombre || displayName;
-            const initials = fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+            const initials = fullName ? fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() : 'U';
             avatar.textContent = initials;
         }
         
     } catch (error) {
-        console.warn('No se pudo obtener información del usuario:', error);
+        console.warn('No se pudo obtener informaciÃ³n del usuario:', error);
     }
 }
 
@@ -46,9 +76,10 @@ async function loadCuentasCliente() {
         showLoading(true);
 
         const data = await authService.getClienteInfo();
-        cuentasData = data.cuentas || data;
+        const cuentasRaw = data.cuentas || data;
+        cuentasData = Array.isArray(cuentasRaw) ? cuentasRaw.map(normalizeCuentaData) : [];
         
-        if (Array.isArray(cuentasData) && cuentasData.length > 0) {
+        if (cuentasData.length > 0) {
             displayCuentas(cuentasData);
             updateCuentasStats(cuentasData);
         } else {
@@ -75,7 +106,7 @@ function displayCuentas(cuentas) {
         container.appendChild(card);
     });
 
-    // Crear botón para solicitar nueva cuenta
+    // Crear botÃ³n para solicitar nueva cuenta
     const newAccountCard = createNewAccountCard();
     container.appendChild(newAccountCard);
 }
@@ -142,7 +173,7 @@ function createCuentaCard(cuenta, index) {
         <div class="cuenta-balance">
             <div class="balance-label">Saldo Disponible</div>
             <div class="balance-amount ${showSaldos ? '' : 'hidden-balance'}">
-                ${showSaldos ? `$${formatMoney(saldo)}` : '••••••'}
+                ${showSaldos ? `$${formatMoney(saldo)}` : 'â€¢â€¢â€¢â€¢â€¢â€¢'}
             </div>
         </div>
         
@@ -167,12 +198,12 @@ function createCuentaCard(cuenta, index) {
                 <span class="info-value">${tipoCuenta}</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Número Completo:</span>
+                <span class="info-label">NÃºmero Completo:</span>
                 <span class="info-value">${numeroCuenta}</span>
             </div>
             ${cuenta.limite ? `
                 <div class="info-item">
-                    <span class="info-label">Límite Diario:</span>
+                    <span class="info-label">LÃ­mite Diario:</span>
                     <span class="info-value">$${formatMoney(cuenta.limite)}</span>
                 </div>
             ` : ''}
@@ -192,7 +223,7 @@ function createNewAccountCard() {
                 <i class="fas fa-plus-circle"></i>
             </div>
             <h3>Solicitar Nueva Cuenta</h3>
-            <p>Abre una nueva cuenta bancaria y accede a más beneficios</p>
+            <p>Abre una nueva cuenta bancaria y accede a mÃ¡s beneficios</p>
             <button class="btn-new-account" onclick="solicitarNuevaCuenta()">
                 <i class="fas fa-plus"></i>
                 Solicitar Cuenta
@@ -213,7 +244,7 @@ function updateCuentasStats(cuentas) {
 }
 
 function updateStatsDisplay(total, activas, saldoTotal) {
-    // Crear o actualizar panel de estadísticas
+    // Crear o actualizar panel de estadÃ­sticas
     let statsContainer = document.querySelector('.cuentas-stats');
     
     if (!statsContainer) {
@@ -252,7 +283,7 @@ function updateStatsDisplay(total, activas, saldoTotal) {
                 </div>
                 <div class="stat-info">
                     <div class="stat-value ${showSaldos ? '' : 'hidden-balance'}">
-                        ${showSaldos ? `$${formatMoney(saldoTotal)}` : '••••••'}
+                        ${showSaldos ? `$${formatMoney(saldoTotal)}` : 'â€¢â€¢â€¢â€¢â€¢â€¢'}
                     </div>
                     <div class="stat-label">Saldo Total</div>
                 </div>
@@ -272,13 +303,13 @@ function toggleSaldosVisibility() {
         if (showSaldos) {
             amount.classList.remove('hidden-balance');
             const cuentaId = amount.closest('.cuenta-card').getAttribute('data-cuenta-id');
-            const cuenta = cuentasData[parseInt(cuentaId)] || cuentasData.find(c => c.cuentaId == cuentaId);
+            const cuenta = cuentasData[parseInt(cuentaId)] || cuentasData.find(c => (c['ID Cuenta'] || c.cuentaId) == cuentaId);
             if (cuenta) {
                 amount.textContent = `$${formatMoney(parseFloat(cuenta.saldo || 0))}`;
             }
         } else {
             amount.classList.add('hidden-balance');
-            amount.textContent = '••••••';
+            amount.textContent = 'â€¢â€¢â€¢â€¢â€¢â€¢';
         }
     });
     
@@ -287,7 +318,7 @@ function toggleSaldosVisibility() {
         updateCuentasStats(cuentasData);
     }
     
-    // Actualizar botón
+    // Actualizar botÃ³n
     if (toggleBtn) {
         toggleBtn.innerHTML = showSaldos ? 
             '<i class="fas fa-eye-slash"></i> Ocultar Saldos' : 
@@ -313,16 +344,16 @@ async function solicitarNuevaCuenta() {
                             <option value="">Seleccionar tipo</option>
                             <option value="Corriente">Cuenta Corriente</option>
                             <option value="Ahorro">Cuenta de Ahorro</option>
-                            <option value="Dolares">Cuenta en Dólares</option>
+                            <option value="Dolares">Cuenta en DÃ³lares</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="saldoInicial">Depósito Inicial (Opcional):</label>
+                        <label for="saldoInicial">DepÃ³sito Inicial (Opcional):</label>
                         <input type="number" id="saldoInicial" min="0" step="0.01" placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="motivoSolicitud">Motivo de la Solicitud:</label>
-                        <textarea id="motivoSolicitud" rows="3" placeholder="Explique brevemente por qué necesita esta cuenta..."></textarea>
+                        <textarea id="motivoSolicitud" rows="3" placeholder="Explique brevemente por quÃ© necesita esta cuenta..."></textarea>
                     </div>
                 </form>
             </div>
@@ -352,7 +383,7 @@ async function submitSolicitudCuenta() {
     }
     
     try {
-        // Por ahora solo simular la solicitud (la API no tiene endpoint específico)
+        // Por ahora solo simular la solicitud (la API no tiene endpoint especÃ­fico)
         showLoading(true);
         
         // Simular delay
@@ -361,7 +392,7 @@ async function submitSolicitudCuenta() {
         closeModal();
         showSuccess(`Solicitud de ${tipoCuenta} enviada exitosamente. Te contactaremos pronto.`);
         
-        // TODO: Implementar cuando esté el endpoint real
+        // TODO: Implementar cuando estÃ© el endpoint real
         // const result = await apiClient.post('/banco/solicitar-cuenta', {
         //     tipoCuenta, saldoInicial, motivo
         // });
@@ -375,7 +406,7 @@ async function submitSolicitudCuenta() {
 }
 
 function realizarTransferencia(numeroCuenta) {
-    // Redirigir a página de transferencias con cuenta pre-seleccionada
+    // Redirigir a pÃ¡gina de transferencias con cuenta pre-seleccionada
     sessionStorage.setItem('preselectedAccount', numeroCuenta);
     window.location.href = 'transferencias.html';
 }
@@ -387,8 +418,14 @@ function verMovimientos(numeroCuenta) {
 }
 
 function verDetalles(cuentaId) {
-    const cuenta = cuentasData.find(c => c.cuentaId == cuentaId) || cuentasData[parseInt(cuentaId)];
+    const cuenta = cuentasData.find(c => (c['ID Cuenta'] || c.cuentaId) == cuentaId) || cuentasData[parseInt(cuentaId)];
     if (!cuenta) return;
+    
+    // Extraer valores con fallback a nuevos aliases primero
+    const tipoCuenta = cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || 'Cuenta';
+    const numeroCuenta = cuenta['NÃºmero de Cuenta'] || cuenta.numeroCuenta || '****';
+    const saldo = cuenta.Saldo || cuenta.saldo || 0;
+    const activa = cuenta.Activa !== undefined ? cuenta.Activa : (cuenta.activa !== false);
     
     // Crear modal con detalles completos
     const modal = document.createElement('div');
@@ -396,46 +433,46 @@ function verDetalles(cuentaId) {
     modal.innerHTML = `
         <div class="modal-content large">
             <div class="modal-header">
-                <h3>Detalles de Cuenta - ${cuenta.tipoCuenta}</h3>
+                <h3>Detalles de Cuenta - ${tipoCuenta}</h3>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="cuenta-detalles">
                     <div class="detalle-section">
-                        <h4>Información General</h4>
+                        <h4>InformaciÃ³n General</h4>
                         <div class="detalle-grid">
                             <div class="detalle-item">
                                 <span class="detalle-label">Tipo de Cuenta:</span>
-                                <span class="detalle-value">${cuenta.tipoCuenta}</span>
+                                <span class="detalle-value">${tipoCuenta}</span>
                             </div>
                             <div class="detalle-item">
-                                <span class="detalle-label">Número de Cuenta:</span>
-                                <span class="detalle-value">${cuenta.numeroCuenta}</span>
+                                <span class="detalle-label">NÃºmero de Cuenta:</span>
+                                <span class="detalle-value">${numeroCuenta}</span>
                             </div>
                             <div class="detalle-item">
                                 <span class="detalle-label">Estado:</span>
                                 <span class="detalle-value">
-                                    <span class="status-badge ${cuenta.activa !== false ? 'active' : 'inactive'}">
-                                        ${cuenta.activa !== false ? 'Activa' : 'Inactiva'}
+                                    <span class="status-badge ${activa ? 'active' : 'inactive'}">
+                                        ${activa ? 'Activa' : 'Inactiva'}
                                     </span>
                                 </span>
                             </div>
                             <div class="detalle-item">
                                 <span class="detalle-label">Saldo Actual:</span>
-                                <span class="detalle-value balance-highlight">$${formatMoney(parseFloat(cuenta.saldo || 0))}</span>
+                                <span class="detalle-value balance-highlight">$${formatMoney(parseFloat(saldo))}</span>
                             </div>
                         </div>
                     </div>
                     
                     <div class="detalle-section">
-                        <h4>Límites y Restricciones</h4>
+                        <h4>LÃ­mites y Restricciones</h4>
                         <div class="detalle-grid">
                             <div class="detalle-item">
-                                <span class="detalle-label">Límite Diario:</span>
+                                <span class="detalle-label">LÃ­mite Diario:</span>
                                 <span class="detalle-value">$${formatMoney(cuenta.limite || 5000)}</span>
                             </div>
                             <div class="detalle-item">
-                                <span class="detalle-label">Límite Mensual:</span>
+                                <span class="detalle-label">LÃ­mite Mensual:</span>
                                 <span class="detalle-value">$${formatMoney((cuenta.limite || 5000) * 30)}</span>
                             </div>
                         </div>
@@ -444,15 +481,15 @@ function verDetalles(cuentaId) {
                     <div class="detalle-section">
                         <h4>Acciones Disponibles</h4>
                         <div class="acciones-grid">
-                            <button class="btn-accion" onclick="realizarTransferencia('${cuenta.numeroCuenta}'); closeModal();">
+                            <button class="btn-accion" onclick="realizarTransferencia('${numeroCuenta}'); closeModal();">
                                 <i class="fas fa-paper-plane"></i>
                                 Realizar Transferencia
                             </button>
-                            <button class="btn-accion" onclick="verMovimientos('${cuenta.numeroCuenta}'); closeModal();">
+                            <button class="btn-accion" onclick="verMovimientos('${numeroCuenta}'); closeModal();">
                                 <i class="fas fa-list"></i>
                                 Ver Movimientos
                             </button>
-                            <button class="btn-accion" onclick="descargarEstadoCuenta('${cuenta.numeroCuenta}');">
+                            <button class="btn-accion" onclick="descargarEstadoCuenta('${numeroCuenta}');">
                                 <i class="fas fa-file-pdf"></i>
                                 Descargar Estado
                             </button>
@@ -497,7 +534,7 @@ function getAccountTypeClass(tipoCuenta) {
         'Corriente': 'corriente',
         'Ahorro': 'ahorro', 
         'Dolares': 'dolares',
-        'Dólares': 'dolares'
+        'DÃ³lares': 'dolares'
     };
     return typeMap[tipoCuenta] || 'default';
 }
@@ -507,7 +544,7 @@ function getAccountIcon(tipoCuenta) {
         'Corriente': 'fas fa-university',
         'Ahorro': 'fas fa-piggy-bank',
         'Dolares': 'fas fa-dollar-sign',
-        'Dólares': 'fas fa-dollar-sign'
+        'DÃ³lares': 'fas fa-dollar-sign'
     };
     return iconMap[tipoCuenta] || 'fas fa-credit-card';
 }
@@ -574,7 +611,7 @@ function showError(message) {
 }
 
 function showSuccess(message) {
-    alert('Éxito: ' + message);
+    alert('Ã‰xito: ' + message);
 }
 
 function closeModal() {

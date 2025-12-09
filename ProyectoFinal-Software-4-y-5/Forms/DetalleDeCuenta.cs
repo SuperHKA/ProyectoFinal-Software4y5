@@ -134,15 +134,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 System.Diagnostics.Debug.WriteLine($"DEBUG DetalleDeCuenta: Se recibieron {cuentas.Count()} cuentas");
                 foreach (var cuenta in cuentas)
                 {
-                    var numCuenta = cuenta.ContainsKey("numero_cuenta") ? cuenta["numero_cuenta"]?.ToString() : 
-                                   cuenta.ContainsKey("numeroCuenta") ? cuenta["numeroCuenta"]?.ToString() : "N/A";
+                    var numCuenta = cuenta.ContainsKey("Número de Cuenta") ? cuenta["Número de Cuenta"]?.ToString() : "N/A";
                     System.Diagnostics.Debug.WriteLine($"  - Cuenta: {numCuenta}");
                 }
                 
-                // Buscar la cuenta con ambas variantes del nombre de campo
+                // Buscar la cuenta usando el nombre de columna correcto de la API
                 var cuentaData = cuentas.FirstOrDefault(c => 
-                    (c.ContainsKey("numero_cuenta") && c["numero_cuenta"]?.ToString() == numeroCuenta) ||
-                    (c.ContainsKey("numeroCuenta") && c["numeroCuenta"]?.ToString() == numeroCuenta));
+                    c.ContainsKey("Número de Cuenta") && c["Número de Cuenta"]?.ToString() == numeroCuenta);
 
                 if (cuentaData == null)
                 {
@@ -155,12 +153,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     return;
                 }
 
-                // Obtener transacciones de la cuenta
-                var todasTransacciones = await _apiCliente.ObtenerTransaccionesAsync().ConfigureAwait(false);
+                // Obtener transacciones de la cuenta usando el endpoint específico del cliente
+                var todasTransacciones = await _apiCliente.ObtenerTransaccionesClienteAsync(clienteId, 500).ConfigureAwait(false);
                 var transaccionesCuenta = todasTransacciones.Where(t =>
                 {
-                    var cuentaOrigen = t.ContainsKey("cuenta_origen") ? t["cuenta_origen"]?.ToString() : "";
-                    var cuentaDestino = t.ContainsKey("cuenta_destino") ? t["cuenta_destino"]?.ToString() : "";
+                    var cuentaOrigen = t.ContainsKey("Cuenta Origen") ? t["Cuenta Origen"]?.ToString() : "";
+                    var cuentaDestino = t.ContainsKey("Cuenta Destino") ? t["Cuenta Destino"]?.ToString() : "";
                     return cuentaOrigen == numeroCuenta || cuentaDestino == numeroCuenta;
                 }).ToList();
 
@@ -203,14 +201,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             // Obtener saldo con verificación
             var saldo = 0m;
-            if (cuentaData.ContainsKey("saldo"))
+            if (cuentaData.ContainsKey("Saldo"))
             {
-                saldo = Convert.ToDecimal(cuentaData["saldo"] ?? 0);
+                saldo = Convert.ToDecimal(cuentaData["Saldo"] ?? 0);
             }
             
-            // Obtener número de cuenta con ambas variantes
-            var numeroCuenta = cuentaData.ContainsKey("numero_cuenta") ? cuentaData["numero_cuenta"]?.ToString() :
-                              cuentaData.ContainsKey("numeroCuenta") ? cuentaData["numeroCuenta"]?.ToString() : "";
+            // Obtener número de cuenta
+            var numeroCuenta = cuentaData.ContainsKey("Número de Cuenta") ? cuentaData["Número de Cuenta"]?.ToString() : "";
             
             // Obtener fecha de apertura si existe
             DateTime fechaApertura = DateTime.Now.AddMonths(-6);
@@ -219,26 +216,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 DateTime.TryParse(cuentaData["fecha_apertura"].ToString(), out fechaApertura);
             }
 
-            // Determinar tipo de cuenta with múltiples variantes
-            var tipoCuenta = "Cuenta";
-            if (cuentaData.ContainsKey("tipo"))
-            {
-                tipoCuenta = cuentaData["tipo"]?.ToString() ?? "Cuenta";
-            }
-            else if (cuentaData.ContainsKey("tipoCuenta"))
-            {
-                tipoCuenta = cuentaData["tipoCuenta"]?.ToString() ?? "Cuenta";
-            }
-            else if (cuentaData.ContainsKey("tipo_cuenta"))
-            {
-                tipoCuenta = cuentaData["tipo_cuenta"]?.ToString() ?? "Cuenta";
-            }
+            // Determinar tipo de cuenta
+            var tipoCuenta = cuentaData.ContainsKey("Tipo de Cuenta") 
+                ? cuentaData["Tipo de Cuenta"]?.ToString() ?? "Cuenta" 
+                : "Cuenta";
             
             // Obtener estado con verificación
             var activa = true;
-            if (cuentaData.ContainsKey("activa"))
+            if (cuentaData.ContainsKey("Activa"))
             {
-                activa = Convert.ToBoolean(cuentaData["activa"] ?? true);
+                activa = Convert.ToBoolean(cuentaData["Activa"] ?? true);
             }
             
             // Calcular estadísticas de transacciones del mes actual con datos reales
@@ -251,7 +238,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 var inicioMes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var transaccionesDelMes = transacciones.Where(t =>
                 {
-                    if (t.TryGetValue("fecha", out var fechaObj) && DateTime.TryParse(fechaObj?.ToString(), out var fecha))
+                    var fechaKey = t.ContainsKey("Fecha") ? "Fecha" : "fecha";
+                    if (t.TryGetValue(fechaKey, out var fechaObj) && DateTime.TryParse(fechaObj?.ToString(), out var fecha))
                     {
                         return fecha >= inicioMes;
                     }
@@ -261,12 +249,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Calcular depósitos (transacciones donde esta cuenta es destino)
                 depositos = transaccionesDelMes.Where(t => 
                 {
-                    var cuentaDestino = t.ContainsKey("cuenta_destino") ? t["cuenta_destino"]?.ToString() : "";
-                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString()?.ToLower() : "";
+                    var cuentaDestino = t.ContainsKey("Cuenta Destino") ? t["Cuenta Destino"]?.ToString() : "";
+                    var tipo = (t.ContainsKey("Tipo Transacción") ? t["Tipo Transacción"]?.ToString() : t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString() : "")?.ToLower();
                     return cuentaDestino == _numeroCuenta || tipo.Contains("depósito") || tipo.Contains("deposito");
                 }).Sum(t => 
                 {
-                    if (t.TryGetValue("monto", out var montoObj))
+                    var montoKey = t.ContainsKey("Monto") ? "Monto" : "monto";
+                    if (t.TryGetValue(montoKey, out var montoObj))
                     {
                         return Convert.ToDecimal(montoObj);
                     }
@@ -276,12 +265,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Calcular retiros (transacciones donde esta cuenta es origen)
                 retiros = transaccionesDelMes.Where(t => 
                 {
-                    var cuentaOrigen = t.ContainsKey("cuenta_origen") ? t["cuenta_origen"]?.ToString() : "";
-                    var tipo = t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString()?.ToLower() : "";
+                    var cuentaOrigen = t.ContainsKey("Cuenta Origen") ? t["Cuenta Origen"]?.ToString() : "";
+                    var tipo = (t.ContainsKey("Tipo Transacción") ? t["Tipo Transacción"]?.ToString() : t.ContainsKey("tipo_transaccion") ? t["tipo_transaccion"]?.ToString() : "")?.ToLower();
                     return cuentaOrigen == _numeroCuenta || tipo.Contains("retiro");
                 }).Sum(t => 
                 {
-                    if (t.TryGetValue("monto", out var montoObj))
+                    var montoKey = t.ContainsKey("Monto") ? "Monto" : "monto";
+                    if (t.TryGetValue(montoKey, out var montoObj))
                     {
                         return Convert.ToDecimal(montoObj);
                     }
@@ -290,14 +280,21 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 // Obtener fecha de última transacción
                 var ultimaTransaccion = transacciones
-                    .Where(t => t.ContainsKey("fecha"))
-                    .OrderByDescending(t => DateTime.TryParse(t["fecha"]?.ToString(), out var f) ? f : DateTime.MinValue)
+                    .Where(t => t.ContainsKey("Fecha") || t.ContainsKey("fecha"))
+                    .OrderByDescending(t => {
+                        var fechaKey = t.ContainsKey("Fecha") ? "Fecha" : "fecha";
+                        return DateTime.TryParse(t[fechaKey]?.ToString(), out var f) ? f : DateTime.MinValue;
+                    })
                     .FirstOrDefault();
 
-                if (ultimaTransaccion != null && ultimaTransaccion.TryGetValue("fecha", out var fechaUltima))
+                if (ultimaTransaccion != null)
                 {
-                    DateTime.TryParse(fechaUltima?.ToString(), out var fechaTemp);
-                    fechaUltimaTransaccion = fechaTemp;
+                    var fechaKey = ultimaTransaccion.ContainsKey("Fecha") ? "Fecha" : "fecha";
+                    if (ultimaTransaccion.TryGetValue(fechaKey, out var fechaUltima))
+                    {
+                        DateTime.TryParse(fechaUltima?.ToString(), out var fechaTemp);
+                        fechaUltimaTransaccion = fechaTemp;
+                    }
                 }
             }
 

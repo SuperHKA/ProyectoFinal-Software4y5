@@ -299,12 +299,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         // populate UI with results
                         PopulateClientesGridFromDto(clientesDto);
                         PopulateDashboard(stats, trans);
+                        
+                        // Asignar datos directamente - el servicio ya mapea los nombres
                         tablaMovimientos.DataSource = movimientos;
-                        // Use async results for small views
-                        tablaAnalisis.DataSource = _servicioBancoApi.ObtenerAnalisisTransaccionesAsync().GetAwaiter().GetResult();
-                        tablaResumen.DataSource = _servicioBancoApi.ObtenerResumenClientesAsync().GetAwaiter().GetResult();
                         gridUsuariosBloqueados.DataSource = usuariosBloqueados;
                         gridNotificacionesSistema.DataSource = notifs;
+                        
+                        // Use async results for small views
+                        var analisis = _servicioBancoApi.ObtenerAnalisisTransaccionesAsync().GetAwaiter().GetResult();
+                        tablaAnalisis.DataSource = analisis;
+                        
+                        var resumen = _servicioBancoApi.ObtenerResumenClientesAsync().GetAwaiter().GetResult();
+                        tablaResumen.DataSource = resumen;
                     }
                     catch (Exception uiEx)
                     {
@@ -429,12 +435,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 if (stats != null && stats.Rows.Count > 0)
                 {
                     var row = stats.Rows[0];
-                    lblTotalClientes.Text = row["total_clientes"].ToString();
-                    lblTotalCuentas.Text = row["total_cuentas"].ToString();
-                    lblSaldoTotal.Text = $"${Convert.ToDecimal(row["saldo_total_sistema"]):N2}";
-                    lblTransaccionesHoy.Text = row["transacciones_hoy"].ToString();
+                    lblTotalClientes.Text = row["Total Clientes"].ToString();
+                    lblTotalCuentas.Text = row["Total Cuentas"].ToString();
+                    lblSaldoTotal.Text = $"${Convert.ToDecimal(row["Saldo Total Sistema"]):N2}";
+                    lblTransaccionesHoy.Text = row["Transacciones Hoy"].ToString();
                 }
 
+                // El servicio ya devuelve los nombres en español
                 gridTransaccionesRecientes.DataSource = trans;
             }
             catch (Exception ex)
@@ -442,6 +449,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 MessageBox.Show($"Error al poblar dashboard: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        // Los nombres de columnas ahora se manejan en ServicioBancoApi.ToDataTable()
 
         private async Task CargarDatosClientes()
         {
@@ -521,13 +530,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             var panel = new Panel { Height = 150, Dock = DockStyle.Top };
             var flowLayout = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight };
 
-            btnNuevo = new Button { Text = "Nuevo", Size = new Size(100, 30) };
-            btnGuardar = new Button { Text = "Guardar", Size = new Size(100, 30) };
-            btnEliminar = new Button { Text = "Eliminar", Size = new Size(100, 30) };
-            btnActualizar = new Button { Text = "Actualizar", Size = new Size(100, 30) };
-            btnCambiarContrasena = new Button { Text = "Cambiar Contraseña", Size = new Size(140, 30) };
-            btnCrearCuenta = new Button { Text = "Crear Cuenta", Size = new Size(110, 30) };
-            btnActualizarSaldo = new Button { Text = "Actualizar Saldo", Size = new Size(140, 30) };
+            btnNuevo = new Button { Text = "Nuevo", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+            btnGuardar = new Button { Text = "Guardar", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+            btnEliminar = new Button { Text = "Eliminar", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+            btnActualizar = new Button { Text = "Actualizar", Size = new Size(100, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+            btnCambiarContrasena = new Button { Text = "Cambiar Contraseña", Size = new Size(180, 30), BackColor = Color.SlateBlue, ForeColor = Color.White  };
+            btnCrearCuenta = new Button { Text = "Crear Cuenta Bancaria", Size = new Size(200, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+            btnActualizarSaldo = new Button { Text = "Actualizar Saldo", Size = new Size(140, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
             btnVerCuentas = new Button { Text = "Ver Cuentas", Size = new Size(110, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
 
             flowLayout.Controls.AddRange(new Control[]
@@ -563,6 +572,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             if (btnCrearAdministrador != null) btnCrearAdministrador.Click += async (s, e) => await CrearAdministradorAsync();
             if (btnGenerarReporte != null) btnGenerarReporte.Click += async (s, e) => await GenerarReporteTransaccionesAsync();
             if (btnEjecutarResumenes != null) btnEjecutarResumenes.Click += async (s, e) => await EjecutarResumenesDiariosAsync();
+            if (btnActualizarTransRecientes != null) btnActualizarTransRecientes.Click += async (s, e) => await ActualizarTransaccionesRecientesAsync();
 
             if (tablaResumen != null) tablaResumen.CellDoubleClick += TablaResumen_CellDoubleClick;
         }
@@ -570,101 +580,163 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         // NUEVO: Método para manejar doble clic en resumen de clientes
         private async void TablaResumen_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 // Verificar que no se haga clic en el encabezado
-            )
+            if (e.RowIndex >= 0) // Verificar que no se haga clic en el encabezado
             {
                 try
                 {
                     var row = tablaResumen.Rows[e.RowIndex];
-
-                    // Intentar obtener el número de cuenta de diferentes columnas posibles
-                    string numeroCuenta = null;
                     int? clienteId = null;
+                    string nombreCliente = null;
 
-                    // Buscar en las columnas disponibles
+                    // Buscar el cliente_id en las columnas (puede ser "cliente_id" o "ID Cliente")
                     foreach (DataGridViewCell cell in row.Cells)
                     {
                         var columnName = tablaResumen.Columns[cell.ColumnIndex].Name;
                         var cellValue = cell.Value?.ToString();
 
-                        // Debug: mostrar las columnas disponibles
-                        System.Diagnostics.Debug.WriteLine($"DEBUG: Column: {columnName}, Value: {cellValue}");
-
-                        // Buscar columnas que contengan número de cuenta
                         if (!string.IsNullOrEmpty(cellValue))
                         {
-                            if (columnName.ToLower().Contains("cuenta") ||
-                                columnName.ToLower().Contains("numero") ||
-                                columnName.ToLower() == "num_cuenta" ||
-                                columnName.ToLower() == "numero_cuenta")
-                            {
-                                numeroCuenta = cellValue;
-                            }
-
                             // Buscar cliente_id
-                            if (columnName.ToLower().Contains("cliente") &&
-                                (columnName.ToLower().Contains("id") || columnName.ToLower() == "cliente_id"))
+                            if (columnName.Equals("cliente_id", StringComparison.OrdinalIgnoreCase) ||
+                                columnName.Equals("ID Cliente", StringComparison.OrdinalIgnoreCase))
                             {
                                 if (int.TryParse(cellValue, out int id))
                                 {
                                     clienteId = id;
                                 }
                             }
-                        }
-                    }
 
-                    // Si no encontramos número de cuenta directamente, intentar obtenerlo del cliente_id
-                    if (string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
-                    {
-                        try
-                        {
-                            var cuentas = await _apiCliente.ObtenerCuentasPorClienteAsync(clienteId.Value);
-                            var cuentaData = cuentas.FirstOrDefault();
-
-                            if (cuentaData != null && cuentaData.ContainsKey("numero_cuenta"))
+                            // Buscar nombre del cliente
+                            if (columnName.Equals("nombre", StringComparison.OrdinalIgnoreCase) ||
+                                columnName.Equals("Nombre del Cliente", StringComparison.OrdinalIgnoreCase) ||
+                                columnName.Equals("Nombre", StringComparison.OrdinalIgnoreCase))
                             {
-                                numeroCuenta = cuentaData["numero_cuenta"]?.ToString();
+                                nombreCliente = cellValue;
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"DEBUG: Error obteniendo cuentas: {ex.Message}");
-                        }
                     }
 
-                    // Si tenemos número de cuenta y cliente ID, abrir DetalleDeCuenta
-                    if (!string.IsNullOrEmpty(numeroCuenta) && clienteId.HasValue)
+                    if (!clienteId.HasValue)
                     {
-                        try
+                        MessageBox.Show("No se pudo obtener el ID del cliente.",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    // Obtener las cuentas del cliente
+                    var cuentas = await _apiCliente.ObtenerCuentasPorClienteAsync(clienteId.Value);
+                    var listaCuentas = cuentas.ToList();
+
+                    if (!listaCuentas.Any())
+                    {
+                        MessageBox.Show($"El cliente {nombreCliente ?? clienteId.Value.ToString()} no tiene cuentas activas.",
+                            "Sin Cuentas", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    string numeroCuenta;
+
+                    if (listaCuentas.Count == 1)
+                    {
+                        // Si solo hay una cuenta, abrirla directamente
+                        var cuenta = listaCuentas.First();
+                        numeroCuenta = cuenta.ContainsKey("Número de Cuenta") 
+                            ? cuenta["Número de Cuenta"]?.ToString() 
+                            : null;
+
+                        if (string.IsNullOrEmpty(numeroCuenta))
                         {
-                            var detalleForm = new DetalleDeCuenta(clienteId.Value, numeroCuenta);
-                            detalleForm.Show();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error al abrir detalles de cuenta: {ex.Message}",
+                            MessageBox.Show("No se pudo obtener el número de cuenta.",
                                 "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
                         }
                     }
                     else
                     {
-                        // Mostrar información disponible para debug
-                        var info = "Información disponible en la fila:\n\n";
-                        foreach (DataGridViewCell cell in row.Cells)
+                        // Si hay múltiples cuentas, mostrar diálogo para seleccionar
+                        using (var dlg = new Form
                         {
-                            var columnName = tablaResumen.Columns[cell.ColumnIndex].Name;
-                            var cellValue = cell.Value?.ToString() ?? "N/A";
-                            info += $"{columnName}: {cellValue}\n";
-                        }
+                            Text = $"Seleccionar Cuenta - {nombreCliente ?? clienteId.Value.ToString()}",
+                            Size = new Size(500, 200),
+                            StartPosition = FormStartPosition.CenterParent,
+                            FormBorderStyle = FormBorderStyle.FixedDialog,
+                            MaximizeBox = false,
+                            MinimizeBox = false
+                        })
+                        {
+                            var cmbCuentas = new ComboBox
+                            {
+                                Location = new Point(20, 50),
+                                Size = new Size(440, 25),
+                                DropDownStyle = ComboBoxStyle.DropDownList
+                            };
 
-                        MessageBox.Show($"No se pudo obtener suficiente información para mostrar detalles.\n\n" +
-                                      $"Número de cuenta: {numeroCuenta ?? "No encontrado"}\n" +
-                                      $"Cliente ID: {clienteId?.ToString() ?? "No encontrado"}\n\n" +
-                                      "Debug:\n" + info,
-                                      "Información insuficiente",
-                                      MessageBoxButtons.OK,
-                                      MessageBoxIcon.Information);
+                            foreach (var cuenta in listaCuentas)
+                            {
+                                var numCta = cuenta.ContainsKey("Número de Cuenta") 
+                                    ? cuenta["Número de Cuenta"]?.ToString() 
+                                    : "N/A";
+                                var tipoCta = cuenta.ContainsKey("Tipo de Cuenta") 
+                                    ? cuenta["Tipo de Cuenta"]?.ToString() 
+                                    : "N/A";
+                                var saldo = cuenta.ContainsKey("Saldo") 
+                                    ? cuenta["Saldo"]?.ToString() 
+                                    : "0";
+
+                                cmbCuentas.Items.Add(new CuentaComboItem
+                                {
+                                    NumeroCuenta = numCta,
+                                    Display = $"{numCta} - {tipoCta} - Saldo: ${saldo}"
+                                });
+                            }
+
+                            cmbCuentas.SelectedIndex = 0;
+
+                            var btnOk = new Button
+                            {
+                                Text = "Aceptar",
+                                DialogResult = DialogResult.OK,
+                                Location = new Point(280, 110),
+                                Size = new Size(90, 30)
+                            };
+
+                            var btnCancel = new Button
+                            {
+                                Text = "Cancelar",
+                                DialogResult = DialogResult.Cancel,
+                                Location = new Point(380, 110),
+                                Size = new Size(90, 30)
+                            };
+
+                            dlg.Controls.AddRange(new Control[]
+                            {
+                                new Label { Text = "Seleccione una cuenta:", Location = new Point(20, 20), Size = new Size(400, 20) },
+                                cmbCuentas,
+                                btnOk,
+                                btnCancel
+                            });
+
+                            dlg.AcceptButton = btnOk;
+                            dlg.CancelButton = btnCancel;
+
+                            if (dlg.ShowDialog(this) != DialogResult.OK)
+                                return;
+
+                            var selectedItem = cmbCuentas.SelectedItem as CuentaComboItem;
+                            numeroCuenta = selectedItem?.NumeroCuenta;
+
+                            if (string.IsNullOrEmpty(numeroCuenta) || numeroCuenta == "N/A")
+                            {
+                                MessageBox.Show("No se pudo obtener el número de cuenta.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                        }
                     }
+
+                    // Abrir el formulario de detalle de cuenta
+                    var detalleForm = new DetalleDeCuenta(clienteId.Value, numeroCuenta);
+                    detalleForm.Show();
                 }
                 catch (Exception ex)
                 {
@@ -684,10 +756,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     var row = stats.Rows[0];
                     this.BeginInvoke((Action)(() =>
                     {
-                        lblTotalClientes.Text = row["total_clientes"].ToString();
-                        lblTotalCuentas.Text = row["total_cuentas"].ToString();
-                        lblSaldoTotal.Text = $"${Convert.ToDecimal(row["saldo_total_sistema"]):N2}";
-                        lblTransaccionesHoy.Text = row["transacciones_hoy"].ToString();
+                        lblTotalClientes.Text = row["Total Clientes"].ToString();
+                        lblTotalCuentas.Text = row["Total Cuentas"].ToString();
+                        lblSaldoTotal.Text = $"${Convert.ToDecimal(row["Saldo Total Sistema"]):N2}";
+                        lblTransaccionesHoy.Text = row["Transacciones Hoy"].ToString();
                     }));
                 }
 
@@ -720,6 +792,71 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
+        private async Task ActualizarTransaccionesRecientesAsync()
+        {
+            if (btnActualizarTransRecientes != null)
+            {
+                btnActualizarTransRecientes.Enabled = false;
+                btnActualizarTransRecientes.Text = "⏳ Actualizando...";
+            }
+            
+            try
+            {
+                var trans = await _servicioBancoApi.ObtenerTransaccionesRecientesAsync(20).ConfigureAwait(false);
+                this.BeginInvoke((Action)(() =>
+                {
+                    gridTransaccionesRecientes.DataSource = trans;
+                    MessageBox.Show("Transacciones recientes actualizadas correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show($"Error al actualizar transacciones recientes: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
+            finally
+            {
+                if (btnActualizarTransRecientes != null)
+                {
+                    this.BeginInvoke((Action)(() =>
+                    {
+                        btnActualizarTransRecientes.Enabled = true;
+                        btnActualizarTransRecientes.Text = "🔄 Actualizar";
+                    }));
+                }
+            }
+        }
+
+        private async void BtnActualizarBloqueados_Click(object sender, EventArgs e)
+        {
+            btnActualizarBloqueados.Enabled = false;
+            btnActualizarBloqueados.Text = "⏳ Actualizando...";
+            
+            try
+            {
+                await CargarUsuariosBloqueadosAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() =>
+                {
+                    btnActualizarBloqueados.Text = "✓ Actualizado";
+                    System.Threading.Tasks.Task.Delay(1500).ContinueWith(_ =>
+                    {
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            btnActualizarBloqueados.Text = "🔄 Actualizar";
+                            btnActualizarBloqueados.Enabled = true;
+                        }));
+                    });
+                }));
+            }
+            catch
+            {
+                this.BeginInvoke((Action)(() =>
+                {
+                    btnActualizarBloqueados.Text = "🔄 Actualizar";
+                    btnActualizarBloqueados.Enabled = true;
+                }));
+            }
+        }
+
         private async Task CargarUsuariosBloqueadosAsync()
         {
             try
@@ -743,6 +880,141 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             catch (Exception ex)
             {
                 this.BeginInvoke((Action)(() => MessageBox.Show($"Error al cargar notificaciones: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
+        }
+
+        private async void BtnActualizarMovimientos_Click(object sender, EventArgs e)
+        {
+            btnActualizarMovimientos.Enabled = false;
+            btnActualizarMovimientos.Text = "⏳ Actualizando...";
+
+            try
+            {
+                await CargarMovimientosAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() =>
+                {
+                    btnActualizarMovimientos.Text = "✓ Actualizado";
+                    System.Threading.Tasks.Task.Delay(1500).ContinueWith(_ =>
+                    {
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            btnActualizarMovimientos.Text = "🔄 Actualizar";
+                            btnActualizarMovimientos.Enabled = true;
+                        }));
+                    });
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() =>
+                {
+                    MessageBox.Show($"Error al actualizar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    btnActualizarMovimientos.Text = "🔄 Actualizar";
+                    btnActualizarMovimientos.Enabled = true;
+                }));
+            }
+        }
+
+        private async Task CargarMovimientosAsync()
+        {
+            try
+            {
+                var movimientos = await _servicioBancoApi.ObtenerMovimientosDelDiaAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() => tablaMovimientos.DataSource = movimientos));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show($"Error al cargar movimientos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
+        }
+
+        private async void BtnActualizarAnalisis_Click(object sender, EventArgs e)
+        {
+            btnActualizarAnalisis.Enabled = false;
+            btnActualizarAnalisis.Text = "⏳ Actualizando...";
+
+            try
+            {
+                await CargarAnalisisAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() =>
+                {
+                    btnActualizarAnalisis.Text = "✓ Actualizado";
+                    System.Threading.Tasks.Task.Delay(1500).ContinueWith(_ =>
+                    {
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            btnActualizarAnalisis.Text = "🔄 Actualizar";
+                            btnActualizarAnalisis.Enabled = true;
+                        }));
+                    });
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() =>
+                {
+                    MessageBox.Show($"Error al actualizar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    btnActualizarAnalisis.Text = "🔄 Actualizar";
+                    btnActualizarAnalisis.Enabled = true;
+                }));
+            }
+        }
+
+        private async Task CargarAnalisisAsync()
+        {
+            try
+            {
+                var analisis = await _servicioBancoApi.ObtenerAnalisisTransaccionesAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() => tablaAnalisis.DataSource = analisis));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show($"Error al cargar análisis: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
+        }
+
+        private async void BtnActualizarResumen_Click(object sender, EventArgs e)
+        {
+            btnActualizarResumen.Enabled = false;
+            btnActualizarResumen.Text = "⏳ Actualizando...";
+
+            try
+            {
+                await CargarResumenAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() =>
+                {
+                    btnActualizarResumen.Text = "✓ Actualizado";
+                    System.Threading.Tasks.Task.Delay(1500).ContinueWith(_ =>
+                    {
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            btnActualizarResumen.Text = "🔄 Actualizar";
+                            btnActualizarResumen.Enabled = true;
+                        }));
+                    });
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() =>
+                {
+                    MessageBox.Show($"Error al actualizar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    btnActualizarResumen.Text = "🔄 Actualizar";
+                    btnActualizarResumen.Enabled = true;
+                }));
+            }
+        }
+
+        private async Task CargarResumenAsync()
+        {
+            try
+            {
+                var resumen = await _servicioBancoApi.ObtenerResumenClientesAsync().ConfigureAwait(false);
+                this.BeginInvoke((Action)(() => tablaResumen.DataSource = resumen));
+            }
+            catch (Exception ex)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show($"Error al cargar resumen: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
             }
         }
 
@@ -968,7 +1240,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        private void EliminarCliente()
+        private async void EliminarCliente()
         {
             if (string.IsNullOrEmpty(txtId.Text))
             {
@@ -976,9 +1248,115 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 return;
             }
 
-            if (MessageBox.Show("¿Está seguro de eliminar este cliente?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            try
             {
-                MessageBox.Show("Funcionalidad de eliminación en desarrollo", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                int clienteId = int.Parse(txtId.Text);
+                string nombreCliente = txtNombre.Text;
+
+                // Confirmación con información detallada
+                var resultado = MessageBox.Show(
+                    $"¿Está seguro de eliminar al cliente?\n\n" +
+                    $"Cliente: {nombreCliente}\n" +
+                    $"ID: {clienteId}\n\n" +
+                    $"NOTA: Esta acción desactivará el cliente y todas sus cuentas.\n" +
+                    $"No se puede eliminar si tiene cuentas con saldo.\n\n" +
+                    $"¿Desea continuar?",
+                    "Confirmar Eliminación",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2
+                );
+
+                if (resultado != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                // Mostrar indicador de carga
+                this.Cursor = Cursors.WaitCursor;
+                btnEliminar.Enabled = false;
+                btnEliminar.Text = "Eliminando...";
+
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        // Usar DELETE con query parameter
+                        using (var httpClient = new System.Net.Http.HttpClient())
+                        {
+                            httpClient.BaseAddress = new Uri("http://localhost:5202");
+                            var deleteResponse = await httpClient.DeleteAsync(
+                                $"/api/banco/clientes/{clienteId}?usuarioIdAdmin=1"
+                            ).ConfigureAwait(false);
+
+                            var responseBody = await deleteResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(responseBody);
+
+                            this.BeginInvoke((Action)(() =>
+                            {
+                                this.Cursor = Cursors.Default;
+                                btnEliminar.Enabled = true;
+                                btnEliminar.Text = "Eliminar";
+
+                                if (deleteResponse.IsSuccessStatusCode && result.success == true)
+                                {
+                                    MessageBox.Show(
+                                        result.message?.ToString() ?? "Cliente eliminado correctamente",
+                                        "Éxito",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information
+                                    );
+
+                                    // Limpiar formulario
+                                    LimpiarFormulario();
+
+                                    // Recargar lista de clientes
+                                    Task.Run(async () => await CargarDatosClientes().ConfigureAwait(false));
+                                }
+                                else
+                                {
+                                    string errorMsg = result.message?.ToString() ?? "Error desconocido al eliminar cliente";
+                                    MessageBox.Show(
+                                        errorMsg,
+                                        "Error",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error
+                                    );
+                                }
+                            }));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.BeginInvoke((Action)(() =>
+                        {
+                            this.Cursor = Cursors.Default;
+                            btnEliminar.Enabled = true;
+                            btnEliminar.Text = "Eliminar";
+                            MessageBox.Show(
+                                $"Error al eliminar cliente: {ex.Message}",
+                                "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error
+                            );
+                        }));
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                this.Cursor = Cursors.Default;
+                if (btnEliminar != null)
+                {
+                    btnEliminar.Enabled = true;
+                    btnEliminar.Text = "Eliminar";
+                }
+                MessageBox.Show(
+                    $"Error: {ex.Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
 
@@ -1038,7 +1416,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
         }
 
-        private void ActualizarSaldoCuenta()
+        private async void ActualizarSaldoCuenta()
         {
             if (string.IsNullOrEmpty(txtId.Text))
             {
@@ -1046,7 +1424,141 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 return;
             }
 
-            MessageBox.Show("Funcionalidad de actualizar saldo en desarrollo", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                // Obtener cuentas del cliente
+                int clienteId = int.Parse(txtId.Text);
+                var cuentas = await _apiCliente.ObtenerCuentasPorClienteIdAsync(clienteId).ConfigureAwait(false);
+                
+                if (cuentas == null || cuentas.Count == 0)
+                {
+                    this.BeginInvoke((Action)(() => MessageBox.Show("Este cliente no tiene cuentas", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information)));
+                    return;
+                }
+
+                // Crear formulario de diálogo para actualizar saldo
+                this.BeginInvoke((Action)(() =>
+                {
+                    using (var dialogForm = new Form())
+                    {
+                        dialogForm.Text = "Actualizar Saldo";
+                        dialogForm.Size = new Size(450, 280);
+                        dialogForm.StartPosition = FormStartPosition.CenterParent;
+                        dialogForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                        dialogForm.MaximizeBox = false;
+                        dialogForm.MinimizeBox = false;
+
+                        var tableLayout = new TableLayoutPanel
+                        {
+                            Dock = DockStyle.Fill,
+                            ColumnCount = 2,
+                            RowCount = 5,
+                            Padding = new Padding(20)
+                        };
+
+                        // Cuenta
+                        var lblCuenta = new Label { Text = "Cuenta:", AutoSize = true, Anchor = AnchorStyles.Left };
+                        var cmbCuentas = new ComboBox { Width = 250, DropDownStyle = ComboBoxStyle.DropDownList, Anchor = AnchorStyles.Left | AnchorStyles.Right };
+                        foreach (var cuenta in cuentas)
+                        {
+                            string numeroCuenta = cuenta.ContainsKey("Número de Cuenta") ? cuenta["Número de Cuenta"]?.ToString() : cuenta["numero_cuenta"]?.ToString();
+                            string tipoCuenta = cuenta.ContainsKey("Tipo de Cuenta") ? cuenta["Tipo de Cuenta"]?.ToString() : cuenta["tipo_cuenta"]?.ToString();
+                            decimal saldo = cuenta.ContainsKey("Saldo") ? Convert.ToDecimal(cuenta["Saldo"]) : Convert.ToDecimal(cuenta["saldo"]);
+                            cmbCuentas.Items.Add($"{numeroCuenta} - {tipoCuenta} (Saldo actual: ${saldo:N2})");
+                        }
+                        if (cmbCuentas.Items.Count > 0) cmbCuentas.SelectedIndex = 0;
+
+                        // Nuevo Saldo
+                        var lblNuevoSaldo = new Label { Text = "Nuevo Saldo:", AutoSize = true, Anchor = AnchorStyles.Left };
+                        var txtNuevoSaldo = new TextBox { Width = 250, Anchor = AnchorStyles.Left | AnchorStyles.Right };
+                        txtNuevoSaldo.KeyPress += (s, e) =>
+                        {
+                            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+                                e.Handled = true;
+                            if (e.KeyChar == '.' && ((TextBox)s).Text.Contains("."))
+                                e.Handled = true;
+                        };
+
+                        // Motivo
+                        var lblMotivo = new Label { Text = "Motivo:", AutoSize = true, Anchor = AnchorStyles.Left };
+                        var txtMotivo = new TextBox { Width = 250, Multiline = true, Height = 60, Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top };
+
+                        // Botones
+                        var btnConfirmar = new Button { Text = "Confirmar", DialogResult = DialogResult.OK, Width = 100, Height = 30, BackColor = Color.SlateBlue, ForeColor = Color.White };
+                        var btnCancelar = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Width = 100, Height = 30 };
+                        var panelBotones = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, Dock = DockStyle.Fill, WrapContents = false };
+                        panelBotones.Controls.Add(btnCancelar);
+                        panelBotones.Controls.Add(btnConfirmar);
+
+                        // Agregar controles
+                        tableLayout.Controls.Add(lblCuenta, 0, 0);
+                        tableLayout.Controls.Add(cmbCuentas, 1, 0);
+                        tableLayout.Controls.Add(lblNuevoSaldo, 0, 1);
+                        tableLayout.Controls.Add(txtNuevoSaldo, 1, 1);
+                        tableLayout.Controls.Add(lblMotivo, 0, 2);
+                        tableLayout.Controls.Add(txtMotivo, 1, 2);
+                        tableLayout.SetRowSpan(lblMotivo, 1);
+                        tableLayout.SetRowSpan(txtMotivo, 1);
+                        tableLayout.Controls.Add(panelBotones, 1, 4);
+
+                        dialogForm.Controls.Add(tableLayout);
+                        dialogForm.AcceptButton = btnConfirmar;
+                        dialogForm.CancelButton = btnCancelar;
+
+                        if (dialogForm.ShowDialog() == DialogResult.OK)
+                        {
+                            if (string.IsNullOrWhiteSpace(txtNuevoSaldo.Text) || string.IsNullOrWhiteSpace(txtMotivo.Text))
+                            {
+                                MessageBox.Show("Por favor complete todos los campos", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            if (!decimal.TryParse(txtNuevoSaldo.Text, out decimal nuevoSaldo) || nuevoSaldo < 0)
+                            {
+                                MessageBox.Show("Ingrese un saldo válido (mayor o igual a 0)", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            // Extraer número de cuenta de la selección
+                            string cuentaSeleccionada = cmbCuentas.SelectedItem.ToString();
+                            string numeroCuentaSeleccionada = cuentaSeleccionada.Split(new[] { " - " }, StringSplitOptions.None)[0];
+
+                            // Llamar al método async
+                            Task.Run(async () =>
+                            {
+                                try
+                                {
+                                    var resultado = await _apiCliente.PostJsonAsync<object, object>(
+                                        "/api/banco/cuentas/actualizar-saldo",
+                                        new
+                                        {
+                                            NumeroCuenta = numeroCuentaSeleccionada,
+                                            NuevoSaldo = nuevoSaldo,
+                                            Motivo = txtMotivo.Text,
+                                            UsuarioId = 1 // ID del admin
+                                        }
+                                    ).ConfigureAwait(false);
+
+                                    this.BeginInvoke((Action)(() =>
+                                    {
+                                        MessageBox.Show("Saldo actualizado correctamente", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                        // Refrescar datos de clientes
+                                        Task.Run(async () => await CargarDatosClientes().ConfigureAwait(false));
+                                    }));
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.BeginInvoke((Action)(() => MessageBox.Show($"Error al actualizar saldo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                                }
+                            });
+                        }
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void AbrirCuentasCliente()
@@ -1109,7 +1621,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             if (gridUsuariosBloqueados.SelectedRows.Count > 0)
             {
-                var usuarioIdCell = gridUsuariosBloqueados.SelectedRows[0].Cells["usuario_id"];
+                var usuarioIdCell = gridUsuariosBloqueados.SelectedRows[0].Cells["ID Usuario"];
                 if (usuarioIdCell?.Value == null || usuarioIdCell.Value == DBNull.Value)
                 {
                     MessageBox.Show("No se puede obtener el ID del usuario seleccionado", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1160,6 +1672,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             try
             {
                 var reporte = await _servicioBancoApi.ObtenerReporteTransaccionesPorFechaAsync(dtpFechaInicio.Value, dtpFechaFin.Value).ConfigureAwait(false);
+                // El servicio ya devuelve los nombres en español
                 this.BeginInvoke((Action)(() => gridReporteTransacciones.DataSource = reporte));
                 this.BeginInvoke((Action)(() => MessageBox.Show($"Reporte generado con {reporte.Rows.Count} registros", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information)));
             }
@@ -1223,11 +1736,11 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Build display array
                 var items = cuentas.Select(c => new ComboItem
                 {
-                    Id = c.ContainsKey("cuenta_id") && c["cuenta_id"] != null && c["cuenta_id"] != DBNull.Value ?
-                        Convert.ToInt32(c["cuenta_id"]) : 0,
-                    Display = c.ContainsKey("numero_cuenta") && c["numero_cuenta"] != null ?
-                        c["numero_cuenta"].ToString() :
-                        (c.ContainsKey("cuenta_id") && c["cuenta_id"] != null ? c["cuenta_id"].ToString() : "Sin número")
+                    Id = c.ContainsKey("ID Cuenta") && c["ID Cuenta"] != null && c["ID Cuenta"] != DBNull.Value ?
+                        Convert.ToInt32(c["ID Cuenta"]) : 0,
+                    Display = c.ContainsKey("Número de Cuenta") && c["Número de Cuenta"] != null ?
+                        c["Número de Cuenta"].ToString() :
+                        (c.ContainsKey("ID Cuenta") && c["ID Cuenta"] != null ? c["ID Cuenta"].ToString() : "Sin número")
                 }).ToArray();
 
                 // Ask source using UI thread
@@ -1259,6 +1772,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private class ComboItem
         {
             public int Id { get; set; }
+            public string Display { get; set; }
+            public override string ToString() => Display;
+        }
+
+        // Helper para ComboBox de cuentas
+        private class CuentaComboItem
+        {
+            public string NumeroCuenta { get; set; }
             public string Display { get; set; }
             public override string ToString() => Display;
         }
@@ -1440,5 +1961,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
             }
         }
+
+        // Los nombres de columnas ahora se manejan centralizadamente en ServicioBancoApi
     }
 }

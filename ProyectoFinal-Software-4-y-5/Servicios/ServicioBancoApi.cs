@@ -42,12 +42,12 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
             var items = await _api.ObtenerTransaccionesRecientesAsync(top).ConfigureAwait(false);
             var list = items.Select(t => new Dictionary<string, object>
             {
-                ["transaccion_id"] = t.transaccion_id,
-                ["fecha"] = t.fecha,
-                ["tipo_transaccion"] = t.tipo_transaccion,
-                ["estado"] = t.estado,
-                ["monto"] = t.monto,
-                ["descripcion"] = t.descripcion
+                ["ID TransacciÃ³n"] = t.transaccion_id,
+                ["Fecha"] = t.fecha,
+                ["Tipo de TransacciÃ³n"] = t.tipo_transaccion,
+                ["Estado"] = t.estado,
+                ["Monto"] = t.monto,
+                ["DescripciÃ³n"] = t.descripcion
             });
             return ToDataTable(list);
         }
@@ -105,7 +105,7 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
         {
             try
             {
-                // Usar el nuevo método de ApiAdmin que maneja mejor los datos
+                // Usar el nuevo mï¿½todo de ApiAdmin que maneja mejor los datos
                 var clienteData = new
                 {
                     IdUsuario = usuario.IdUsuario,
@@ -134,7 +134,7 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
         {
             try
             {
-                // Usar el nuevo método de ApiAdmin que maneja mejor los datos
+                // Usar el nuevo mï¿½todo de ApiAdmin que maneja mejor los datos
                 var clienteData = new
                 {
                     IdUsuario = usuario.IdUsuario,
@@ -213,6 +213,7 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
                 foreach (var k in row.Keys) columns.Add(k);
             }
 
+            // Crear columnas
             foreach (var col in columns)
             {
                 dt.Columns.Add(col);

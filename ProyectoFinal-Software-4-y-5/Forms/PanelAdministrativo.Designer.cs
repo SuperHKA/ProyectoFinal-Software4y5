@@ -39,6 +39,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelDashboard = new System.Windows.Forms.Panel();
             this.panelTransaccionesRecientes = new System.Windows.Forms.Panel();
             this.gridTransaccionesRecientes = new System.Windows.Forms.DataGridView();
+            this.btnActualizarTransRecientes = new System.Windows.Forms.Button();
             this.lblTransRecientes = new System.Windows.Forms.Label();
             this.panelEstadisticas = new System.Windows.Forms.Panel();
             this.flowLayoutEstadisticas = new System.Windows.Forms.FlowLayoutPanel();
@@ -58,18 +59,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.splitContainerClientes = new System.Windows.Forms.SplitContainer();
             this.tablaClientes = new System.Windows.Forms.DataGridView();
             this.panelFormularioCliente = new System.Windows.Forms.Panel();
-            this.flowClienteBotones = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnNuevoCliente = new System.Windows.Forms.Button();
-            this.btnGuardarCliente = new System.Windows.Forms.Button();
-            this.btnEliminarCliente = new System.Windows.Forms.Button();
-            this.btnActualizarClientes = new System.Windows.Forms.Button();
-            this.btnCambiarContrasenaCliente = new System.Windows.Forms.Button();
-            this.btnCrearCuentaCliente = new System.Windows.Forms.Button();
-            this.btnActualizarSaldoCliente = new System.Windows.Forms.Button();
-            this.btnVerCuentasCliente = new System.Windows.Forms.Button();
             this.tabSeguridad = new System.Windows.Forms.TabPage();
             this.splitContainerSeguridad = new System.Windows.Forms.SplitContainer();
             this.panelUsuariosBloqueados = new System.Windows.Forms.Panel();
+            this.btnActualizarBloqueados = new System.Windows.Forms.Button();
             this.btnDesbloquearUsuario = new System.Windows.Forms.Button();
             this.gridUsuariosBloqueados = new System.Windows.Forms.DataGridView();
             this.lblUsuariosBloqueadosTitle = new System.Windows.Forms.Label();
@@ -103,11 +96,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.btnEjecutarResumenes = new System.Windows.Forms.Button();
             this.lblNotificacionesTitulo = new System.Windows.Forms.Label();
             this.tabMovimientos = new System.Windows.Forms.TabPage();
+            this.panelMovimientos = new System.Windows.Forms.Panel();
             this.tablaMovimientos = new System.Windows.Forms.DataGridView();
+            this.btnActualizarMovimientos = new System.Windows.Forms.Button();
             this.tabAnalisis = new System.Windows.Forms.TabPage();
+            this.panelAnalisis = new System.Windows.Forms.Panel();
             this.tablaAnalisis = new System.Windows.Forms.DataGridView();
+            this.btnActualizarAnalisis = new System.Windows.Forms.Button();
             this.tabResumen = new System.Windows.Forms.TabPage();
+            this.panelResumen = new System.Windows.Forms.Panel();
             this.tablaResumen = new System.Windows.Forms.DataGridView();
+            this.btnActualizarResumen = new System.Windows.Forms.Button();
+            this.flowClienteBotones = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnNuevoCliente = new System.Windows.Forms.Button();
+            this.btnGuardarCliente = new System.Windows.Forms.Button();
+            this.btnEliminarCliente = new System.Windows.Forms.Button();
+            this.btnActualizarClientes = new System.Windows.Forms.Button();
+            this.btnCambiarContrasenaCliente = new System.Windows.Forms.Button();
+            this.btnCrearCuentaCliente = new System.Windows.Forms.Button();
+            this.btnActualizarSaldoCliente = new System.Windows.Forms.Button();
+            this.btnVerCuentasCliente = new System.Windows.Forms.Button();
             this.panelSuperior.SuspendLayout();
             this.tabPanelAdmin.SuspendLayout();
             this.tabDashboard.SuspendLayout();
@@ -145,10 +153,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridNotificacionesSistema)).BeginInit();
             this.panelControlesNotificaciones.SuspendLayout();
             this.tabMovimientos.SuspendLayout();
+            this.panelMovimientos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tablaMovimientos)).BeginInit();
             this.tabAnalisis.SuspendLayout();
+            this.panelAnalisis.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tablaAnalisis)).BeginInit();
             this.tabResumen.SuspendLayout();
+            this.panelResumen.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tablaResumen)).BeginInit();
             this.SuspendLayout();
             // 
@@ -233,6 +244,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // panelTransaccionesRecientes
             // 
             this.panelTransaccionesRecientes.Controls.Add(this.gridTransaccionesRecientes);
+            this.panelTransaccionesRecientes.Controls.Add(this.btnActualizarTransRecientes);
             this.panelTransaccionesRecientes.Controls.Add(this.lblTransRecientes);
             this.panelTransaccionesRecientes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelTransaccionesRecientes.Location = new System.Drawing.Point(0, 150);
@@ -262,12 +274,28 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1383, 344);
             this.gridTransaccionesRecientes.TabIndex = 1;
             // 
+            // btnActualizarTransRecientes
+            // 
+            this.btnActualizarTransRecientes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnActualizarTransRecientes.BackColor = System.Drawing.Color.SlateBlue;
+            this.btnActualizarTransRecientes.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnActualizarTransRecientes.FlatAppearance.BorderSize = 0;
+            this.btnActualizarTransRecientes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnActualizarTransRecientes.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnActualizarTransRecientes.ForeColor = System.Drawing.Color.White;
+            this.btnActualizarTransRecientes.Location = new System.Drawing.Point(1230, 8);
+            this.btnActualizarTransRecientes.Name = "btnActualizarTransRecientes";
+            this.btnActualizarTransRecientes.Size = new System.Drawing.Size(140, 30);
+            this.btnActualizarTransRecientes.TabIndex = 2;
+            this.btnActualizarTransRecientes.Text = "🔄 Actualizar";
+            this.btnActualizarTransRecientes.UseVisualStyleBackColor = false;
+            // 
             // lblTransRecientes
             // 
-            this.lblTransRecientes.BackColor = System.Drawing.Color.SlateBlue;
+            this.lblTransRecientes.BackColor = System.Drawing.Color.White;
             this.lblTransRecientes.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblTransRecientes.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTransRecientes.ForeColor = System.Drawing.Color.White;
+            this.lblTransRecientes.ForeColor = System.Drawing.Color.Black;
             this.lblTransRecientes.Location = new System.Drawing.Point(0, 0);
             this.lblTransRecientes.Name = "lblTransRecientes";
             this.lblTransRecientes.Padding = new System.Windows.Forms.Padding(20, 10, 20, 10);
@@ -287,7 +315,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // flowLayoutEstadisticas
             // 
-            this.flowLayoutEstadisticas.BackColor = System.Drawing.Color.White;
+            this.flowLayoutEstadisticas.BackColor = System.Drawing.Color.SlateBlue;
             this.flowLayoutEstadisticas.Controls.Add(this.panelTotalClientes);
             this.flowLayoutEstadisticas.Controls.Add(this.panelTotalCuentas);
             this.flowLayoutEstadisticas.Controls.Add(this.panelSaldoTotal);
@@ -499,16 +527,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormularioCliente.Size = new System.Drawing.Size(581, 539);
             this.panelFormularioCliente.TabIndex = 0;
             // 
-            // flowClienteBotones
-            // 
-            this.flowClienteBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowClienteBotones.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            this.flowClienteBotones.Location = new System.Drawing.Point(0, 479);
-            this.flowClienteBotones.Name = "flowClienteBotones";
-            this.flowClienteBotones.Padding = new System.Windows.Forms.Padding(10);
-            this.flowClienteBotones.Size = new System.Drawing.Size(581, 60);
-            this.flowClienteBotones.TabIndex = 0;
-            // 
             // tabSeguridad
             // 
             this.tabSeguridad.Controls.Add(this.splitContainerSeguridad);
@@ -539,6 +557,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // panelUsuariosBloqueados
             // 
+            this.panelUsuariosBloqueados.Controls.Add(this.btnActualizarBloqueados);
             this.panelUsuariosBloqueados.Controls.Add(this.btnDesbloquearUsuario);
             this.panelUsuariosBloqueados.Controls.Add(this.gridUsuariosBloqueados);
             this.panelUsuariosBloqueados.Controls.Add(this.lblUsuariosBloqueadosTitle);
@@ -547,6 +566,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelUsuariosBloqueados.Name = "panelUsuariosBloqueados";
             this.panelUsuariosBloqueados.Size = new System.Drawing.Size(1389, 271);
             this.panelUsuariosBloqueados.TabIndex = 0;
+            // 
+            // btnActualizarBloqueados
+            // 
+            this.btnActualizarBloqueados.Location = new System.Drawing.Point(1128, 1);
+            this.btnActualizarBloqueados.Name = "btnActualizarBloqueados";
+            this.btnActualizarBloqueados.Size = new System.Drawing.Size(87, 27);
+            this.btnActualizarBloqueados.TabIndex = 0;
+            this.btnActualizarBloqueados.Text = "Actualizar";
             // 
             // btnDesbloquearUsuario
             // 
@@ -899,7 +926,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // tabMovimientos
             // 
-            this.tabMovimientos.Controls.Add(this.tablaMovimientos);
+            this.tabMovimientos.Controls.Add(this.panelMovimientos);
             this.tabMovimientos.Location = new System.Drawing.Point(4, 26);
             this.tabMovimientos.Name = "tabMovimientos";
             this.tabMovimientos.Size = new System.Drawing.Size(1389, 545);
@@ -907,24 +934,53 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tabMovimientos.Text = "Movimientos del Día";
             this.tabMovimientos.UseVisualStyleBackColor = true;
             // 
+            // panelMovimientos
+            // 
+            this.panelMovimientos.Controls.Add(this.tablaMovimientos);
+            this.panelMovimientos.Controls.Add(this.btnActualizarMovimientos);
+            this.panelMovimientos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelMovimientos.Location = new System.Drawing.Point(0, 0);
+            this.panelMovimientos.Name = "panelMovimientos";
+            this.panelMovimientos.Size = new System.Drawing.Size(1389, 545);
+            this.panelMovimientos.TabIndex = 0;
+            // 
             // tablaMovimientos
             // 
             this.tablaMovimientos.AllowUserToAddRows = false;
             this.tablaMovimientos.AllowUserToDeleteRows = false;
+            this.tablaMovimientos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tablaMovimientos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.tablaMovimientos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tablaMovimientos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tablaMovimientos.Location = new System.Drawing.Point(0, 0);
+            this.tablaMovimientos.Location = new System.Drawing.Point(10, 50);
             this.tablaMovimientos.Name = "tablaMovimientos";
             this.tablaMovimientos.ReadOnly = true;
             this.tablaMovimientos.RowHeadersWidth = 51;
             this.tablaMovimientos.RowTemplate.Height = 24;
-            this.tablaMovimientos.Size = new System.Drawing.Size(1389, 545);
+            this.tablaMovimientos.Size = new System.Drawing.Size(1369, 485);
             this.tablaMovimientos.TabIndex = 0;
+            // 
+            // btnActualizarMovimientos
+            // 
+            this.btnActualizarMovimientos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnActualizarMovimientos.BackColor = System.Drawing.Color.SlateBlue;
+            this.btnActualizarMovimientos.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnActualizarMovimientos.FlatAppearance.BorderSize = 0;
+            this.btnActualizarMovimientos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnActualizarMovimientos.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnActualizarMovimientos.ForeColor = System.Drawing.Color.White;
+            this.btnActualizarMovimientos.Location = new System.Drawing.Point(1259, 10);
+            this.btnActualizarMovimientos.Name = "btnActualizarMovimientos";
+            this.btnActualizarMovimientos.Size = new System.Drawing.Size(120, 35);
+            this.btnActualizarMovimientos.TabIndex = 1;
+            this.btnActualizarMovimientos.Text = "🔄 Actualizar";
+            this.btnActualizarMovimientos.UseVisualStyleBackColor = false;
+            this.btnActualizarMovimientos.Click += new System.EventHandler(this.BtnActualizarMovimientos_Click);
             // 
             // tabAnalisis
             // 
-            this.tabAnalisis.Controls.Add(this.tablaAnalisis);
+            this.tabAnalisis.Controls.Add(this.panelAnalisis);
             this.tabAnalisis.Location = new System.Drawing.Point(4, 26);
             this.tabAnalisis.Name = "tabAnalisis";
             this.tabAnalisis.Size = new System.Drawing.Size(1389, 545);
@@ -932,24 +988,53 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tabAnalisis.Text = "Análisis de Transacciones";
             this.tabAnalisis.UseVisualStyleBackColor = true;
             // 
+            // panelAnalisis
+            // 
+            this.panelAnalisis.Controls.Add(this.tablaAnalisis);
+            this.panelAnalisis.Controls.Add(this.btnActualizarAnalisis);
+            this.panelAnalisis.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelAnalisis.Location = new System.Drawing.Point(0, 0);
+            this.panelAnalisis.Name = "panelAnalisis";
+            this.panelAnalisis.Size = new System.Drawing.Size(1389, 545);
+            this.panelAnalisis.TabIndex = 0;
+            // 
             // tablaAnalisis
             // 
             this.tablaAnalisis.AllowUserToAddRows = false;
             this.tablaAnalisis.AllowUserToDeleteRows = false;
+            this.tablaAnalisis.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tablaAnalisis.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.tablaAnalisis.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tablaAnalisis.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tablaAnalisis.Location = new System.Drawing.Point(0, 0);
+            this.tablaAnalisis.Location = new System.Drawing.Point(10, 50);
             this.tablaAnalisis.Name = "tablaAnalisis";
             this.tablaAnalisis.ReadOnly = true;
             this.tablaAnalisis.RowHeadersWidth = 51;
             this.tablaAnalisis.RowTemplate.Height = 24;
-            this.tablaAnalisis.Size = new System.Drawing.Size(1389, 545);
+            this.tablaAnalisis.Size = new System.Drawing.Size(1369, 485);
             this.tablaAnalisis.TabIndex = 0;
+            // 
+            // btnActualizarAnalisis
+            // 
+            this.btnActualizarAnalisis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnActualizarAnalisis.BackColor = System.Drawing.Color.SlateBlue;
+            this.btnActualizarAnalisis.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnActualizarAnalisis.FlatAppearance.BorderSize = 0;
+            this.btnActualizarAnalisis.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnActualizarAnalisis.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnActualizarAnalisis.ForeColor = System.Drawing.Color.White;
+            this.btnActualizarAnalisis.Location = new System.Drawing.Point(1259, 10);
+            this.btnActualizarAnalisis.Name = "btnActualizarAnalisis";
+            this.btnActualizarAnalisis.Size = new System.Drawing.Size(120, 35);
+            this.btnActualizarAnalisis.TabIndex = 1;
+            this.btnActualizarAnalisis.Text = "🔄 Actualizar";
+            this.btnActualizarAnalisis.UseVisualStyleBackColor = false;
+            this.btnActualizarAnalisis.Click += new System.EventHandler(this.BtnActualizarAnalisis_Click);
             // 
             // tabResumen
             // 
-            this.tabResumen.Controls.Add(this.tablaResumen);
+            this.tabResumen.Controls.Add(this.panelResumen);
             this.tabResumen.Location = new System.Drawing.Point(4, 26);
             this.tabResumen.Name = "tabResumen";
             this.tabResumen.Size = new System.Drawing.Size(1389, 545);
@@ -957,20 +1042,114 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tabResumen.Text = "Resumen de Clientes";
             this.tabResumen.UseVisualStyleBackColor = true;
             // 
+            // panelResumen
+            // 
+            this.panelResumen.Controls.Add(this.tablaResumen);
+            this.panelResumen.Controls.Add(this.btnActualizarResumen);
+            this.panelResumen.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelResumen.Location = new System.Drawing.Point(0, 0);
+            this.panelResumen.Name = "panelResumen";
+            this.panelResumen.Size = new System.Drawing.Size(1389, 545);
+            this.panelResumen.TabIndex = 0;
+            // 
             // tablaResumen
             // 
             this.tablaResumen.AllowUserToAddRows = false;
             this.tablaResumen.AllowUserToDeleteRows = false;
+            this.tablaResumen.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tablaResumen.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.tablaResumen.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tablaResumen.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tablaResumen.Location = new System.Drawing.Point(0, 0);
+            this.tablaResumen.Location = new System.Drawing.Point(10, 50);
             this.tablaResumen.Name = "tablaResumen";
             this.tablaResumen.ReadOnly = true;
             this.tablaResumen.RowHeadersWidth = 51;
             this.tablaResumen.RowTemplate.Height = 24;
-            this.tablaResumen.Size = new System.Drawing.Size(1389, 545);
+            this.tablaResumen.Size = new System.Drawing.Size(1369, 485);
             this.tablaResumen.TabIndex = 0;
+            // 
+            // btnActualizarResumen
+            // 
+            this.btnActualizarResumen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnActualizarResumen.BackColor = System.Drawing.Color.SlateBlue;
+            this.btnActualizarResumen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnActualizarResumen.FlatAppearance.BorderSize = 0;
+            this.btnActualizarResumen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnActualizarResumen.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnActualizarResumen.ForeColor = System.Drawing.Color.White;
+            this.btnActualizarResumen.Location = new System.Drawing.Point(1259, 10);
+            this.btnActualizarResumen.Name = "btnActualizarResumen";
+            this.btnActualizarResumen.Size = new System.Drawing.Size(120, 35);
+            this.btnActualizarResumen.TabIndex = 1;
+            this.btnActualizarResumen.Text = "🔄 Actualizar";
+            this.btnActualizarResumen.UseVisualStyleBackColor = false;
+            this.btnActualizarResumen.Click += new System.EventHandler(this.BtnActualizarResumen_Click);
+            // 
+            // flowClienteBotones
+            // 
+            this.flowClienteBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.flowClienteBotones.Location = new System.Drawing.Point(0, 479);
+            this.flowClienteBotones.Name = "flowClienteBotones";
+            this.flowClienteBotones.Padding = new System.Windows.Forms.Padding(10);
+            this.flowClienteBotones.Size = new System.Drawing.Size(581, 60);
+            this.flowClienteBotones.TabIndex = 0;
+            // 
+            // btnNuevoCliente
+            // 
+            this.btnNuevoCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnNuevoCliente.Name = "btnNuevoCliente";
+            this.btnNuevoCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnNuevoCliente.TabIndex = 0;
+            // 
+            // btnGuardarCliente
+            // 
+            this.btnGuardarCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnGuardarCliente.Name = "btnGuardarCliente";
+            this.btnGuardarCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnGuardarCliente.TabIndex = 0;
+            // 
+            // btnEliminarCliente
+            // 
+            this.btnEliminarCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnEliminarCliente.Name = "btnEliminarCliente";
+            this.btnEliminarCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnEliminarCliente.TabIndex = 0;
+            // 
+            // btnActualizarClientes
+            // 
+            this.btnActualizarClientes.Location = new System.Drawing.Point(0, 0);
+            this.btnActualizarClientes.Name = "btnActualizarClientes";
+            this.btnActualizarClientes.Size = new System.Drawing.Size(75, 23);
+            this.btnActualizarClientes.TabIndex = 0;
+            // 
+            // btnCambiarContrasenaCliente
+            // 
+            this.btnCambiarContrasenaCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnCambiarContrasenaCliente.Name = "btnCambiarContrasenaCliente";
+            this.btnCambiarContrasenaCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnCambiarContrasenaCliente.TabIndex = 0;
+            // 
+            // btnCrearCuentaCliente
+            // 
+            this.btnCrearCuentaCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnCrearCuentaCliente.Name = "btnCrearCuentaCliente";
+            this.btnCrearCuentaCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnCrearCuentaCliente.TabIndex = 0;
+            // 
+            // btnActualizarSaldoCliente
+            // 
+            this.btnActualizarSaldoCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnActualizarSaldoCliente.Name = "btnActualizarSaldoCliente";
+            this.btnActualizarSaldoCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnActualizarSaldoCliente.TabIndex = 0;
+            // 
+            // btnVerCuentasCliente
+            // 
+            this.btnVerCuentasCliente.Location = new System.Drawing.Point(0, 0);
+            this.btnVerCuentasCliente.Name = "btnVerCuentasCliente";
+            this.btnVerCuentasCliente.Size = new System.Drawing.Size(75, 23);
+            this.btnVerCuentasCliente.TabIndex = 0;
             // 
             // PanelAdministrativo
             // 
@@ -984,7 +1163,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.Name = "PanelAdministrativo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Banco Fisclase 24/7 - Panel de Administración Avanzado";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panelSuperior.ResumeLayout(false);
             this.panelSuperior.PerformLayout();
             this.tabPanelAdmin.ResumeLayout(false);
@@ -1026,10 +1204,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelControlesNotificaciones.ResumeLayout(false);
             this.panelControlesNotificaciones.PerformLayout();
             this.tabMovimientos.ResumeLayout(false);
+            this.panelMovimientos.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tablaMovimientos)).EndInit();
             this.tabAnalisis.ResumeLayout(false);
+            this.panelAnalisis.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tablaAnalisis)).EndInit();
             this.tabResumen.ResumeLayout(false);
+            this.panelResumen.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tablaResumen)).EndInit();
             this.ResumeLayout(false);
 
@@ -1045,6 +1226,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private Panel panelDashboard;
         private Panel panelTransaccionesRecientes;
         private DataGridView gridTransaccionesRecientes;
+        private Button btnActualizarTransRecientes;
         private Label lblTransRecientes;
         private Panel panelEstadisticas;
         private FlowLayoutPanel flowLayoutEstadisticas;
@@ -1077,6 +1259,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private SplitContainer splitContainerSeguridad;
         private Panel panelUsuariosBloqueados;
         private Button btnDesbloquearUsuario;
+        private Button btnActualizarBloqueados;
         private DataGridView gridUsuariosBloqueados;
         private Label lblUsuariosBloqueadosTitle;
         private Panel panelCrearAdmin;
@@ -1109,11 +1292,17 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private Button btnEjecutarResumenes;
         private Label lblNotificacionesTitulo;
         private TabPage tabMovimientos;
+        private Panel panelMovimientos;
         private DataGridView tablaMovimientos;
+        private Button btnActualizarMovimientos;
         private TabPage tabAnalisis;
+        private Panel panelAnalisis;
         private DataGridView tablaAnalisis;
+        private Button btnActualizarAnalisis;
         private TabPage tabResumen;
+        private Panel panelResumen;
         private DataGridView tablaResumen;
+        private Button btnActualizarResumen;
         private Button btnLogout;
     }
 }

@@ -26,7 +26,7 @@ async function loadUserProfile() {
         showLoading(true);
         
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data;
+        const cliente = normalizeClienteData(data.cliente || data);
         
         if (cliente) {
             originalUserData = { ...cliente };
@@ -43,6 +43,30 @@ async function loadUserProfile() {
     } finally {
         showLoading(false);
     }
+}
+
+// Normalizar datos del cliente desde la API (que usa aliases en español)
+function normalizeClienteData(cliente) {
+    if (!cliente) return null;
+    
+    return {
+        clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
+        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
+        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        email: cliente['Email'] || cliente.email,
+        telefono: cliente['Teléfono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        calle: cliente['Calle'] || cliente.calle,
+        numero: cliente['Número'] || cliente.numero,
+        ciudad: cliente['Ciudad'] || cliente.ciudad,
+        estado: cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia,
+        codigoPostal: cliente['Código Postal'] || cliente.codigoPostal || cliente.codigo_postal,
+        pais: cliente['País'] || cliente.pais,
+        fechaRegistro: cliente['Fecha de Registro'] || cliente.fechaRegistro || cliente.fecha_registro,
+        verificado: cliente.verificado !== false,
+        // Mantener campos originales también
+        ...cliente
+    };
 }
 
 function populateProfileForm(cliente) {
@@ -88,13 +112,13 @@ function updateProfileHeader(cliente) {
     const profileId = document.querySelector('.profile-id');
     
     if (avatar && cliente) {
-        const fullName = cliente.nombreCompleto || cliente.nombre || cliente.username;
-        const initials = fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        const fullName = cliente.nombreCompleto || cliente.nombre || cliente.username || 'Usuario';
+        const initials = fullName ? fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'U';
         avatar.textContent = initials;
     }
     
     if (profileName) {
-        profileName.textContent = cliente.nombreCompleto || cliente.nombre || cliente.username;
+        profileName.textContent = cliente.nombreCompleto || cliente.nombre || cliente.username || 'Usuario';
     }
     
     if (profileId) {
@@ -121,15 +145,17 @@ function updateVerificationBadge(cliente) {
 
 function updateGlobalUserInfo(cliente) {
     // Actualizar información en header global y sidebar
+    const displayName = cliente.nombreCompleto || cliente.nombre || cliente.username || 'Usuario';
+    
     const userNameElements = document.querySelectorAll('.user-info span');
     userNameElements.forEach(el => {
-        el.textContent = cliente.nombreCompleto || cliente.nombre || cliente.username;
+        el.textContent = displayName;
     });
 
     const userAvatars = document.querySelectorAll('.user-avatar');
     userAvatars.forEach(avatar => {
-        const fullName = cliente.nombreCompleto || cliente.nombre || cliente.username;
-        const initials = fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        const fullName = cliente.nombreCompleto || cliente.nombre || cliente.username || 'Usuario';
+        const initials = fullName ? fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'U';
         avatar.textContent = initials;
     });
 }

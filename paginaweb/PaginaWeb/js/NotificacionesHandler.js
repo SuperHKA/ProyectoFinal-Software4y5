@@ -1,25 +1,56 @@
 // Manejador de notificaciones del cliente
 document.addEventListener('DOMContentLoaded', async function() {
-    // Verificar autenticaci�n
+    // Verificar autenticación
     if (!authService.isLoggedIn()) {
         window.location.href = 'Login.html';
         return;
     }
 
-    // Actualizar informaci�n del usuario en el header
+    // Actualizar información del usuario en el header
     await updateUserInfo();
 
     // Cargar notificaciones del cliente
     await loadNotificaciones();
 
-    // Configurar actualizaci�n peri�dica
+    // Configurar actualización periódica
     setupPeriodicUpdate();
 });
+
+// Normalizar datos del cliente desde la API
+function normalizeClienteData(cliente) {
+    if (!cliente) return null;
+    
+    return {
+        clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
+        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
+        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        email: cliente['Email'] || cliente.email,
+        telefono: cliente['Teléfono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        ...cliente
+    };
+}
+
+// Normalizar datos de notificación desde la API
+function normalizeNotificacionData(notif) {
+    if (!notif) return null;
+    
+    return {
+        notificacionId: notif['ID Notificación'] || notif.notificacionId || notif.notificacion_id,
+        tipo: notif['Tipo'] || notif.tipo,
+        asunto: notif['Asunto'] || notif.asunto,
+        contenido: notif['Contenido'] || notif.contenido,
+        fechaEnvio: notif['Fecha de Envío'] || notif['Fecha Envío'] || notif.fechaEnvio || notif.fecha_envio,
+        estado: notif['Estado'] || notif.estado,
+        ...notif
+    };
+}
 
 async function updateUserInfo() {
     try {
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data;
+        const clienteRaw = data.cliente || data;
+        const cliente = normalizeClienteData(clienteRaw);
         const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || 
                           (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
@@ -31,11 +62,11 @@ async function updateUserInfo() {
         const avatar = document.querySelector('.user-avatar');
         if (avatar && cliente) {
             const fullName = cliente.nombreCompleto || cliente.nombre || displayName;
-            const initials = fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+            const initials = fullName ? fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() : 'U';
             avatar.textContent = initials;
         }
     } catch (error) {
-        console.warn('No se pudo obtener informaci�n del usuario:', error);
+        console.warn('No se pudo obtener información del usuario:', error);
     }
 }
 
@@ -45,150 +76,46 @@ async function loadNotificaciones() {
 
         const user = authService.getCurrentUser();
         if (!user) {
-            throw new Error('No se pudo obtener información del usuario');
+            throw new Error('Usuario no autenticado');
         }
 
-        // Obtener información del cliente
-        const clienteInfo = await authService.getClienteInfo();
-        const clienteId = clienteInfo.cliente?.clienteId || clienteInfo.clienteId || user.clienteId;
-        
+        // Obtener el clienteId desde la API
+        let clienteId = user.clienteId;
         if (!clienteId) {
-            console.warn('No se pudo obtener el clienteId, usando transacciones');
-            await loadNotificacionesFromTransacciones();
+            const data = await authService.getClienteInfo();
+            const cliente = normalizeClienteData(data.cliente || data);
+            clienteId = cliente.clienteId;
+        }
+
+        if (!clienteId) {
+            console.warn('No se pudo obtener el ID del cliente');
+            displayFallbackNotificaciones();
             return;
         }
 
-        console.log('📌 Cargando notificaciones para clienteId:', clienteId);
-
         // Obtener notificaciones del cliente desde la API
         const response = await fetch(
-            `${authService.baseURL}/banco/clientes/${clienteId}/notificaciones?dias=30`,
+            `http://localhost:5202/api/banco/clientes/${clienteId}/notificaciones?dias=30`,
             {
                 headers: {
-                    'Authorization': `Bearer ${authService.getAuthToken()}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${authService.getAuthToken()}`
                 }
             }
         );
 
         if (response.ok) {
             const notificaciones = await response.json();
-            console.log('✅ Notificaciones cargadas:', notificaciones);
-            
-            // Si no hay notificaciones de la BD, generar desde transacciones
-            if (!notificaciones || notificaciones.length === 0) {
-                console.log('📌 No hay notificaciones en BD, generando desde transacciones...');
-                await loadNotificacionesFromTransacciones();
-            } else {
-                displayNotificaciones(notificaciones);
-            }
+            displayNotificaciones(notificaciones);
         } else {
             console.error('Error al obtener notificaciones:', response.statusText);
-            await loadNotificacionesFromTransacciones();
+            displayFallbackNotificaciones();
         }
     } catch (error) {
         console.error('Error loading notificaciones:', error);
-        await loadNotificacionesFromTransacciones();
+        displayFallbackNotificaciones();
     } finally {
         showLoading(false);
     }
-}
-
-// Nueva función para generar notificaciones desde transacciones
-async function loadNotificacionesFromTransacciones() {
-    try {
-        const user = authService.getCurrentUser();
-        if (!user) return;
-
-        const username = user.username || user.nombreUsuario;
-        
-        // Obtener transacciones recientes
-        const response = await fetch(
-            `${authService.baseURL}/banco/transacciones/usuario?username=${encodeURIComponent(username)}&limit=10`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${authService.getAuthToken()}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
-        if (!response.ok) {
-            console.error('Error al obtener transacciones');
-            displayFallbackNotificaciones();
-            return;
-        }
-
-        const transacciones = await response.json();
-        console.log('✅ Transacciones obtenidas para notificaciones:', transacciones);
-        
-        // Convertir transacciones a notificaciones
-        const notificaciones = transacciones.map((trans, index) => {
-            const esIngreso = determinarSiEsIngreso(trans);
-            const monto = trans.monto || 0;
-            const fecha = trans.fecha || trans.fechaTransaccion;
-            
-            // Determinar tipo según contexto
-            let tipo;
-            let asunto;
-            let contenido;
-            
-            if (esIngreso) {
-                // Ingresos = Verde (Éxito)
-                tipo = 'Confirmación';
-                asunto = 'Ingreso Recibido';
-                contenido = `Has recibido $${monto.toFixed(2)}. ${trans.descripcion || trans.tipo_transaccion || ''}`;
-            } else {
-                // Egresos - verificar si puede causar problemas
-                const saldoActual = trans.saldoActual || trans.saldo_actual || 0;
-                const esCritico = saldoActual < 100 || monto > saldoActual * 0.5;
-                
-                if (esCritico) {
-                    // Saldo bajo o transferencia grande = Rojo (Alerta)
-                    tipo = 'Alerta';
-                    asunto = 'Transferencia Importante';
-                    contenido = `Has enviado $${monto.toFixed(2)}. ${saldoActual < 100 ? 'Saldo bajo.' : 'Monto significativo.'} ${trans.descripcion || trans.tipo_transaccion || ''}`;
-                } else {
-                    // Transferencia normal = Amarillo (Información)
-                    tipo = 'Información';
-                    asunto = 'Transferencia Realizada';
-                    contenido = `Has enviado $${monto.toFixed(2)}. ${trans.descripcion || trans.tipo_transaccion || ''}`;
-                }
-            }
-            
-            return {
-                notificacionId: index + 1,
-                tipo: tipo,
-                asunto: asunto,
-                contenido: contenido,
-                fechaEnvio: fecha,
-                estado: index < 3 ? 'No leída' : 'Leída' // Marcar las 3 más recientes como no leídas
-            };
-        });
-
-        displayNotificaciones(notificaciones);
-        
-    } catch (error) {
-        console.error('Error generando notificaciones desde transacciones:', error);
-        displayFallbackNotificaciones();
-    }
-}
-
-// Función auxiliar para determinar si es ingreso
-function determinarSiEsIngreso(trans) {
-    const user = authService.getCurrentUser();
-    const clienteInfo = JSON.parse(sessionStorage.getItem('clienteInfo') || '{}');
-    const cuentasUsuario = clienteInfo.cuentas || [];
-    const numerosCuenta = cuentasUsuario.map(c => c.numeroCuenta || c.numero_cuenta);
-    
-    const cuentaDestino = trans.cuenta_destino || trans.cuentaDestino;
-    
-    // Si la cuenta destino es del usuario, es un ingreso
-    if (cuentaDestino && numerosCuenta.includes(cuentaDestino)) {
-        return true;
-    }
-    
-    return false;
 }
 
 function displayNotificaciones(notificaciones) {
@@ -202,7 +129,7 @@ function displayNotificaciones(notificaciones) {
                     <i class="fas fa-bell-slash"></i>
                 </div>
                 <h3>No tienes notificaciones</h3>
-                <p>Todas tus notificaciones aparecer�n aqu�</p>
+                <p>Todas tus notificaciones aparecerán aquí</p>
             </div>
         `;
         return;
@@ -210,19 +137,20 @@ function displayNotificaciones(notificaciones) {
 
     container.innerHTML = '';
     
-    notificaciones.forEach(notif => {
+    notificaciones.forEach(notifRaw => {
+        const notif = normalizeNotificacionData(notifRaw);
         const notificacionElement = createNotificacionElement(notif);
         container.appendChild(notificacionElement);
     });
 
-    // Actualizar el badge de notificaciones en el men�
+    // Actualizar el badge de notificaciones en el menú
     updateNotificationBadge(getUnreadCount(notificaciones));
 }
 
 function createNotificacionElement(notificacion) {
     const div = document.createElement('div');
     const typeClass = getNotificacionTypeClass(notificacion.tipo);
-    const isRead = notificacion.estado === 'Le�da' || notificacion.estado === 'leida';
+    const isRead = notificacion.estado === 'Leída' || notificacion.estado === 'leida';
     
     div.className = `notificacion ${typeClass} ${isRead ? 'read' : 'unread'}`;
     div.setAttribute('data-id', notificacion.notificacionId);
@@ -240,7 +168,7 @@ function createNotificacionElement(notificacion) {
                 <span class="notificacion-fecha">${fechaFormatted}</span>
             </div>
             <div class="notificacion-actions">
-                ${!isRead ? `<button class="mark-read-btn" onclick="markAsRead(${notificacion.notificacionId})" title="Marcar como le�da">
+                ${!isRead ? `<button class="mark-read-btn" onclick="markAsRead(${notificacion.notificacionId})" title="Marcar como leída">
                     <i class="fas fa-check"></i>
                 </button>` : ''}
                 <button class="delete-notif-btn" onclick="deleteNotificacion(${notificacion.notificacionId})" title="Eliminar">
@@ -269,7 +197,7 @@ function createNotificacionElement(notificacion) {
             content.style.maxHeight = content.scrollHeight + 'px';
         }
         
-        // Marcar como le�da autom�ticamente al hacer clic
+        // Marcar como leída automáticamente al hacer clic
         if (!isRead) {
             markAsRead(notificacion.notificacionId);
         }
@@ -280,17 +208,14 @@ function createNotificacionElement(notificacion) {
 
 function getNotificacionTypeClass(tipo) {
     const typeMap = {
-        'Alerta': 'notificacion2', // Rojo - Alertas, deudas, problemas críticos
-        'Información': 'notificacion1', // Amarillo - Información general, pendientes
-        'Confirmación': 'notificacion3', // Verde - Confirmaciones, éxitos, ingresos
-        'Transaccion': 'notificacion3', // Verde - Transacciones exitosas
-        'Seguridad': 'notificacion2', // Rojo - Seguridad crítica
-        'Promocion': 'notificacion1', // Amarillo - Promociones informativas
-        'Deuda': 'notificacion2', // Rojo - Deudas
-        'Pendiente': 'notificacion1', // Amarillo - Acciones pendientes
-        'Exito': 'notificacion3' // Verde - Operaciones exitosas
+        'Alerta': 'notificacion1', // Rojo - Alertas importantes
+        'Información': 'notificacion2', // Amarillo - Información general
+        'Confirmación': 'notificacion3', // Verde - Confirmaciones
+        'Transaccion': 'notificacion3', // Verde - Transacciones
+        'Seguridad': 'notificacion1', // Rojo - Seguridad
+        'Promoción': 'notificacion2' // Amarillo - Promociones
     };
-    return typeMap[tipo] || 'notificacion1';
+    return typeMap[tipo] || 'notificacion2';
 }
 
 function getNotificacionIcon(tipo) {
@@ -300,10 +225,7 @@ function getNotificacionIcon(tipo) {
         'Confirmación': 'fas fa-check-circle',
         'Transaccion': 'fas fa-exchange-alt',
         'Seguridad': 'fas fa-shield-alt',
-        'Promocion': 'fas fa-gift',
-        'Deuda': 'fas fa-exclamation-circle',
-        'Pendiente': 'fas fa-clock',
-        'Exito': 'fas fa-check-double'
+        'Promoción': 'fas fa-gift'
     };
     return iconMap[tipo] || 'fas fa-bell';
 }
@@ -319,7 +241,7 @@ function formatFecha(fechaString) {
     if (diffDays === 1) {
         return 'Ayer';
     } else if (diffDays < 7) {
-        return `Hace ${diffDays} d�as`;
+        return `Hace ${diffDays} días`;
     } else {
         return fecha.toLocaleDateString('es-ES', {
             day: '2-digit',
@@ -331,11 +253,11 @@ function formatFecha(fechaString) {
 
 function getUnreadCount(notificaciones) {
     if (!notificaciones) return 0;
-    return notificaciones.filter(n => n.estado !== 'Le�da' && n.estado !== 'leida').length;
+    return notificaciones.filter(n => n.estado !== 'Leída' && n.estado !== 'leida').length;
 }
 
 function updateNotificationBadge(count) {
-    // Buscar el enlace de notificaciones en el men�
+    // Buscar el enlace de notificaciones en el menú
     const notifLink = document.querySelector('a[href*="notificaciones"]');
     if (!notifLink) return;
     
@@ -345,7 +267,7 @@ function updateNotificationBadge(count) {
         existingBadge.remove();
     }
     
-    // Agregar nuevo badge si hay notificaciones no le�das
+    // Agregar nuevo badge si hay notificaciones no leídas
     if (count > 0) {
         const badge = document.createElement('span');
         badge.className = 'notification-badge';
@@ -356,7 +278,7 @@ function updateNotificationBadge(count) {
 
 async function markAsRead(notificacionId) {
     try {
-        // Por ahora simulamos la actualizaci�n (la API no tiene endpoint espec�fico)
+        // Por ahora simulamos la actualización (la API no tiene endpoint específico)
         const notifElement = document.querySelector(`[data-id="${notificacionId}"]`);
         if (notifElement) {
             notifElement.classList.remove('unread');
@@ -383,12 +305,12 @@ async function markAsRead(notificacionId) {
 }
 
 async function deleteNotificacion(notificacionId) {
-    if (!confirm('�Est�s seguro de que deseas eliminar esta notificaci�n?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
         return;
     }
     
     try {
-        // Por ahora solo removemos del DOM (la API no tiene endpoint de eliminaci�n)
+        // Por ahora solo removemos del DOM (la API no tiene endpoint de eliminación)
         const notifElement = document.querySelector(`[data-id="${notificacionId}"]`);
         if (notifElement) {
             notifElement.style.animation = 'slideOut 0.3s ease-in-out';
@@ -409,24 +331,40 @@ async function deleteNotificacion(notificacionId) {
         
     } catch (error) {
         console.error('Error deleting notification:', error);
-        alert('Error al eliminar la notificaci�n');
+        alert('Error al eliminar la notificación');
     }
 }
 
 function displayFallbackNotificaciones() {
-    // Mostrar mensaje de que no hay notificaciones disponibles
-    const container = document.querySelector('.notificaciones-container');
-    if (!container) return;
+    // Mostrar notificaciones de ejemplo si la API falla
+    const notificacionesEjemplo = [
+        {
+            notificacionId: 1,
+            tipo: 'Confirmación',
+            asunto: 'Transferencia Exitosa',
+            contenido: 'Tu transferencia de $250.00 a María González ha sido procesada exitosamente.',
+            fechaEnvio: new Date().toISOString(),
+            estado: 'No leída'
+        },
+        {
+            notificacionId: 2,
+            tipo: 'Información',
+            asunto: 'Estado de Cuenta Disponible',
+            contenido: 'Tu estado de cuenta del mes de octubre ya está disponible para descarga.',
+            fechaEnvio: new Date(Date.now() - 86400000).toISOString(),
+            estado: 'No leída'
+        },
+        {
+            notificacionId: 3,
+            tipo: 'Alerta',
+            asunto: 'Saldo Bajo',
+            contenido: 'Tu cuenta corriente tiene un saldo de $50.00. Considera realizar un depósito.',
+            fechaEnvio: new Date(Date.now() - 172800000).toISOString(),
+            estado: 'Leída'
+        }
+    ];
     
-    container.innerHTML = `
-        <div class="no-notificaciones">
-            <div class="no-data-icon">
-                <i class="fas fa-bell-slash"></i>
-            </div>
-            <h3>No hay notificaciones disponibles</h3>
-            <p>Cuando realices transacciones, aparecerán notificaciones aquí</p>
-        </div>
-    `;
+    displayNotificaciones(notificacionesEjemplo);
 }
 
 function setupPeriodicUpdate() {
@@ -454,7 +392,7 @@ function showLoading(show) {
     }
 }
 
-// Funci�n para marcar todas como le�das
+// Función para marcar todas como leídas
 function markAllAsRead() {
     const unreadNotifications = document.querySelectorAll('.notificacion.unread');
     unreadNotifications.forEach(notif => {
@@ -463,9 +401,9 @@ function markAllAsRead() {
     });
 }
 
-// Funci�n para limpiar todas las notificaciones le�das
+// Función para limpiar todas las notificaciones leídas
 function clearReadNotifications() {
-    if (!confirm('�Est�s seguro de que deseas eliminar todas las notificaciones le�das?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar todas las notificaciones leídas?')) {
         return;
     }
     

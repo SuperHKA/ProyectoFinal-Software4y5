@@ -246,44 +246,50 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 return rawList.Select(item => new ClienteDto
                 {
                     // Mapear IDs con múltiples posibilidades
-                    usuario_id = GetIntValue(item, "usuario_id") 
+                    usuario_id = GetIntValue(item, "ID Usuario")
+                               ?? GetIntValue(item, "usuario_id") 
                                ?? GetIntValue(item, "UsuarioId") 
                                ?? GetIntValue(item, "usuarioId")
                                ?? 0,
                     
-                    cliente_id = GetIntValue(item, "cliente_id") 
+                    cliente_id = GetIntValue(item, "ID Cliente")
+                               ?? GetIntValue(item, "cliente_id") 
                                ?? GetIntValue(item, "ClienteId") 
                                ?? GetIntValue(item, "clienteId"),
                     
                     // Mapear strings con múltiples posibilidades
-                    username = GetStringValue(item, "username") 
+                    username = GetStringValue(item, "Usuario")
+                             ?? GetStringValue(item, "username") 
                              ?? GetStringValue(item, "Username") 
                              ?? GetStringValue(item, "nombreUsuario")
                              ?? "",
                     
-                    nombre_completo = GetStringValue(item, "nombre_completo") 
+                    nombre_completo = GetStringValue(item, "Nombre Completo")
+                                    ?? GetStringValue(item, "nombre_completo") 
                                     ?? GetStringValue(item, "nombre") 
                                     ?? GetStringValue(item, "Nombre")
                                     ?? GetStringValue(item, "NombreCompleto")
                                     ?? "",
                     
-                    email = GetStringValue(item, "email") 
-                          ?? GetStringValue(item, "Email") 
+                    email = GetStringValue(item, "Email")
+                          ?? GetStringValue(item, "email") 
                           ?? "",
                     
-                    telefono = GetStringValue(item, "telefono") 
+                    telefono = GetStringValue(item, "Teléfono")
+                             ?? GetStringValue(item, "telefono") 
                              ?? GetStringValue(item, "Telefono") 
                              ?? "",
                     
                     // Mapear booleans con múltiples posibilidades
-                    es_admin = GetBoolValue(item, "es_admin") 
+                    es_admin = GetBoolValue(item, "Es Admin")
+                             ?? GetBoolValue(item, "es_admin") 
                              ?? GetBoolValue(item, "esAdmin") 
                              ?? GetBoolValue(item, "IsAdmin")
                              ?? GetBoolValue(item, "Admin")
                              ?? false,
                     
-                    bloqueado = GetBoolValue(item, "bloqueado") 
-                              ?? GetBoolValue(item, "Bloqueado") 
+                    bloqueado = GetBoolValue(item, "Bloqueado")
+                              ?? GetBoolValue(item, "bloqueado") 
                               ?? GetBoolValue(item, "EstadoCuenta")
                               ?? false
                 }).ToList();
@@ -392,6 +398,20 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
         public async Task<IEnumerable<Dictionary<string, object>>> ObtenerUsuariosBloqueadosAsync()
             => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/usuarios-bloqueados").ConfigureAwait(false);
+
+        public async Task<List<Dictionary<string, object>>> ObtenerCuentasPorClienteIdAsync(int clienteId)
+        {
+            try
+            {
+                var response = await GetJsonAsync<List<Dictionary<string, object>>>($"/api/banco/clientes/{clienteId}/cuentas").ConfigureAwait(false);
+                return response ?? new List<Dictionary<string, object>>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en ObtenerCuentasPorClienteIdAsync: {ex.Message}");
+                return new List<Dictionary<string, object>>();
+            }
+        }
 
         public async Task<IEnumerable<Dictionary<string, object>>> ObtenerNotificacionesSistemaAsync()
             => await GetJsonAsync<IEnumerable<Dictionary<string, object>>>("/api/banco/notificaciones-sistema").ConfigureAwait(false);
@@ -570,7 +590,25 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             if (clienteId <= 0) return new List<Dictionary<string, object>>();
 
-            // 1) Intentar formato paginado
+            // 1) Intentar endpoint correcto: /api/banco/clientes/{clienteId}/transacciones
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"DEBUG: Intentando ObtenerTransaccionesClienteAsync con clienteId={clienteId}, limit={limit}");
+                var list = await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
+                    $"/api/banco/clientes/{clienteId}/transacciones?limit={limit}")
+                    .ConfigureAwait(false);
+                if (list != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG: Se obtuvieron {list.Count()} transacciones para clienteId={clienteId}");
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ObtenerTransaccionesClienteAsync (endpoint correcto) fallo: {ex.Message}");
+            }
+
+            // 2) Intentar formato paginado (fallback)
             try
             {
                 var paged = await GetJsonAsync<PaginatedResponse<Dictionary<string, object>>>(
@@ -586,7 +624,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 System.Diagnostics.Debug.WriteLine($"WARN ObtenerTransaccionesClienteAsync (paged) fallo: {ex.Message}");
             }
 
-            // 2) Intentar lista simple con 'limit'
+            // 3) Intentar lista simple con 'limit' (fallback)
             try
             {
                 var list = await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
@@ -599,19 +637,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 System.Diagnostics.Debug.WriteLine($"WARN ObtenerTransaccionesClienteAsync (limit) fallo: {ex.Message}");
             }
 
-            // 3) Intentar lista simple con 'pageSize'
-            try
-            {
-                var list = await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
-                    $"/api/banco/transacciones-cliente?clienteId={clienteId}&pageSize={limit}")
-                    .ConfigureAwait(false);
-                if (list != null) return list;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"ERROR ObtenerTransaccionesClienteAsync (pageSize) fallo: {ex.Message}");
-            }
-
+            System.Diagnostics.Debug.WriteLine($"ERROR: No se pudo obtener transacciones para clienteId={clienteId} usando ningún endpoint");
             return new List<Dictionary<string, object>>();
         }
     }

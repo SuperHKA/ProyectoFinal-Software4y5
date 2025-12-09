@@ -23,24 +23,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 let cuentasUsuario = [];
 let limitesTransferencia = {
     diario: 5000,
-    usado_hoy: 0
+    usado_hoy: 0,
+    semanal: 15000,
+    usado_semanal: 0,
+    mensual: 50000,
+    usado_mensual: 0
 };
 
 async function loadCuentasUsuario() {
     try {
         const data = await authService.getClienteInfo();
-        cuentasUsuario = data.cuentas || data;
+        const cuentasRaw = data.cuentas || data;
+        cuentasUsuario = Array.isArray(cuentasRaw) ? cuentasRaw.map(normalizeCuentaData) : [];
         
         const selectOrigen = document.getElementById('fromAccount');
         if (selectOrigen && cuentasUsuario && cuentasUsuario.length > 0) {
             selectOrigen.innerHTML = '<option value="">Selecciona una cuenta</option>';
             cuentasUsuario.forEach(cuenta => {
                 const option = document.createElement('option');
-                const cuentaId = cuenta.cuentaId || cuenta.cuenta_id || cuenta.cuentaID;
+                const cuentaId = cuenta.cuentaId;
                 option.value = cuentaId; // Usar el ID, no el número
-                option.textContent = `${cuenta.tipoCuenta} - ${cuenta.numeroCuenta} ($${formatMoney(cuenta.saldo)})`;
-                option.dataset.saldo = cuenta.saldo;
-                option.dataset.numeroCuenta = cuenta.numeroCuenta;
+                const tipoCuenta = cuenta.tipoCuenta;
+                const numeroCuenta = cuenta.numeroCuenta;
+                const saldo = cuenta.saldo;
+                option.textContent = `${tipoCuenta} - ${numeroCuenta} ($${formatMoney(saldo)})`;
+                option.dataset.saldo = saldo;
+                option.dataset.numeroCuenta = numeroCuenta;
                 option.dataset.cuentaId = cuentaId;
                 selectOrigen.appendChild(option);
             });
@@ -53,6 +61,41 @@ async function loadCuentasUsuario() {
         console.error('Error loading cuentas:', error);
         showError('Error al cargar las cuentas');
     }
+}
+
+// Normalizar datos de cuenta desde la API
+function normalizeCuentaData(cuenta) {
+    if (!cuenta) return null;
+    
+    return {
+        cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
+        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
+        saldo: cuenta['Saldo'] || cuenta.saldo || 0,
+        activa: cuenta['Activa'] !== false && cuenta.activa !== false,
+        ...cuenta
+    };
+}
+
+// Normalizar datos de transacción desde la API
+function normalizeTransaccionData(transaccion) {
+    if (!transaccion) return null;
+    
+    return {
+        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        tipo_transaccion: transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        tipoTransaccion: transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
+        fecha: transaccion['Fecha'] || transaccion.fecha,
+        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        estado: transaccion['Estado'] || transaccion.estado || 'Completado',
+        cuenta_origen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
+        cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
+        cuenta_destino: transaccion['Cuenta Destino'] || transaccion.cuenta_destino || transaccion.cuentaDestino,
+        cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuenta_destino || transaccion.cuentaDestino,
+        clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
+        ...transaccion
+    };
 }
 
 function setupTransferForm() {
@@ -238,10 +281,11 @@ function validateTransferAmount(amount) {
     
     // Obtener saldo de la cuenta seleccionada
     const selectedAccount = cuentasUsuario.find(c => {
-        const id = c.cuentaId || c.cuenta_id || c.cuentaID;
+        const id = c['ID Cuenta'] || c.cuentaId || c.cuenta_id || c.cuentaID;
         return id == fromAccount;
     });
-    if (selectedAccount && amountValue > selectedAccount.saldo) {
+    const saldo = selectedAccount ? (selectedAccount.Saldo || selectedAccount.saldo) : 0;
+    if (selectedAccount && amountValue > saldo) {
         showAmountValidation('Saldo insuficiente', 'error');
         amountInput.classList.add('invalid');
         return false;
@@ -374,11 +418,11 @@ async function buscarCuentaIdPorNumero(numeroCuenta) {
         console.log('📌 Total de cuentas en el sistema:', todasLasCuentas.length);
 
         const cuentaEncontrada = todasLasCuentas.find(c =>
-            (c.numeroCuenta || c.numero_cuenta || c.numero) === numeroCuenta
+            (c['Número de Cuenta'] || c.numeroCuenta || c.numero_cuenta || c.numero) === numeroCuenta
         );
 
         if (cuentaEncontrada) {
-            const cuentaId = cuentaEncontrada.cuentaId || cuentaEncontrada.cuenta_id || cuentaEncontrada.cuentaID;
+            const cuentaId = cuentaEncontrada['ID Cuenta'] || cuentaEncontrada.cuentaId || cuentaEncontrada.cuenta_id || cuentaEncontrada.cuentaID;
             console.log('✅ Cuenta destino encontrada:', { cuentaId, numero: numeroCuenta });
             return cuentaId;
         }
@@ -585,12 +629,15 @@ function validateCurrentStep(stepNumber) {
         }
         
         const selectedAccount = cuentasUsuario.find(c => {
-            const id = c.cuentaId || c.cuenta_id || c.cuentaID;
+            const id = c['ID Cuenta'] || c.cuentaId || c.cuenta_id || c.cuentaID;
             return id == fromAccount;
         });
-        if (selectedAccount && parseFloat(amount) > selectedAccount.saldo) {
-            showError(`Saldo insuficiente. Disponible: $${formatMoney(selectedAccount.saldo)}`);
-            return false;
+        if (selectedAccount) {
+            const saldo = selectedAccount.Saldo || selectedAccount.saldo || 0;
+            if (parseFloat(amount) > parseFloat(saldo)) {
+                showError(`Saldo insuficiente. Disponible: $${formatMoney(saldo)}`);
+                return false;
+            }
         }
         
         if (transferType === 'same-bank' && fromAccount === toAccount) {
@@ -729,8 +776,15 @@ function calculateCommission(transferType, amount) {
 }
 
 function getAccountDisplayName(accountNumber) {
-    const account = cuentasUsuario.find(c => c.numeroCuenta === accountNumber);
-    return account ? `${account.tipoCuenta} - ${accountNumber}` : accountNumber;
+    const account = cuentasUsuario.find(c => {
+        const num = c['Número de Cuenta'] || c.numeroCuenta || c.numero_cuenta;
+        return num === accountNumber;
+    });
+    if (account) {
+        const tipo = account['Tipo de Cuenta'] || account.tipoCuenta || 'Cuenta';
+        return `${tipo} - ${accountNumber}`;
+    }
+    return accountNumber;
 }
 
 function getTransferTypeDisplayName(transferType) {
@@ -742,27 +796,110 @@ function getTransferTypeDisplayName(transferType) {
     return typeMap[transferType] || transferType;
 }
 
-function loadContactosFrecuentes() {
-    // Cargar contactos frecuentes desde localStorage
-    const contactos = getContactosFrecuentes();
-    const contactsContainer = document.querySelector('.quick-contacts');
-    
-    if (contactsContainer && contactos.length > 0) {
-        contactsContainer.innerHTML = '';
-        contactos.forEach(contacto => {
-            const contactCard = createContactCard(contacto);
-            contactsContainer.appendChild(contactCard);
+async function loadContactosFrecuentes() {
+    try {
+        const user = authService.getCurrentUser();
+        if (!user) return;
+
+        const username = user.username || user.nombreUsuario;
+        const response = await fetch(`${authService.baseURL}/banco/transacciones/usuario?username=${encodeURIComponent(username)}&limit=50`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authService.getAuthToken()}`,
+                'Content-Type': 'application/json'
+            }
         });
+
+        if (!response.ok) {
+            console.error('Error al cargar transacciones para contactos frecuentes');
+            return;
+        }
+
+        const transaccionesRaw = await response.json();
+        const transacciones = transaccionesRaw.map(normalizeTransaccionData);
+        
+        // Obtener cuentas del usuario
+        const userAccountNumbers = getUserAccountNumbers();
+        
+        // Filtrar solo transferencias salientes y agrupar por cuenta destino
+        const contactosMap = new Map();
+        
+        transacciones.forEach(trans => {
+            // Solo transferencias salientes del usuario
+            if (userAccountNumbers.includes(trans.cuentaOrigen) && trans.cuentaDestino) {
+                const cuentaDestino = trans.cuentaDestino;
+                
+                if (!contactosMap.has(cuentaDestino)) {
+                    contactosMap.set(cuentaDestino, {
+                        cuenta: cuentaDestino,
+                        nombre: trans.clienteDestino || trans.descripcion || 'Contacto',
+                        cantidad: 0,
+                        ultimaFecha: new Date(trans.fecha)
+                    });
+                }
+                
+                const contacto = contactosMap.get(cuentaDestino);
+                contacto.cantidad++;
+                
+                // Actualizar con la fecha más reciente
+                const fechaTrans = new Date(trans.fecha);
+                if (fechaTrans > contacto.ultimaFecha) {
+                    contacto.ultimaFecha = fechaTrans;
+                    // Actualizar nombre con el cliente destino más reciente
+                    if (trans.clienteDestino) {
+                        contacto.nombre = trans.clienteDestino;
+                    }
+                }
+            }
+        });
+        
+        // Convertir a array y ordenar por frecuencia y recencia
+        const contactos = Array.from(contactosMap.values())
+            .sort((a, b) => {
+                // Primero por cantidad de transferencias
+                if (b.cantidad !== a.cantidad) {
+                    return b.cantidad - a.cantidad;
+                }
+                // Luego por fecha más reciente
+                return b.ultimaFecha - a.ultimaFecha;
+            })
+            .slice(0, 4); // Top 4 contactos más frecuentes
+        
+        // Mejorar nombres de contactos (remover "Transferencia a" si existe)
+        contactos.forEach(contacto => {
+            contacto.nombre = contacto.nombre
+                .replace(/^Transferencia (a|para) /i, '')
+                .replace(/^Pago (a|para) /i, '')
+                .trim();
+            
+            // Si el nombre queda vacío o es muy genérico, usar formato de cuenta
+            if (!contacto.nombre || contacto.nombre.toLowerCase() === 'contacto') {
+                contacto.nombre = `Cuenta ${contacto.cuenta.slice(-4)}`;
+            }
+        });
+        
+        displayContactosFrecuentes(contactos);
+        
+    } catch (error) {
+        console.error('Error al cargar contactos frecuentes:', error);
     }
 }
 
-function getContactosFrecuentes() {
-    try {
-        const stored = localStorage.getItem('contactos_frecuentes');
-        return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-        return [];
+function displayContactosFrecuentes(contactos) {
+    const contactsContainer = document.querySelector('.quick-contacts');
+    
+    if (!contactsContainer) return;
+    
+    if (!contactos || contactos.length === 0) {
+        contactsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; grid-column: 1/-1;">No hay contactos frecuentes aún</div>';
+        return;
     }
+    
+    contactsContainer.innerHTML = '';
+    contactos.forEach(contacto => {
+        const contactCard = createContactCard(contacto);
+        contactsContainer.appendChild(contactCard);
+    });
 }
 
 function createContactCard(contacto) {
@@ -807,30 +944,121 @@ function selectContact(accountNumber, name) {
     }
 }
 
-function setupLimitesTransferencia() {
-    // Simular carga de límites desde API
-    limitesTransferencia = {
-        diario: 5000,
-        usado_hoy: Math.random() * 1000 // Simular uso del día
-    };
-    
-    updateLimitInfo();
+async function setupLimitesTransferencia() {
+    try {
+        // Cargar transacciones del usuario para calcular uso
+        const user = authService.getCurrentUser();
+        if (!user) return;
+
+        const username = user.username || user.nombreUsuario;
+        const response = await fetch(`${authService.baseURL}/banco/transacciones/usuario?username=${encodeURIComponent(username)}&limit=100`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authService.getAuthToken()}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Error al cargar transacciones para límites');
+            return;
+        }
+
+        const transaccionesRaw = await response.json();
+        const transacciones = transaccionesRaw.map(normalizeTransaccionData);
+        
+        // Calcular uso basado en transacciones
+        const ahora = new Date();
+        const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+        const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+        
+        const userAccountNumbers = getUserAccountNumbers();
+        
+        let usoDiario = 0;
+        let usoSemanal = 0;
+        let usoMensual = 0;
+        
+        transacciones.forEach(trans => {
+            const fechaTrans = new Date(trans.fecha);
+            // Solo contar egresos (transferencias salientes)
+            if (userAccountNumbers.includes(trans.cuentaOrigen)) {
+                const monto = trans.monto;
+                
+                if (fechaTrans >= hoy) {
+                    usoDiario += monto;
+                }
+                if (fechaTrans >= inicioSemana) {
+                    usoSemanal += monto;
+                }
+                if (fechaTrans >= inicioMes) {
+                    usoMensual += monto;
+                }
+            }
+        });
+        
+        limitesTransferencia = {
+            diario: 5000,
+            usado_hoy: usoDiario,
+            semanal: 15000,
+            usado_semanal: usoSemanal,
+            mensual: 50000,
+            usado_mensual: usoMensual
+        };
+        
+        updateLimitInfo();
+    } catch (error) {
+        console.error('Error al configurar límites:', error);
+        // Fallback a valores por defecto
+        limitesTransferencia = {
+            diario: 5000,
+            usado_hoy: 0,
+            semanal: 15000,
+            usado_semanal: 0,
+            mensual: 50000,
+            usado_mensual: 0
+        };
+        updateLimitInfo();
+    }
 }
 
 function updateLimitInfo() {
-    const disponible = limitesTransferencia.diario - limitesTransferencia.usado_hoy;
-    const porcentajeUsado = (limitesTransferencia.usado_hoy / limitesTransferencia.diario) * 100;
+    // Actualizar todas las tarjetas de límites
+    const limitCards = document.querySelectorAll('.limit-card');
     
-    // Buscar tarjeta de límite diario y actualizar
-    const limitCard = document.querySelector('.limit-card');
-    if (limitCard) {
-        const limitValue = limitCard.querySelector('.limit-value');
-        const limitUsed = limitCard.querySelector('.limit-used');
-        const progressFill = limitCard.querySelector('.progress-fill');
+    if (limitCards.length >= 3) {
+        // Límite Diario
+        updateLimitCard(limitCards[0], limitesTransferencia.diario, limitesTransferencia.usado_hoy);
         
-        if (limitValue) limitValue.textContent = `$${formatMoney(limitesTransferencia.diario)}`;
-        if (limitUsed) limitUsed.textContent = `Usado: $${formatMoney(limitesTransferencia.usado_hoy)}`;
-        if (progressFill) progressFill.style.width = `${porcentajeUsado}%`;
+        // Límite Semanal
+        updateLimitCard(limitCards[1], limitesTransferencia.semanal, limitesTransferencia.usado_semanal);
+        
+        // Límite Mensual
+        updateLimitCard(limitCards[2], limitesTransferencia.mensual, limitesTransferencia.usado_mensual);
+    }
+}
+
+function updateLimitCard(card, limite, usado) {
+    const limitValue = card.querySelector('.limit-value');
+    const limitUsed = card.querySelector('.limit-used');
+    const progressFill = card.querySelector('.progress-fill');
+    
+    const porcentajeUsado = (usado / limite) * 100;
+    
+    if (limitValue) limitValue.textContent = `$${formatMoney(limite)}`;
+    if (limitUsed) limitUsed.textContent = `Usado: $${formatMoney(usado)}`;
+    if (progressFill) {
+        progressFill.style.width = `${Math.min(porcentajeUsado, 100)}%`;
+        
+        // Cambiar color según el porcentaje
+        if (porcentajeUsado >= 90) {
+            progressFill.style.backgroundColor = '#f44336'; // Rojo
+        } else if (porcentajeUsado >= 70) {
+            progressFill.style.backgroundColor = '#ff9800'; // Naranja
+        } else {
+            progressFill.style.backgroundColor = '#4CAF50'; // Verde
+        }
     }
 }
 
@@ -1027,7 +1255,8 @@ function displayTransferenciasRecientes(transferencias) {
     const userAccountNumbers = getUserAccountNumbers();
     transfersList.innerHTML = '';
     
-    transferencias.forEach(trans => {
+    transferencias.forEach(transRaw => {
+        const trans = normalizeTransaccionData(transRaw);
         const transferItem = createTransferItem(trans, userAccountNumbers);
         transfersList.appendChild(transferItem);
     });
@@ -1042,7 +1271,7 @@ function createTransferItem(trans, userAccountNumbers) {
     const amountClass = esIngreso ? 'positive' : 'negative';
     const signo = esIngreso ? '+' : '-';
     
-    const descripcion = trans.descripcion || trans.tipo_transaccion || 'Transferencia';
+    const descripcion = trans.descripcion || trans.tipoTransaccion || 'Transferencia';
     const fecha = formatearFechaTransfer(trans.fecha);
 
     div.innerHTML = `
@@ -1060,9 +1289,10 @@ function createTransferItem(trans, userAccountNumbers) {
 }
 
 function esIngresoParaCliente(trans, userAccountNumbers) {
-    if (userAccountNumbers.includes(trans.cuenta_destino)) return true;
-    if (userAccountNumbers.includes(trans.cuenta_origen)) return false;
-    return trans.tipo_transaccion === 'Ingreso' || trans.tipo_transaccion === 'Depósito';
+    if (userAccountNumbers.includes(trans.cuentaDestino)) return true;
+    if (userAccountNumbers.includes(trans.cuentaOrigen)) return false;
+    const tipo = (trans.tipoTransaccion || '').toLowerCase();
+    return tipo.includes('ingreso') || tipo.includes('depósito') || tipo.includes('deposito');
 }
 
 function getUserAccountNumbers() {
@@ -1071,12 +1301,12 @@ function getUserAccountNumbers() {
         if (clienteInfo) {
             const data = JSON.parse(clienteInfo);
             if (data.cuentas && Array.isArray(data.cuentas)) {
-                return data.cuentas.map(c => c.numeroCuenta);
+                return data.cuentas.map(c => normalizeCuentaData(c)).map(c => c.numeroCuenta).filter(Boolean);
             }
         }
         
         if (cuentasUsuario && cuentasUsuario.length > 0) {
-            return cuentasUsuario.map(c => c.numeroCuenta);
+            return cuentasUsuario.map(c => c.numeroCuenta).filter(Boolean);
         }
         
         return [];

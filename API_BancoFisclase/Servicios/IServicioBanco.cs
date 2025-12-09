@@ -55,6 +55,8 @@ namespace API_BancoFisclase.Servicios
         Task<bool> CrearCuentaBancariaAsync(object cuentaDto);
         Task<bool> BloquearDesbloquearUsuarioAsync(int usuarioId, bool bloquear);
         Task<bool> CrearUsuarioAdministradorAsync(object adminDto);
+        Task<(bool Success, string Message)> ActualizarSaldoCuentaAsync(string numeroCuenta, decimal nuevoSaldo, string motivo, int usuarioId);
+        Task<(bool Success, string Message)> EliminarClienteAsync(int clienteId, int usuarioIdAdmin);
 
         // Transferencias
         // Realiza una transferencia interna entre dos números de cuenta (ambas cuentas existen en el sistema)

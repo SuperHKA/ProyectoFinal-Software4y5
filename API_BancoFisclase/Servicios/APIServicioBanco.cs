@@ -118,34 +118,82 @@ namespace API_BancoFisclase.Servicios
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerEstadisticasGeneralesAsync()
         {
-            const string sql = @"SELECT (SELECT COUNT(*) FROM Cliente WHERE activo = 1) as total_clientes, (SELECT COUNT(*) FROM Cuenta WHERE activa = 1) as total_cuentas, (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 0) as usuarios_activos, (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 1) as usuarios_bloqueados, (SELECT ISNULL(SUM(saldo), 0) FROM Cuenta WHERE activa = 1) as saldo_total_sistema, (SELECT COUNT(*) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as transacciones_hoy, (SELECT ISNULL(SUM(monto), 0) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) as monto_total_hoy";
+            const string sql = @"SELECT (SELECT COUNT(*) FROM Cliente WHERE activo = 1) AS 'Total Clientes', (SELECT COUNT(*) FROM Cuenta WHERE activa = 1) AS 'Total Cuentas', (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 0) AS 'Usuarios Activos', (SELECT COUNT(*) FROM Usuario WHERE bloqueado = 1) AS 'Usuarios Bloqueados', (SELECT ISNULL(SUM(saldo), 0) FROM Cuenta WHERE activa = 1) AS 'Saldo Total Sistema', (SELECT COUNT(*) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) AS 'Transacciones Hoy', (SELECT ISNULL(SUM(monto), 0) FROM Transaccion WHERE CAST(fecha AS DATE) = CAST(GETDATE() AS DATE)) AS 'Monto Total Hoy'";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerMovimientosDelDiaAsync()
         {
+            // SELECT * desde la vista y dejar que devuelva los nombres originales
+            // La vista debería tener: cliente_id, cliente_nombre, cliente_email, transaccion_id, fecha,
+            // tipo_transaccion, monto, descripcion, cuenta_origen_id, cuenta_destino_id, monto_debito, monto_credito,
+            // estado_transaccion, usuario_transaccion
             const string sql = "SELECT * FROM vw_MovimientosDelDia";
-            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            var results = await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            
+            // Mapear a aliases descriptivos en el código
+            return results.Select(row => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
+                ["Nombre"] = row.ContainsKey("cliente_nombre") ? row["cliente_nombre"] : null,
+                ["Email"] = row.ContainsKey("cliente_email") ? row["cliente_email"] : null,
+                ["ID Transacción"] = row.ContainsKey("transaccion_id") ? row["transaccion_id"] : null,
+                ["Fecha"] = row.ContainsKey("fecha") ? row["fecha"] : null,
+                ["Tipo de Transacción"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
+                ["Monto"] = row.ContainsKey("monto") ? row["monto"] : null,
+                ["Descripción"] = row.ContainsKey("descripcion") ? row["descripcion"] : null,
+                ["Cuenta de Origen"] = row.ContainsKey("cuenta_origen_id") ? row["cuenta_origen_id"] : null,
+                ["Cuenta de Destino"] = row.ContainsKey("cuenta_destino_id") ? row["cuenta_destino_id"] : null,
+                ["Monto Débito"] = row.ContainsKey("monto_debito") ? row["monto_debito"] : null,
+                ["Monto Crédito"] = row.ContainsKey("monto_credito") ? row["monto_credito"] : null,
+                ["Estado de Transacción"] = row.ContainsKey("estado_transaccion") ? MapEstadoTransaccion(row["estado_transaccion"]?.ToString()) : null,
+                ["Usuario"] = row.ContainsKey("usuario_transaccion") ? row["usuario_transaccion"] : null
+            });
+        }
+        
+        private static string MapTipoTransaccion(string tipo)
+        {
+            return tipo switch
+            {
+                "TRANSFER_INTERNO" => "Transferencia entre cuentas del mismo cliente",
+                "TRANSFER_EXTERNO" => "Transferencia a cuentas de otros clientes",
+                "DEPOSITO" => "Depósito de efectivo",
+                "RETIRO" => "Retiro de efectivo",
+                "TRANSFERENCIA" => "Transferencia",
+                "PAGO" => "Pago",
+                _ => tipo
+            };
+        }
+        
+        private static string MapEstadoTransaccion(string estado)
+        {
+            return estado switch
+            {
+                "COMPLETADO" => "Transacción completada exitosamente",
+                "RECHAZADO" => "Transacción rechazada",
+                "PENDIENTE" => "Transacción pendiente de procesamiento",
+                _ => estado
+            };
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerClientesAsync()
         {
             const string sql = @"
                 SELECT 
-                    u.usuario_id AS UsuarioId, 
-                    ISNULL(u.cliente_id, 0) AS ClienteId, 
-                    u.username AS username, 
-                    c.nombre AS nombre_completo, 
-                    c.email, 
-                    c.telefono, 
-                    u.es_admin, 
-                    u.bloqueado,
-                    c.calle,
-                    c.numero,
-                    c.ciudad,
-                    c.estado_provincia,
-                    c.codigo_postal,
-                    c.pais
+                    u.usuario_id AS 'ID Usuario', 
+                    ISNULL(u.cliente_id, 0) AS 'ID Cliente', 
+                    u.username AS 'Usuario', 
+                    c.nombre AS 'Nombre Completo', 
+                    c.email AS 'Email', 
+                    c.telefono AS 'Teléfono', 
+                    u.es_admin AS 'Es Admin', 
+                    u.bloqueado AS 'Bloqueado',
+                    c.calle AS 'Calle',
+                    c.numero AS 'Número',
+                    c.ciudad AS 'Ciudad',
+                    c.estado_provincia AS 'Estado/Provincia',
+                    c.codigo_postal AS 'Código Postal',
+                    c.pais AS 'País'
                 FROM Usuario u 
                 LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id 
                 ORDER BY u.usuario_id";
@@ -154,37 +202,123 @@ namespace API_BancoFisclase.Servicios
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerTransaccionesRecientesAsync(int limit = 20)
         {
-            const string sqlTemplate = @"SELECT TOP(@limit) t.transaccion_id, t.fecha, tt.nombre AS tipo_transaccion, et.nombre AS estado, t.monto, t.descripcion FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id ORDER BY t.fecha DESC";
+            const string sqlTemplate = @"
+                SELECT TOP(@limit) 
+                    t.transaccion_id AS 'ID Transacción',
+                    t.fecha AS 'Fecha',
+                    CASE tt.nombre
+                        WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
+                        WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
+                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'RETIRO' THEN 'Retiro de efectivo'
+                        WHEN 'TRANSFERENCIA' THEN 'Transferencia'
+                        WHEN 'PAGO' THEN 'Pago'
+                        ELSE tt.nombre
+                    END AS 'Tipo Transacción',
+                    CASE et.nombre
+                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        ELSE et.nombre
+                    END AS 'Estado',
+                    t.monto AS 'Monto',
+                    t.descripcion AS 'Descripción'
+                FROM Transaccion t 
+                LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id 
+                LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
+                ORDER BY t.fecha DESC";
             return await ExecuteQueryAsync(sqlTemplate, ("@limit", limit)).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerAnalisisTransaccionesAsync()
         {
-            const string sql = "SELECT * FROM vw_AnalisisTransacciones";
-            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            const string sql = "SELECT * FROM vw_AnalisisTransacciones ORDER BY cantidad_transacciones DESC";
+            var results = await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            
+            return results.Select(row => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
+                ["Nombre del Cliente"] = row.ContainsKey("cliente_nombre") ? row["cliente_nombre"] : null,
+                ["Tipo de Transacción"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
+                ["Cantidad de Transacciones"] = row.ContainsKey("cantidad_transacciones") ? row["cantidad_transacciones"] : null,
+                ["Monto Total"] = row.ContainsKey("monto_total") ? row["monto_total"] : null,
+                ["Monto Promedio"] = row.ContainsKey("monto_promedio") ? row["monto_promedio"] : null,
+                ["Primera Transacción"] = row.ContainsKey("primera_transaccion") ? row["primera_transaccion"] : null,
+                ["Última Transacción"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
+                ["Estado Más Común"] = row.ContainsKey("estado_mas_comun") ? MapEstadoTransaccion(row["estado_mas_comun"]?.ToString()) : null
+            });
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerResumenClientesAsync()
         {
-            const string sql = "SELECT * FROM vw_ResumenCliente";
-            return await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            const string sql = "SELECT * FROM vw_ResumenCliente ORDER BY cliente_id";
+            var results = await ExecuteQueryAsync(sql).ConfigureAwait(false);
+            
+            return results.Select(row => new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
+                ["Nombre del Cliente"] = row.ContainsKey("nombre") ? row["nombre"] : null,
+                ["Email"] = row.ContainsKey("email") ? row["email"] : null,
+                ["Teléfono"] = row.ContainsKey("telefono") ? row["telefono"] : null,
+                ["Total de Cuentas"] = row.ContainsKey("total_cuentas") ? row["total_cuentas"] : null,
+                ["Cuentas Activas"] = row.ContainsKey("cuentas_activas") ? row["cuentas_activas"] : null,
+                ["Cuentas Inactivas"] = row.ContainsKey("cuentas_inactivas") ? row["cuentas_inactivas"] : null,
+                ["Saldo Total"] = row.ContainsKey("saldo_total") ? row["saldo_total"] : null,
+                ["Última Transacción"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
+                ["Usuarios Asociados"] = row.ContainsKey("usuarios_asociados") ? row["usuarios_asociados"] : null
+            });
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerUsuariosBloqueadosAsync()
         {
-            const string sql = @"SELECT u.usuario_id, u.username, u.intentos_fallidos, u.bloqueado, c.nombre as cliente_nombre FROM Usuario u LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id WHERE u.bloqueado = 1";
+            const string sql = @"SELECT u.usuario_id AS 'ID Usuario', u.username AS 'Usuario', u.intentos_fallidos AS 'Intentos Fallidos', u.bloqueado AS 'Bloqueado', c.nombre AS 'Nombre del Cliente' FROM Usuario u LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id WHERE u.bloqueado = 1";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerNotificacionesSistemaAsync()
         {
-            const string sql = @"SELECT notificacion_id, cliente_id, tipo, asunto, fecha_envio, estado FROM Notificacion ORDER BY fecha_envio DESC";
+            const string sql = @"
+                SELECT 
+                    notificacion_id AS 'ID Notificación',
+                    cliente_id AS 'ID Cliente',
+                    tipo AS 'Tipo',
+                    asunto AS 'Asunto',
+                    fecha_envio AS 'Fecha Envío',
+                    estado AS 'Estado'
+                FROM Notificacion 
+                ORDER BY fecha_envio DESC";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<IDictionary<string, object>>> ObtenerReporteTransaccionesPorFechaAsync(DateTime desde, DateTime hasta)
         {
-            const string sql = @"SELECT t.transaccion_id, tt.nombre AS tipo_transaccion, t.monto, et.nombre AS estado, t.descripcion, t.fecha, t.usuario_id FROM Transaccion t LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id WHERE t.fecha BETWEEN @desde AND @hasta ORDER BY t.fecha DESC";
+            const string sql = @"
+                SELECT 
+                    t.transaccion_id AS 'ID Transacción',
+                    CASE tt.nombre
+                        WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
+                        WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
+                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'RETIRO' THEN 'Retiro de efectivo'
+                        WHEN 'TRANSFERENCIA' THEN 'Transferencia'
+                        WHEN 'PAGO' THEN 'Pago'
+                        ELSE tt.nombre
+                    END AS 'Tipo Transacción',
+                    t.monto AS 'Monto',
+                    CASE et.nombre
+                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        ELSE et.nombre
+                    END AS 'Estado',
+                    t.descripcion AS 'Descripción',
+                    t.fecha AS 'Fecha',
+                    t.usuario_id AS 'ID Usuario'
+                FROM Transaccion t 
+                LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id 
+                LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
+                WHERE t.fecha BETWEEN @desde AND @hasta 
+                ORDER BY t.fecha DESC";
             return await ExecuteQueryAsync(sql, ("@desde", desde), ("@hasta", hasta)).ConfigureAwait(false);
         }
 
@@ -192,11 +326,17 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    c.cuenta_id AS cuentaId,
-                    c.numero_cuenta AS numeroCuenta,
-                    tc.nombre AS tipoCuenta,
-                    c.saldo,
-                    c.activa
+                    c.cuenta_id AS 'ID Cuenta',
+                    c.numero_cuenta AS 'Número de Cuenta',
+                    CASE tc.nombre
+                        WHEN 'AHORRO' THEN 'Cuenta de ahorros personal'
+                        WHEN 'CORRIENTE' THEN 'Cuenta corriente personal'
+                        WHEN 'CREDITO' THEN 'Tarjeta de crédito'
+                        WHEN 'DEBITO' THEN 'Tarjeta de débito'
+                        ELSE tc.nombre
+                    END AS 'Tipo de Cuenta',
+                    c.saldo AS 'Saldo',
+                    c.activa AS 'Activa'
                 FROM Cuenta c 
                 LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
                 WHERE c.cliente_id = @clienteId AND c.activa = 1 
@@ -208,18 +348,18 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    c.cliente_id AS clienteId,
-                    c.nombre AS nombreCompleto,
-                    c.email,
-                    c.telefono,
-                    c.calle,
-                    c.numero,
-                    c.ciudad,
-                    c.estado_provincia AS estadoProvincia,
-                    c.codigo_postal AS codigoPostal,
-                    c.pais,
-                    c.fecha_registro AS fechaRegistro,
-                    u.username
+                    c.cliente_id AS 'ID Cliente',
+                    c.nombre AS 'Nombre',
+                    c.email AS 'Email',
+                    c.telefono AS 'Teléfono',
+                    c.calle AS 'Calle',
+                    c.numero AS 'Número',
+                    c.ciudad AS 'Ciudad',
+                    c.estado_provincia AS 'Estado/Provincia',
+                    c.codigo_postal AS 'Código Postal',
+                    c.pais AS 'País',
+                    c.fecha_registro AS 'Fecha de Registro',
+                    u.username AS 'Nombre de Usuario'
                 FROM Cliente c
                 LEFT JOIN Usuario u ON c.cliente_id = u.cliente_id
                 WHERE c.cliente_id = @clienteId";
@@ -232,12 +372,12 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    notificacion_id AS notificacionId,
-                    tipo,
-                    asunto,
-                    contenido,
-                    fecha_envio AS fechaEnvio,
-                    estado
+                    notificacion_id AS 'ID Notificación',
+                    tipo AS 'Tipo',
+                    asunto AS 'Asunto',
+                    contenido AS 'Contenido',
+                    fecha_envio AS 'Fecha de Envío',
+                    estado AS 'Estado'
                 FROM Notificacion
                 WHERE cliente_id = @clienteId
                 AND fecha_envio >= DATEADD(DAY, -@dias, GETDATE())
@@ -251,19 +391,34 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT TOP(@limit) 
-                    t.transaccion_id, 
-                    t.fecha, 
-                    tt.nombre AS tipo_transaccion, 
-                    et.nombre AS estado, 
-                    t.monto, 
-                    t.descripcion,
-                    co.numero_cuenta AS cuenta_origen,
-                    cd.numero_cuenta AS cuenta_destino
+                    t.transaccion_id AS 'ID Transacción', 
+                    t.fecha AS 'Fecha', 
+                    CASE tt.nombre
+                        WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
+                        WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
+                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'RETIRO' THEN 'Retiro de efectivo'
+                        WHEN 'TRANSFERENCIA' THEN 'Transferencia'
+                        WHEN 'PAGO' THEN 'Pago'
+                        ELSE tt.nombre
+                    END AS 'Tipo Transacción', 
+                    CASE et.nombre
+                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        ELSE et.nombre
+                    END AS 'Estado', 
+                    t.monto AS 'Monto', 
+                    t.descripcion AS 'Descripción',
+                    co.numero_cuenta AS 'Cuenta Origen',
+                    cd.numero_cuenta AS 'Cuenta Destino',
+                    clienteDestino.nombre_completo AS 'Cliente Destino'
                 FROM Transaccion t 
-                LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id 
+                LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id
                 LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
                 LEFT JOIN Cuenta co ON t.cuenta_origen_id = co.cuenta_id
                 LEFT JOIN Cuenta cd ON t.cuenta_destino_id = cd.cuenta_id
+                LEFT JOIN Cliente clienteDestino ON cd.cliente_id = clienteDestino.cliente_id
                 WHERE (co.cliente_id = @clienteId OR cd.cliente_id = @clienteId)
                 ORDER BY t.fecha DESC";
             
@@ -492,7 +647,7 @@ namespace API_BancoFisclase.Servicios
             var tipo = GetString(root, "Tipo") ?? GetString(root, "tipo") ?? throw new ArgumentException("Tipo is required");
             var numero = GetString(root, "NumeroCuenta") ?? GetString(root, "numeroCuenta") ?? GetString(root, "Numero") ?? GetString(root, "numero") ?? throw new ArgumentException("NumeroCuenta is required");
             var saldoInicial = TryGetDouble(root, "SaldoInicial", out var temp) || TryGetDouble(root, "saldoInicial", out temp) ? temp : 0.0;
-            const string sql = @"INSERT INTO Cuenta (cliente_id, tipo_cuenta_id, numero_cuenta, saldo, activa) VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo), @numero, @saldo)";
+            const string sql = @"INSERT INTO Cuenta (cliente_id, tipo_cuenta_id, numero_cuenta, saldo, activa) VALUES (@clienteId, (SELECT tipo_cuenta_id FROM TipoCuenta WHERE nombre = @tipo), @numero, @saldo, 1)";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -505,6 +660,145 @@ namespace API_BancoFisclase.Servicios
                 var ok = rows > 0;
                 if (ok) { try { await LogAuditAsync("CrearCuenta", null, $"clienteId={clienteId},tipo={tipo},numero={numero},saldoInicial={saldoInicial}").ConfigureAwait(false); } catch { } }
                 return ok;
+            }
+        }
+
+        public async Task<(bool Success, string Message)> ActualizarSaldoCuentaAsync(string numeroCuenta, decimal nuevoSaldo, string motivo, int usuarioId)
+        {
+            if (string.IsNullOrEmpty(numeroCuenta)) throw new ArgumentNullException(nameof(numeroCuenta));
+            if (nuevoSaldo < 0) return (false, "El saldo no puede ser negativo");
+            if (string.IsNullOrEmpty(motivo)) throw new ArgumentNullException(nameof(motivo));
+
+            using (var conn = new SqlConnection(_cs))
+            {
+                await conn.OpenAsync().ConfigureAwait(false);
+                using (var tx = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Verificar que la cuenta existe
+                        const string sqlVerificar = @"SELECT cuenta_id, saldo FROM Cuenta WHERE numero_cuenta = @numeroCuenta";
+                        using (var cmdVerificar = new SqlCommand(sqlVerificar, conn, tx))
+                        {
+                            cmdVerificar.Parameters.AddWithValue("@numeroCuenta", numeroCuenta);
+                            using (var reader = await cmdVerificar.ExecuteReaderAsync().ConfigureAwait(false))
+                            {
+                                if (!await reader.ReadAsync().ConfigureAwait(false))
+                                {
+                                    return (false, $"La cuenta {numeroCuenta} no existe");
+                                }
+                                var cuentaId = reader.GetInt32(0);
+                                var saldoAnterior = reader.GetDecimal(1);
+                                await reader.CloseAsync().ConfigureAwait(false);
+
+                                // Actualizar el saldo
+                                const string sqlActualizar = @"UPDATE Cuenta SET saldo = @nuevoSaldo WHERE cuenta_id = @cuentaId";
+                                using (var cmdActualizar = new SqlCommand(sqlActualizar, conn, tx))
+                                {
+                                    cmdActualizar.Parameters.AddWithValue("@nuevoSaldo", nuevoSaldo);
+                                    cmdActualizar.Parameters.AddWithValue("@cuentaId", cuentaId);
+                                    await cmdActualizar.ExecuteNonQueryAsync().ConfigureAwait(false);
+                                }
+
+                                // Registrar transacción de ajuste
+                                decimal diferencia = nuevoSaldo - saldoAnterior;
+                                string tipoTransaccion = diferencia > 0 ? "Ajuste Positivo" : "Ajuste Negativo";
+                                string descripcion = $"{motivo} (Saldo anterior: {saldoAnterior:C}, Nuevo saldo: {nuevoSaldo:C})";
+
+                                const string sqlTransaccion = @"INSERT INTO Transaccion (cuenta_origen_id, monto, descripcion, tipo_transaccion_id, estado_transaccion_id, fecha, usuario_id) 
+                                    VALUES (@cuentaId, @monto, @descripcion, (SELECT tipo_transaccion_id FROM TipoTransaccion WHERE nombre = 'Ajuste'), 
+                                    (SELECT estado_transaccion_id FROM EstadoTransaccion WHERE nombre = 'Completado'), GETDATE(), @usuarioId)";
+                                using (var cmdTransaccion = new SqlCommand(sqlTransaccion, conn, tx))
+                                {
+                                    cmdTransaccion.Parameters.AddWithValue("@cuentaId", cuentaId);
+                                    cmdTransaccion.Parameters.AddWithValue("@monto", Math.Abs(diferencia));
+                                    cmdTransaccion.Parameters.AddWithValue("@descripcion", descripcion);
+                                    cmdTransaccion.Parameters.AddWithValue("@usuarioId", usuarioId);
+                                    await cmdTransaccion.ExecuteNonQueryAsync().ConfigureAwait(false);
+                                }
+                            }
+                        }
+
+                        tx.Commit();
+                        await LogAuditAsync("ActualizarSaldo", usuarioId, $"cuenta={numeroCuenta},nuevoSaldo={nuevoSaldo},motivo={motivo}").ConfigureAwait(false);
+                        return (true, "Saldo actualizado correctamente");
+                    }
+                    catch (Exception ex)
+                    {
+                        tx.Rollback();
+                        return (false, $"Error al actualizar saldo: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        public async Task<(bool Success, string Message)> EliminarClienteAsync(int clienteId, int usuarioIdAdmin)
+        {
+            using (var conn = new SqlConnection(_cs))
+            {
+                await conn.OpenAsync().ConfigureAwait(false);
+                using (var tx = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Verificar que el cliente existe
+                        const string sqlVerificar = @"SELECT COUNT(*) FROM Cliente WHERE cliente_id = @clienteId";
+                        using (var cmdVerificar = new SqlCommand(sqlVerificar, conn, tx))
+                        {
+                            cmdVerificar.Parameters.AddWithValue("@clienteId", clienteId);
+                            var existe = (int)await cmdVerificar.ExecuteScalarAsync().ConfigureAwait(false) > 0;
+                            if (!existe)
+                            {
+                                return (false, $"El cliente con ID {clienteId} no existe");
+                            }
+                        }
+
+                        // Verificar si el cliente tiene cuentas activas con saldo
+                        const string sqlCuentasActivas = @"SELECT COUNT(*) FROM Cuenta WHERE cliente_id = @clienteId AND activa = 1 AND saldo > 0";
+                        using (var cmdCuentas = new SqlCommand(sqlCuentasActivas, conn, tx))
+                        {
+                            cmdCuentas.Parameters.AddWithValue("@clienteId", clienteId);
+                            var cuentasConSaldo = (int)await cmdCuentas.ExecuteScalarAsync().ConfigureAwait(false);
+                            if (cuentasConSaldo > 0)
+                            {
+                                return (false, $"No se puede eliminar el cliente porque tiene {cuentasConSaldo} cuenta(s) activa(s) con saldo. Debe transferir o retirar los fondos primero.");
+                            }
+                        }
+
+                        // Desactivar todas las cuentas del cliente
+                        const string sqlDesactivarCuentas = @"UPDATE Cuenta SET activa = 0 WHERE cliente_id = @clienteId";
+                        using (var cmdDesactivarCuentas = new SqlCommand(sqlDesactivarCuentas, conn, tx))
+                        {
+                            cmdDesactivarCuentas.Parameters.AddWithValue("@clienteId", clienteId);
+                            await cmdDesactivarCuentas.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+
+                        // Desactivar el cliente (soft delete)
+                        const string sqlDesactivarCliente = @"UPDATE Cliente SET activo = 0 WHERE cliente_id = @clienteId";
+                        using (var cmdDesactivarCliente = new SqlCommand(sqlDesactivarCliente, conn, tx))
+                        {
+                            cmdDesactivarCliente.Parameters.AddWithValue("@clienteId", clienteId);
+                            await cmdDesactivarCliente.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+
+                        // Bloquear todos los usuarios asociados al cliente
+                        const string sqlBloquearUsuarios = @"UPDATE Usuario SET bloqueado = 1 WHERE cliente_id = @clienteId";
+                        using (var cmdBloquearUsuarios = new SqlCommand(sqlBloquearUsuarios, conn, tx))
+                        {
+                            cmdBloquearUsuarios.Parameters.AddWithValue("@clienteId", clienteId);
+                            await cmdBloquearUsuarios.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+
+                        tx.Commit();
+                        await LogAuditAsync("EliminarCliente", usuarioIdAdmin, $"clienteId={clienteId}").ConfigureAwait(false);
+                        return (true, "Cliente eliminado correctamente (desactivado)");
+                    }
+                    catch (Exception ex)
+                    {
+                        tx.Rollback();
+                        return (false, $"Error al eliminar cliente: {ex.Message}");
+                    }
+                }
             }
         }
 
@@ -578,20 +872,20 @@ namespace API_BancoFisclase.Servicios
             // Cambiar nombres de columnas para coincidir con el código C#
             var sql = $@"
                 SELECT 
-                    ISNULL(c.cliente_id, 0) AS ClienteId, 
-                    c.nombre AS nombre_completo, 
-                    c.email, 
-                    c.telefono, 
-                    ISNULL(u.usuario_id, 0) AS UsuarioId, 
-                    ISNULL(u.username, '') AS username, 
-                    ISNULL(u.es_admin, 0) AS es_admin, 
-                    ISNULL(u.bloqueado, 0) AS bloqueado,
-                    c.calle,
-                    c.numero,
-                    c.ciudad,
-                    c.estado_provincia,
-                    c.codigo_postal,
-                    c.pais
+                    ISNULL(c.cliente_id, 0) AS 'ID Cliente', 
+                    c.nombre AS 'Nombre', 
+                    c.email AS 'Email', 
+                    c.telefono AS 'Telefono', 
+                    ISNULL(u.usuario_id, 0) AS 'ID Usuario', 
+                    ISNULL(u.username, '') AS 'Usuario', 
+                    ISNULL(u.es_admin, 0) AS 'Es Admin', 
+                    ISNULL(u.bloqueado, 0) AS 'Bloqueado',
+                    c.calle AS 'Calle',
+                    c.numero AS 'Numero',
+                    c.ciudad AS 'Ciudad',
+                    c.estado_provincia AS 'Estado/Provincia',
+                    c.codigo_postal AS 'Código Postal',
+                    c.pais AS 'País'
                 FROM Cliente c 
                 LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id 
                 {where} 
@@ -685,12 +979,18 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    c.cuenta_id, 
-                    c.numero_cuenta, 
-                    tc.nombre AS tipo, 
-                    c.saldo, 
-                    cl.nombre AS nombre_cliente,
-                    c.cliente_id
+                    c.cuenta_id AS 'ID Cuenta', 
+                    c.numero_cuenta AS 'Número de Cuenta', 
+                    CASE tc.nombre
+                        WHEN 'AHORRO' THEN 'Cuenta de ahorros personal'
+                        WHEN 'CORRIENTE' THEN 'Cuenta corriente personal'
+                        WHEN 'CREDITO' THEN 'Tarjeta de crédito'
+                        WHEN 'DEBITO' THEN 'Tarjeta de débito'
+                        ELSE tc.nombre
+                    END AS 'Tipo de Cuenta', 
+                    c.saldo AS 'Saldo', 
+                    cl.nombre AS 'Nombre del Cliente',
+                    c.cliente_id AS 'ID Cliente'
                 FROM Cuenta c 
                 LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
                 LEFT JOIN Cliente cl ON c.cliente_id = cl.cliente_id
@@ -703,9 +1003,9 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT DISTINCT
-                    c.cliente_id,
-                    c.nombre AS nombre_cliente,
-                    c.email
+                    c.cliente_id AS 'ID Cliente',
+                    c.nombre AS 'Nombre Cliente',
+                    c.email AS 'Email'
                 FROM Cliente c
                 INNER JOIN Cuenta cu ON c.cliente_id = cu.cliente_id
                 WHERE c.activo = 1 AND cu.activa = 1
@@ -867,7 +1167,7 @@ namespace API_BancoFisclase.Servicios
         {
             try
             {
-                const string sql = "SELECT TOP(1) 1 as ok";
+                const string sql = "SELECT TOP(1) 1 AS ok";
                 await ExecuteQueryAsync(sql).ConfigureAwait(false);
                 return "OK";
             }

@@ -50,6 +50,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Iniciando carga de historial");
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: _clienteId={_clienteId}, _numeroCuenta={_numeroCuenta}");
+                
                 // Mostrar indicador de carga
                 dgvHistorialTransacciones.Enabled = false;
                 lblTituloHistorial.Text = "Cargando historial...";
@@ -58,15 +61,19 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 if (_clienteId > 0 && !string.IsNullOrEmpty(_numeroCuenta))
                 {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Cargando transacciones específicas de cuenta");
                     // Cargar transacciones específicas de la cuenta
                     await CargarTransaccionesPorCuentaAsync();
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Cargando transacciones generales");
                     // Cargar transacciones generales (para vista administrativa o cuando no hay cuenta específica)
                     await CargarTransaccionesGeneralesAsync();
                 }
 
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Mostrando {_transacciones.Count} transacciones en el grid");
+                
                 // Mostrar las transacciones en el grid
                 MostrarTransaccionesEnGrid();
                 
@@ -75,6 +82,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial StackTrace: {ex.StackTrace}");
+                
                 MessageBox.Show($"Error al cargar el historial: {ex.Message}", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 
@@ -99,20 +109,28 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Cargando transacciones para clienteId={_clienteId}, cuenta={_numeroCuenta}");
+                
                 // Preferir endpoint específico del cliente para obtener columnas cuenta_origen/cuenta_destino
                 var transCliente = await _apiCliente.ObtenerTransaccionesClienteAsync(_clienteId, 200).ConfigureAwait(false);
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Recibidas {transCliente.Count()} transacciones del API");
 
                 // Filtrar las transacciones que involucran esta cuenta específica
                 var transaccionesCuenta = transCliente.Where(t =>
                 {
-                    var cuentaOrigen = GetStringValue(t, "cuenta_origen");
-                    var cuentaDestino = GetStringValue(t, "cuenta_destino");
+                    var cuentaOrigen = GetStringValue(t, "Cuenta Origen");
+                    var cuentaDestino = GetStringValue(t, "Cuenta Destino");
                     var numeroTransferencia = GetStringValue(t, "numero_cuenta");
+
+                    System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Transacción - Origen={cuentaOrigen}, Destino={cuentaDestino}, NumCuenta={numeroTransferencia}");
 
                     return cuentaOrigen == _numeroCuenta ||
                            cuentaDestino == _numeroCuenta ||
                            numeroTransferencia == _numeroCuenta;
                 }).ToList();
+
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Filtradas {transaccionesCuenta.Count} transacciones para cuenta {_numeroCuenta}");
 
                 // Convertir a nuestro modelo local
                 foreach (var transaccion in transaccionesCuenta)
@@ -124,19 +142,20 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine($"DEBUG: Cargadas {_transacciones.Count} transacciones para cuenta {_numeroCuenta}");
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial: Total {_transacciones.Count} transacciones añadidas a la lista");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error cargando transacciones por cuenta (endpoint cliente): {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial cargando transacciones por cuenta (endpoint cliente): {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial StackTrace: {ex.StackTrace}");
                 // Fallback a método anterior si falla el endpoint específico
                 try
                 {
                     var todasTransacciones = await _apiCliente.ObtenerTransaccionesAsync().ConfigureAwait(false);
                     var transaccionesCuenta = todasTransacciones.Where(t =>
                     {
-                        var cuentaOrigen = GetStringValue(t, "cuenta_origen");
-                        var cuentaDestino = GetStringValue(t, "cuenta_destino");
+                        var cuentaOrigen = GetStringValue(t, "Cuenta Origen");
+                        var cuentaDestino = GetStringValue(t, "Cuenta Destino");
                         var numeroTransferencia = GetStringValue(t, "numero_cuenta");
 
                         return cuentaOrigen == _numeroCuenta ||
@@ -155,7 +174,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
                 catch (Exception ex2)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error en fallback transacciones por cuenta: {ex2.Message}");
+                    System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial en fallback transacciones por cuenta: {ex2.Message}");
                     throw;
                 }
             }
@@ -259,22 +278,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                var fecha = DateTime.TryParse(GetStringValue(transaccion, "fecha"), out var fechaParsed) 
+                var fecha = DateTime.TryParse(GetStringValue(transaccion, "Fecha") ?? GetStringValue(transaccion, "fecha"), out var fechaParsed) 
                     ? fechaParsed : DateTime.Now;
 
-                var monto = decimal.TryParse(GetStringValue(transaccion, "monto"), out var montoParsed) 
+                var monto = decimal.TryParse(GetStringValue(transaccion, "Monto") ?? GetStringValue(transaccion, "monto"), out var montoParsed) 
                     ? montoParsed : 0m;
 
-                var tipo = GetStringValue(transaccion, "tipo_transaccion") ?? "Transacción";
-                var descripcion = GetStringValue(transaccion, "descripcion") ?? "";
-                var estado = GetStringValue(transaccion, "estado") ?? "Completada";
+                var tipo = GetStringValue(transaccion, "Tipo Transacción") ?? GetStringValue(transaccion, "tipo_transaccion") ?? "Transacción";
+                var descripcion = GetStringValue(transaccion, "Descripción") ?? GetStringValue(transaccion, "descripcion") ?? "";
+                var estado = GetStringValue(transaccion, "Estado") ?? GetStringValue(transaccion, "estado") ?? "Completada";
                 
-                var transaccionId = int.TryParse(GetStringValue(transaccion, "transaccion_id"), out var idParsed) 
+                var transaccionId = int.TryParse(GetStringValue(transaccion, "ID Transacción") ?? GetStringValue(transaccion, "transaccion_id"), out var idParsed) 
                     ? idParsed : 0;
 
                 // Determinar si es entrada o salida basándose en las cuentas involucradas
-                var cuentaOrigen = GetStringValue(transaccion, "cuenta_origen");
-                var cuentaDestino = GetStringValue(transaccion, "cuenta_destino");
+                var cuentaOrigen = GetStringValue(transaccion, "Cuenta Origen") ?? GetStringValue(transaccion, "cuenta_origen");
+                var cuentaDestino = GetStringValue(transaccion, "Cuenta Destino") ?? GetStringValue(transaccion, "cuenta_destino");
                 
                 if (!string.IsNullOrEmpty(_numeroCuenta))
                 {
@@ -319,8 +338,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial MostrarTransaccionesEnGrid: Mostrando {_transacciones.Count} transacciones");
+                
                 // Limpiar filas existentes
                 dgvHistorialTransacciones.Rows.Clear();
+
+                if (_transacciones.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial MostrarTransaccionesEnGrid: No hay transacciones para mostrar");
+                    MessageBox.Show("No hay transacciones para mostrar en esta cuenta.", 
+                        "Sin transacciones", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
                 // Ordenar por fecha descendente (más recientes primero)
                 var transaccionesOrdenadas = _transacciones.OrderByDescending(t => t.Fecha).ToList();
@@ -360,9 +389,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         fila.DefaultCellStyle.BackColor = Color.LightPink;
                     }
                 }
+                
+                System.Diagnostics.Debug.WriteLine($"DEBUG VerHistorial MostrarTransaccionesEnGrid: Se agregaron {dgvHistorialTransacciones.Rows.Count} filas al grid");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR VerHistorial MostrarTransaccionesEnGrid: {ex.Message}");
                 MessageBox.Show($"Error al mostrar transacciones: {ex.Message}", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

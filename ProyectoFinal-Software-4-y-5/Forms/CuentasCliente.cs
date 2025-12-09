@@ -49,26 +49,20 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                 foreach (var cuenta in cuentas)
                 {
-                    var numeroCuenta = cuenta.ContainsKey("numeroCuenta") 
-                        ? cuenta["numeroCuenta"]?.ToString() 
-                        : cuenta.ContainsKey("numero_cuenta") 
-                            ? cuenta["numero_cuenta"]?.ToString() 
-                            : "N/A";
+                    var numeroCuenta = cuenta.ContainsKey("Número de Cuenta") 
+                        ? cuenta["Número de Cuenta"]?.ToString() 
+                        : "N/A";
 
-                    var tipoCuenta = cuenta.ContainsKey("tipoCuenta") 
-                        ? cuenta["tipoCuenta"]?.ToString() 
-                        : cuenta.ContainsKey("tipo_cuenta") 
-                            ? cuenta["tipo_cuenta"]?.ToString() 
-                            : cuenta.ContainsKey("tipo")
-                                ? cuenta["tipo"]?.ToString()
-                                : "N/A";
+                    var tipoCuenta = cuenta.ContainsKey("Tipo de Cuenta") 
+                        ? cuenta["Tipo de Cuenta"]?.ToString() 
+                        : "N/A";
 
-                    var saldo = cuenta.ContainsKey("saldo") 
-                        ? Convert.ToDecimal(cuenta["saldo"]) 
+                    var saldo = cuenta.ContainsKey("Saldo") 
+                        ? Convert.ToDecimal(cuenta["Saldo"]) 
                         : 0m;
 
-                    var estado = cuenta.ContainsKey("activa") 
-                        ? (Convert.ToBoolean(cuenta["activa"]) ? "Activa" : "Inactiva")
+                    var estado = cuenta.ContainsKey("Activa") 
+                        ? (Convert.ToBoolean(cuenta["Activa"]) ? "Activa" : "Inactiva")
                         : "Activa";
 
                     dt.Rows.Add(

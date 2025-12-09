@@ -29,10 +29,59 @@ let currentFilters = {
     orden: 'desc'
 };
 
+// Normalizar datos del cliente desde la API
+function normalizeClienteData(cliente) {
+    if (!cliente) return null;
+    
+    return {
+        clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
+        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
+        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        email: cliente['Email'] || cliente.email,
+        telefono: cliente['Teléfono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        numeroCuenta: cliente['Número de Cuenta'] || cliente.numeroCuenta || cliente.numero_cuenta,
+        ...cliente
+    };
+}
+
+// Normalizar datos de cuenta desde la API
+function normalizeCuentaData(cuenta) {
+    if (!cuenta) return null;
+    
+    return {
+        cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
+        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
+        saldo: cuenta['Saldo'] || cuenta.saldo || 0,
+        activa: cuenta['Activa'] !== false && cuenta.activa !== false,
+        ...cuenta
+    };
+}
+
+// Normalizar datos de transacción desde la API
+function normalizeTransaccionData(transaccion) {
+    if (!transaccion) return null;
+    
+    return {
+        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        fecha: transaccion['Fecha'] || transaccion.fecha,
+        tipo: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
+        estado: transaccion['Estado'] || transaccion.estado,
+        monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
+        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuentaOrigen || transaccion.cuenta_origen,
+        cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuentaDestino || transaccion.cuenta_destino,
+        clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
+        ...transaccion
+    };
+}
+
 async function updateUserInfo() {
     try {
         const data = await authService.getClienteInfo();
-        const cliente = data.cliente || data;
+        const clienteRaw = data.cliente || data;
+        const cliente = normalizeClienteData(clienteRaw);
         const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || 
                           (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
@@ -48,12 +97,14 @@ async function updateUserInfo() {
         const avatar = document.querySelector('.user-avatar');
         if (avatar && cliente) {
             const fullName = cliente.nombreCompleto || cliente.nombre || displayName;
-            const initials = fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+            const initials = fullName ? fullName.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() : 'U';
             avatar.textContent = initials;
         }
 
         // Actualizar información de la cuenta
-        updateAccountCard(cliente, data.cuentas);
+        const cuentasRaw = data.cuentas || [];
+        const cuentas = Array.isArray(cuentasRaw) ? cuentasRaw.map(normalizeCuentaData) : [];
+        updateAccountCard(cliente, cuentas);
         
     } catch (error) {
         console.warn('No se pudo obtener información del usuario:', error);
@@ -70,7 +121,7 @@ function updateAccountCard(cliente, cuentas) {
     
     if (accountNumberEl && cuentas && cuentas.length > 0) {
         const primaryAccount = cuentas[0];
-        accountNumberEl.textContent = primaryAccount.numeroCuenta;
+        accountNumberEl.textContent = primaryAccount.numeroCuenta || '';
     }
 }
 
@@ -126,7 +177,8 @@ async function loadTransactionsData() {
 
         if (response.ok) {
             const data = await response.json();
-            const transacciones = Array.isArray(data) ? data : (data.items || data);
+            const transaccionesRaw = Array.isArray(data) ? data : (data.items || data);
+            const transacciones = transaccionesRaw.map(normalizeTransaccionData);
             
             // Aplicar filtros locales si existen
             let filteredTransactions = applyLocalFilters(transacciones);
@@ -189,7 +241,7 @@ function applyLocalFilters(transacciones) {
     // Filtrar por tipo
     if (currentFilters.tipoTransaccion && currentFilters.tipoTransaccion !== 'todos') {
         filtered = filtered.filter(t => {
-            const tipo = (t.tipo_transaccion || t.tipo || '').toLowerCase();
+            const tipo = (t.tipo || '').toLowerCase();
             return tipo.includes(currentFilters.tipoTransaccion.toLowerCase());
         });
     }
@@ -198,8 +250,8 @@ function applyLocalFilters(transacciones) {
     if (currentFilters.searchTerm) {
         const searchLower = currentFilters.searchTerm.toLowerCase();
         filtered = filtered.filter(t => {
-            const descripcion = (t.descripcion || '').toLowerCase();
-            const tipo = (t.tipo_transaccion || t.tipo || '').toLowerCase();
+            const descripcion = (t['Descripción'] || t.descripcion || '').toLowerCase();
+            const tipo = (t['Tipo de Transacción'] || t['Tipo Transacción'] || t.tipo_transaccion || t.tipo || '').toLowerCase();
             return descripcion.includes(searchLower) || tipo.includes(searchLower);
         });
     }
@@ -244,11 +296,11 @@ function displayTransactions(transactions) {
             }
             
             row.innerHTML = `
-                <td>${formatDate(trans.fecha)}</td>
+                <td>${formatDate(trans.fecha || trans.Fecha)}</td>
                 <td>
                     <div class="transaction-description">
-                        <span class="description-text">${trans.descripcion || trans.tipo_transaccion}</span>
-                        <span class="transaction-type">${trans.tipo_transaccion || 'Transacción'}</span>
+                        <span class="description-text">${trans['Descripción'] || trans.descripcion || trans['Tipo de Transacción'] || trans.tipo_transaccion}</span>
+                        <span class="transaction-type">${trans['Tipo de Transacción'] || trans.tipo_transaccion || 'Transacción'}</span>
                     </div>
                 </td>
                 <td class="${isIngreso ? 'monto-positivo' : 'monto-negativo'}">
@@ -275,8 +327,8 @@ function displayTransactions(transactions) {
             
             item.innerHTML = `
                 <div class="transaccion-info">
-                    <div class="merchant">${trans.descripcion || trans.tipo_transaccion}</div>
-                    <div class="fecha">${formatDate(trans.fecha)}</div>
+                    <div class="merchant">${trans['Descripción'] || trans.descripcion || trans['Tipo de Transacción'] || trans.tipo_transaccion}</div>
+                    <div class="fecha">${formatDate(trans.fecha || trans.Fecha)}</div>
                 </div>
                 <div class="monto ${isIngreso ? 'positivo' : 'negativo'}">
                     ${isIngreso ? '+' : '-'}$${formatMoney(monto)}
