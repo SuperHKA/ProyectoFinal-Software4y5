@@ -40,11 +40,12 @@
             <ul class="sidebar-menu">
                 <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
                 <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
-                <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
-                <li><a href="transferencias.html" class="transfers-link"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+                <li><a href="notificaciones.html"><i class="fas fa-bell"></i> Notificaciones</a></li>
+                <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
+                <li><a href="transferencias.html" class="active"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+                <li><a href="cuentas.html"><i class="fas fa-university"></i> Mis Cuentas</a></li>
                 <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
-                <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
             </ul>
         </aside>
 
@@ -327,49 +328,7 @@
         </main>
     </div>
 
-    <!-- Modal de Confirmación -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Confirmar Transferencia</h3>
-                <button class="close-modal" onclick="closeConfirmationModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="confirmation-details">
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">De:</span>
-                        <span class="confirmation-value" id="modalFrom"></span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">Para:</span>
-                        <span class="confirmation-value" id="modalTo"></span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">Monto:</span>
-                        <span class="confirmation-value" id="modalAmount"></span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">Descripción:</span>
-                        <span class="confirmation-value" id="modalDescription"></span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">Comisión:</span>
-                        <span class="confirmation-value">$0.50</span>
-                    </div>
-                    <div class="confirmation-item">
-                        <span class="confirmation-label">Total:</span>
-                        <span class="confirmation-value" id="modalTotal"></span>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="closeConfirmationModal()">Cancelar</button>
-                    <button type="button" class="btn-primary" onclick="confirmTransfer()">
-                        <i class="fas fa-check"></i> Confirmar Transferencia
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <footer>
         <div class="link_footer">
@@ -383,6 +342,5 @@
         </div>
     </footer>
 
-    <script src="../js/transferencias.js"></script>
 </body>
 </html>

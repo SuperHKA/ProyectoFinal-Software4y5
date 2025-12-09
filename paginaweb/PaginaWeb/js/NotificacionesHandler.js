@@ -1,18 +1,18 @@
 // Manejador de notificaciones del cliente
 document.addEventListener('DOMContentLoaded', async function() {
-    // Verificar autenticación
+    // Verificar autenticaciï¿½n
     if (!authService.isLoggedIn()) {
         window.location.href = 'Login.html';
         return;
     }
 
-    // Actualizar información del usuario en el header
+    // Actualizar informaciï¿½n del usuario en el header
     await updateUserInfo();
 
     // Cargar notificaciones del cliente
     await loadNotificaciones();
 
-    // Configurar actualización periódica
+    // Configurar actualizaciï¿½n periï¿½dica
     setupPeriodicUpdate();
 });
 
@@ -35,7 +35,7 @@ async function updateUserInfo() {
             avatar.textContent = initials;
         }
     } catch (error) {
-        console.warn('No se pudo obtener información del usuario:', error);
+        console.warn('No se pudo obtener informaciï¿½n del usuario:', error);
     }
 }
 
@@ -44,33 +44,151 @@ async function loadNotificaciones() {
         showLoading(true);
 
         const user = authService.getCurrentUser();
-        if (!user || !user.clienteId) {
-            throw new Error('No se pudo obtener el ID del cliente');
+        if (!user) {
+            throw new Error('No se pudo obtener informaciÃ³n del usuario');
         }
+
+        // Obtener informaciÃ³n del cliente
+        const clienteInfo = await authService.getClienteInfo();
+        const clienteId = clienteInfo.cliente?.clienteId || clienteInfo.clienteId || user.clienteId;
+        
+        if (!clienteId) {
+            console.warn('No se pudo obtener el clienteId, usando transacciones');
+            await loadNotificacionesFromTransacciones();
+            return;
+        }
+
+        console.log('ðŸ“Œ Cargando notificaciones para clienteId:', clienteId);
 
         // Obtener notificaciones del cliente desde la API
         const response = await fetch(
-            `http://localhost:5202/api/banco/notificaciones-cliente?clienteId=${user.clienteId}&dias=30`,
+            `${authService.baseURL}/banco/clientes/${clienteId}/notificaciones?dias=30`,
             {
                 headers: {
-                    'Authorization': `Bearer ${authService.getAuthToken()}`
+                    'Authorization': `Bearer ${authService.getAuthToken()}`,
+                    'Content-Type': 'application/json'
                 }
             }
         );
 
         if (response.ok) {
             const notificaciones = await response.json();
-            displayNotificaciones(notificaciones);
+            console.log('âœ… Notificaciones cargadas:', notificaciones);
+            
+            // Si no hay notificaciones de la BD, generar desde transacciones
+            if (!notificaciones || notificaciones.length === 0) {
+                console.log('ðŸ“Œ No hay notificaciones en BD, generando desde transacciones...');
+                await loadNotificacionesFromTransacciones();
+            } else {
+                displayNotificaciones(notificaciones);
+            }
         } else {
             console.error('Error al obtener notificaciones:', response.statusText);
-            displayFallbackNotificaciones();
+            await loadNotificacionesFromTransacciones();
         }
     } catch (error) {
         console.error('Error loading notificaciones:', error);
-        displayFallbackNotificaciones();
+        await loadNotificacionesFromTransacciones();
     } finally {
         showLoading(false);
     }
+}
+
+// Nueva funciÃ³n para generar notificaciones desde transacciones
+async function loadNotificacionesFromTransacciones() {
+    try {
+        const user = authService.getCurrentUser();
+        if (!user) return;
+
+        const username = user.username || user.nombreUsuario;
+        
+        // Obtener transacciones recientes
+        const response = await fetch(
+            `${authService.baseURL}/banco/transacciones/usuario?username=${encodeURIComponent(username)}&limit=10`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${authService.getAuthToken()}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            console.error('Error al obtener transacciones');
+            displayFallbackNotificaciones();
+            return;
+        }
+
+        const transacciones = await response.json();
+        console.log('âœ… Transacciones obtenidas para notificaciones:', transacciones);
+        
+        // Convertir transacciones a notificaciones
+        const notificaciones = transacciones.map((trans, index) => {
+            const esIngreso = determinarSiEsIngreso(trans);
+            const monto = trans.monto || 0;
+            const fecha = trans.fecha || trans.fechaTransaccion;
+            
+            // Determinar tipo segÃºn contexto
+            let tipo;
+            let asunto;
+            let contenido;
+            
+            if (esIngreso) {
+                // Ingresos = Verde (Ã‰xito)
+                tipo = 'ConfirmaciÃ³n';
+                asunto = 'Ingreso Recibido';
+                contenido = `Has recibido $${monto.toFixed(2)}. ${trans.descripcion || trans.tipo_transaccion || ''}`;
+            } else {
+                // Egresos - verificar si puede causar problemas
+                const saldoActual = trans.saldoActual || trans.saldo_actual || 0;
+                const esCritico = saldoActual < 100 || monto > saldoActual * 0.5;
+                
+                if (esCritico) {
+                    // Saldo bajo o transferencia grande = Rojo (Alerta)
+                    tipo = 'Alerta';
+                    asunto = 'Transferencia Importante';
+                    contenido = `Has enviado $${monto.toFixed(2)}. ${saldoActual < 100 ? 'Saldo bajo.' : 'Monto significativo.'} ${trans.descripcion || trans.tipo_transaccion || ''}`;
+                } else {
+                    // Transferencia normal = Amarillo (InformaciÃ³n)
+                    tipo = 'InformaciÃ³n';
+                    asunto = 'Transferencia Realizada';
+                    contenido = `Has enviado $${monto.toFixed(2)}. ${trans.descripcion || trans.tipo_transaccion || ''}`;
+                }
+            }
+            
+            return {
+                notificacionId: index + 1,
+                tipo: tipo,
+                asunto: asunto,
+                contenido: contenido,
+                fechaEnvio: fecha,
+                estado: index < 3 ? 'No leÃ­da' : 'LeÃ­da' // Marcar las 3 mÃ¡s recientes como no leÃ­das
+            };
+        });
+
+        displayNotificaciones(notificaciones);
+        
+    } catch (error) {
+        console.error('Error generando notificaciones desde transacciones:', error);
+        displayFallbackNotificaciones();
+    }
+}
+
+// FunciÃ³n auxiliar para determinar si es ingreso
+function determinarSiEsIngreso(trans) {
+    const user = authService.getCurrentUser();
+    const clienteInfo = JSON.parse(sessionStorage.getItem('clienteInfo') || '{}');
+    const cuentasUsuario = clienteInfo.cuentas || [];
+    const numerosCuenta = cuentasUsuario.map(c => c.numeroCuenta || c.numero_cuenta);
+    
+    const cuentaDestino = trans.cuenta_destino || trans.cuentaDestino;
+    
+    // Si la cuenta destino es del usuario, es un ingreso
+    if (cuentaDestino && numerosCuenta.includes(cuentaDestino)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function displayNotificaciones(notificaciones) {
@@ -84,7 +202,7 @@ function displayNotificaciones(notificaciones) {
                     <i class="fas fa-bell-slash"></i>
                 </div>
                 <h3>No tienes notificaciones</h3>
-                <p>Todas tus notificaciones aparecerán aquí</p>
+                <p>Todas tus notificaciones aparecerï¿½n aquï¿½</p>
             </div>
         `;
         return;
@@ -97,14 +215,14 @@ function displayNotificaciones(notificaciones) {
         container.appendChild(notificacionElement);
     });
 
-    // Actualizar el badge de notificaciones en el menú
+    // Actualizar el badge de notificaciones en el menï¿½
     updateNotificationBadge(getUnreadCount(notificaciones));
 }
 
 function createNotificacionElement(notificacion) {
     const div = document.createElement('div');
     const typeClass = getNotificacionTypeClass(notificacion.tipo);
-    const isRead = notificacion.estado === 'Leída' || notificacion.estado === 'leida';
+    const isRead = notificacion.estado === 'Leï¿½da' || notificacion.estado === 'leida';
     
     div.className = `notificacion ${typeClass} ${isRead ? 'read' : 'unread'}`;
     div.setAttribute('data-id', notificacion.notificacionId);
@@ -122,7 +240,7 @@ function createNotificacionElement(notificacion) {
                 <span class="notificacion-fecha">${fechaFormatted}</span>
             </div>
             <div class="notificacion-actions">
-                ${!isRead ? `<button class="mark-read-btn" onclick="markAsRead(${notificacion.notificacionId})" title="Marcar como leída">
+                ${!isRead ? `<button class="mark-read-btn" onclick="markAsRead(${notificacion.notificacionId})" title="Marcar como leï¿½da">
                     <i class="fas fa-check"></i>
                 </button>` : ''}
                 <button class="delete-notif-btn" onclick="deleteNotificacion(${notificacion.notificacionId})" title="Eliminar">
@@ -151,7 +269,7 @@ function createNotificacionElement(notificacion) {
             content.style.maxHeight = content.scrollHeight + 'px';
         }
         
-        // Marcar como leída automáticamente al hacer clic
+        // Marcar como leï¿½da automï¿½ticamente al hacer clic
         if (!isRead) {
             markAsRead(notificacion.notificacionId);
         }
@@ -162,24 +280,30 @@ function createNotificacionElement(notificacion) {
 
 function getNotificacionTypeClass(tipo) {
     const typeMap = {
-        'Alerta': 'notificacion1', // Rojo - Alertas importantes
-        'Información': 'notificacion2', // Amarillo - Información general  
-        'Confirmación': 'notificacion3', // Verde - Confirmaciones
-        'Transaccion': 'notificacion3', // Verde - Transacciones
-        'Seguridad': 'notificacion1', // Rojo - Seguridad
-        'Promocion': 'notificacion2' // Amarillo - Promociones
+        'Alerta': 'notificacion2', // Rojo - Alertas, deudas, problemas crÃ­ticos
+        'InformaciÃ³n': 'notificacion1', // Amarillo - InformaciÃ³n general, pendientes
+        'ConfirmaciÃ³n': 'notificacion3', // Verde - Confirmaciones, Ã©xitos, ingresos
+        'Transaccion': 'notificacion3', // Verde - Transacciones exitosas
+        'Seguridad': 'notificacion2', // Rojo - Seguridad crÃ­tica
+        'Promocion': 'notificacion1', // Amarillo - Promociones informativas
+        'Deuda': 'notificacion2', // Rojo - Deudas
+        'Pendiente': 'notificacion1', // Amarillo - Acciones pendientes
+        'Exito': 'notificacion3' // Verde - Operaciones exitosas
     };
-    return typeMap[tipo] || 'notificacion2';
+    return typeMap[tipo] || 'notificacion1';
 }
 
 function getNotificacionIcon(tipo) {
     const iconMap = {
         'Alerta': 'fas fa-exclamation-triangle',
-        'Información': 'fas fa-info-circle',
-        'Confirmación': 'fas fa-check-circle',
+        'InformaciÃ³n': 'fas fa-info-circle',
+        'ConfirmaciÃ³n': 'fas fa-check-circle',
         'Transaccion': 'fas fa-exchange-alt',
         'Seguridad': 'fas fa-shield-alt',
-        'Promocion': 'fas fa-gift'
+        'Promocion': 'fas fa-gift',
+        'Deuda': 'fas fa-exclamation-circle',
+        'Pendiente': 'fas fa-clock',
+        'Exito': 'fas fa-check-double'
     };
     return iconMap[tipo] || 'fas fa-bell';
 }
@@ -195,7 +319,7 @@ function formatFecha(fechaString) {
     if (diffDays === 1) {
         return 'Ayer';
     } else if (diffDays < 7) {
-        return `Hace ${diffDays} días`;
+        return `Hace ${diffDays} dï¿½as`;
     } else {
         return fecha.toLocaleDateString('es-ES', {
             day: '2-digit',
@@ -207,11 +331,11 @@ function formatFecha(fechaString) {
 
 function getUnreadCount(notificaciones) {
     if (!notificaciones) return 0;
-    return notificaciones.filter(n => n.estado !== 'Leída' && n.estado !== 'leida').length;
+    return notificaciones.filter(n => n.estado !== 'Leï¿½da' && n.estado !== 'leida').length;
 }
 
 function updateNotificationBadge(count) {
-    // Buscar el enlace de notificaciones en el menú
+    // Buscar el enlace de notificaciones en el menï¿½
     const notifLink = document.querySelector('a[href*="notificaciones"]');
     if (!notifLink) return;
     
@@ -221,7 +345,7 @@ function updateNotificationBadge(count) {
         existingBadge.remove();
     }
     
-    // Agregar nuevo badge si hay notificaciones no leídas
+    // Agregar nuevo badge si hay notificaciones no leï¿½das
     if (count > 0) {
         const badge = document.createElement('span');
         badge.className = 'notification-badge';
@@ -232,7 +356,7 @@ function updateNotificationBadge(count) {
 
 async function markAsRead(notificacionId) {
     try {
-        // Por ahora simulamos la actualización (la API no tiene endpoint específico)
+        // Por ahora simulamos la actualizaciï¿½n (la API no tiene endpoint especï¿½fico)
         const notifElement = document.querySelector(`[data-id="${notificacionId}"]`);
         if (notifElement) {
             notifElement.classList.remove('unread');
@@ -259,12 +383,12 @@ async function markAsRead(notificacionId) {
 }
 
 async function deleteNotificacion(notificacionId) {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
+    if (!confirm('ï¿½Estï¿½s seguro de que deseas eliminar esta notificaciï¿½n?')) {
         return;
     }
     
     try {
-        // Por ahora solo removemos del DOM (la API no tiene endpoint de eliminación)
+        // Por ahora solo removemos del DOM (la API no tiene endpoint de eliminaciï¿½n)
         const notifElement = document.querySelector(`[data-id="${notificacionId}"]`);
         if (notifElement) {
             notifElement.style.animation = 'slideOut 0.3s ease-in-out';
@@ -285,40 +409,24 @@ async function deleteNotificacion(notificacionId) {
         
     } catch (error) {
         console.error('Error deleting notification:', error);
-        alert('Error al eliminar la notificación');
+        alert('Error al eliminar la notificaciï¿½n');
     }
 }
 
 function displayFallbackNotificaciones() {
-    // Mostrar notificaciones de ejemplo si la API falla
-    const notificacionesEjemplo = [
-        {
-            notificacionId: 1,
-            tipo: 'Confirmación',
-            asunto: 'Transferencia Exitosa',
-            contenido: 'Tu transferencia de $250.00 a María González ha sido procesada exitosamente.',
-            fechaEnvio: new Date().toISOString(),
-            estado: 'No leída'
-        },
-        {
-            notificacionId: 2,
-            tipo: 'Información',
-            asunto: 'Estado de Cuenta Disponible',
-            contenido: 'Tu estado de cuenta del mes de octubre ya está disponible para descarga.',
-            fechaEnvio: new Date(Date.now() - 86400000).toISOString(),
-            estado: 'No leída'
-        },
-        {
-            notificacionId: 3,
-            tipo: 'Alerta',
-            asunto: 'Saldo Bajo',
-            contenido: 'Tu cuenta corriente tiene un saldo de $50.00. Considera realizar un depósito.',
-            fechaEnvio: new Date(Date.now() - 172800000).toISOString(),
-            estado: 'Leída'
-        }
-    ];
+    // Mostrar mensaje de que no hay notificaciones disponibles
+    const container = document.querySelector('.notificaciones-container');
+    if (!container) return;
     
-    displayNotificaciones(notificacionesEjemplo);
+    container.innerHTML = `
+        <div class="no-notificaciones">
+            <div class="no-data-icon">
+                <i class="fas fa-bell-slash"></i>
+            </div>
+            <h3>No hay notificaciones disponibles</h3>
+            <p>Cuando realices transacciones, aparecerÃ¡n notificaciones aquÃ­</p>
+        </div>
+    `;
 }
 
 function setupPeriodicUpdate() {
@@ -346,7 +454,7 @@ function showLoading(show) {
     }
 }
 
-// Función para marcar todas como leídas
+// Funciï¿½n para marcar todas como leï¿½das
 function markAllAsRead() {
     const unreadNotifications = document.querySelectorAll('.notificacion.unread');
     unreadNotifications.forEach(notif => {
@@ -355,9 +463,9 @@ function markAllAsRead() {
     });
 }
 
-// Función para limpiar todas las notificaciones leídas
+// Funciï¿½n para limpiar todas las notificaciones leï¿½das
 function clearReadNotifications() {
-    if (!confirm('¿Estás seguro de que deseas eliminar todas las notificaciones leídas?')) {
+    if (!confirm('ï¿½Estï¿½s seguro de que deseas eliminar todas las notificaciones leï¿½das?')) {
         return;
     }
     

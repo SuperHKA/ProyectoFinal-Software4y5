@@ -43,10 +43,10 @@
             <h3>Menú Principal</h3>
             <ul class="sidebar-menu">
                 <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
-                <li><a href="dashboard.html" class="dash-link"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
-                <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
-                <li><a href="transferencias.html" class="transfers-link"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+                <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="notificaciones.html"><i class="fas fa-bell"></i> Notificaciones</a></li>
+                <li><a href="transacciones.html"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
+                <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
                 <li><a href="cuentas.html"><i class="fas fa-university"></i> Mis Cuentas</a></li>
                 <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
                 <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
@@ -62,7 +62,7 @@
             <section class="accounts-section">
                 <div class="section-header">
                     <h2><i class="fas fa-wallet"></i> Mis Cuentas</h2>
-                    <button class="btn-primary">
+                    <button class="btn-primary" onclick="window.location.href='cuentas.html'">
                         <i class="fas fa-plus"></i>
                         Abrir Nueva Cuenta
                     </button>

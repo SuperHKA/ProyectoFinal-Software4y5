@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Pre-seleccionar cuenta si viene de otra página
     checkPreselectedAccount();
+    
+    // Cargar transferencias recientes
+    await loadTransferenciasRecientes();
 });
 
 let cuentasUsuario = [];
@@ -33,9 +36,12 @@ async function loadCuentasUsuario() {
             selectOrigen.innerHTML = '<option value="">Selecciona una cuenta</option>';
             cuentasUsuario.forEach(cuenta => {
                 const option = document.createElement('option');
-                option.value = cuenta.numeroCuenta;
+                const cuentaId = cuenta.cuentaId || cuenta.cuenta_id || cuenta.cuentaID;
+                option.value = cuentaId; // Usar el ID, no el número
                 option.textContent = `${cuenta.tipoCuenta} - ${cuenta.numeroCuenta} ($${formatMoney(cuenta.saldo)})`;
                 option.dataset.saldo = cuenta.saldo;
+                option.dataset.numeroCuenta = cuenta.numeroCuenta;
+                option.dataset.cuentaId = cuentaId;
                 selectOrigen.appendChild(option);
             });
         }
@@ -89,8 +95,10 @@ function setupTransferForm() {
     // Configurar eventos de pasos del formulario
     setupFormSteps();
     
-    // Manejar envío del formulario
-    form.addEventListener('submit', handleTransferSubmit);
+    // Prevenir envío del formulario (lo manejaremos con el botón confirmar)
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
 }
 
 function setupExternalTransfers() {
@@ -229,7 +237,10 @@ function validateTransferAmount(amount) {
     }
     
     // Obtener saldo de la cuenta seleccionada
-    const selectedAccount = cuentasUsuario.find(c => c.numeroCuenta === fromAccount);
+    const selectedAccount = cuentasUsuario.find(c => {
+        const id = c.cuentaId || c.cuenta_id || c.cuentaID;
+        return id == fromAccount;
+    });
     if (selectedAccount && amountValue > selectedAccount.saldo) {
         showAmountValidation('Saldo insuficiente', 'error');
         amountInput.classList.add('invalid');
@@ -341,55 +352,77 @@ function showAccountValidation(message, type) {
     validationMessage.className = `account-validation ${type}`;
 }
 
-async function handleTransferSubmit(e) {
-    e.preventDefault();
-
-    const formData = getFormData();
-    if (!validateFormData(formData)) {
-        return;
-    }
-
+// Buscar el ID de una cuenta por su número (igual que en transacciones.js)
+async function buscarCuentaIdPorNumero(numeroCuenta) {
     try {
-        showLoading(true);
-        
-        // Determinar si es transferencia interna o externa
-        const isExternal = formData.transferType === 'other-bank' || formData.transferType === 'international';
-        
-        let result;
-        if (isExternal) {
-            result = await realizarTransferenciaExterna(formData);
-        } else {
-            result = await realizarTransferenciaInterna(formData);
+        const token = authService.getAuthToken();
+        console.log('📌 Buscando cuenta con número:', numeroCuenta);
+
+        const response = await fetch(`${authService.baseURL}/banco/cuentas`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al buscar cuenta de destino');
         }
 
-        if (result.success) {
-            showTransferSuccess(result);
-            resetForm();
-            
-            // Actualizar límites
-            limitesTransferencia.usado_hoy += parseFloat(formData.amount);
-            updateLimitInfo();
-        } else {
-            showError(result.message);
+        const todasLasCuentas = await response.json();
+        console.log('📌 Total de cuentas en el sistema:', todasLasCuentas.length);
+
+        const cuentaEncontrada = todasLasCuentas.find(c =>
+            (c.numeroCuenta || c.numero_cuenta || c.numero) === numeroCuenta
+        );
+
+        if (cuentaEncontrada) {
+            const cuentaId = cuentaEncontrada.cuentaId || cuentaEncontrada.cuenta_id || cuentaEncontrada.cuentaID;
+            console.log('✅ Cuenta destino encontrada:', { cuentaId, numero: numeroCuenta });
+            return cuentaId;
         }
-        
+
+        console.log('❌ Cuenta destino NO encontrada con número:', numeroCuenta);
+        return null;
+
     } catch (error) {
-        console.error('Transfer error:', error);
-        showError('Error al realizar la transferencia');
-    } finally {
-        showLoading(false);
+        console.error('❌ Error al buscar cuenta:', error);
+        return null;
     }
 }
 
 async function realizarTransferenciaInterna(formData) {
     try {
+        const user = authService.getCurrentUser();
+        if (!user) {
+            throw new Error('Usuario no autenticado');
+        }
+
+        console.log('🔍 Buscando cuenta de destino...');
+        const cuentaDestinoId = await buscarCuentaIdPorNumero(formData.toAccount);
+        
+        if (!cuentaDestinoId) {
+            return {
+                success: false,
+                message: 'La cuenta de destino no existe o no está activa',
+                data: null
+            };
+        }
+
+        console.log('✅ Cuenta destino encontrada ID:', cuentaDestinoId);
+
         const transferData = {
-            numeroCuentaOrigen: formData.fromAccount,
-            numeroCuentaDestino: formData.toAccount,
+            cuentaOrigen: formData.fromAccount.toString(),
+            cuentaDestino: cuentaDestinoId.toString(),
             monto: parseFloat(formData.amount),
             descripcion: formData.description,
-            username: authService.getCurrentUser()?.username
+            usuarioId: user.id || user.clienteId,
+            username: user.username
         };
+
+        console.log('🌐 Enviando transferencia interna a API:', transferData);
+        console.log('🔗 URL:', `${authService.baseURL}/banco/transfer/internal`);
 
         const response = await fetch(`${authService.baseURL}/banco/transfer/internal`, {
             method: 'POST',
@@ -400,28 +433,50 @@ async function realizarTransferenciaInterna(formData) {
             body: JSON.stringify(transferData),
         });
 
-        const data = await response.json();
+        console.log('📦 Status de respuesta:', response.status, response.statusText);
+        
+        let data;
+        try {
+            data = await response.json();
+            console.log('📥 Respuesta de la API:', data);
+        } catch (jsonError) {
+            console.error('❌ Error parseando JSON:', jsonError);
+            data = { message: 'Error al procesar la respuesta del servidor' };
+        }
+        
+        console.log('✅ response.ok:', response.ok);
         
         return {
             success: response.ok,
-            message: data.message || 'Transferencia realizada exitosamente',
+            message: data.message || (response.ok ? 'Transferencia realizada exitosamente' : 'Error en la transferencia'),
             data: data
         };
         
     } catch (error) {
-        throw error;
+        console.error('❌ Error en realizarTransferenciaInterna:', error);
+        return {
+            success: false,
+            message: error.message || 'Error de conexión con el servidor',
+            data: null
+        };
     }
 }
 
 async function realizarTransferenciaExterna(formData) {
     try {
+        const user = authService.getCurrentUser();
+        if (!user) {
+            throw new Error('Usuario no autenticado');
+        }
+
         const transferData = {
-            numeroCuentaOrigen: formData.fromAccount,
-            numeroCuentaDestino: formData.toAccount,
+            cuentaOrigen: formData.fromAccount.toString(),
+            cuentaDestino: formData.toAccount.toString(),
             monto: parseFloat(formData.amount),
             descripcion: formData.description,
             tipoTransferencia: formData.transferType,
-            username: authService.getCurrentUser()?.username
+            usuarioId: user.id || user.clienteId,
+            username: user.username
         };
 
         const response = await fetch(`${authService.baseURL}/banco/transfer/external`, {
@@ -502,22 +557,86 @@ function validateFormData(formData) {
     return true;
 }
 
+function validateCurrentStep(stepNumber) {
+    if (stepNumber === 1) {
+        const fromAccount = document.getElementById('fromAccount').value;
+        const toAccount = document.getElementById('toAccount').value;
+        const amount = document.getElementById('amount').value;
+        const transferType = document.getElementById('transferType').value;
+        
+        if (!fromAccount) {
+            showError('Selecciona una cuenta de origen');
+            return false;
+        }
+        
+        if (!toAccount) {
+            showError('Ingresa la cuenta de destino');
+            return false;
+        }
+        
+        if (!transferType) {
+            showError('Selecciona el tipo de transferencia');
+            return false;
+        }
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            showError('Ingresa un monto válido');
+            return false;
+        }
+        
+        const selectedAccount = cuentasUsuario.find(c => {
+            const id = c.cuentaId || c.cuenta_id || c.cuentaID;
+            return id == fromAccount;
+        });
+        if (selectedAccount && parseFloat(amount) > selectedAccount.saldo) {
+            showError(`Saldo insuficiente. Disponible: $${formatMoney(selectedAccount.saldo)}`);
+            return false;
+        }
+        
+        if (transferType === 'same-bank' && fromAccount === toAccount) {
+            showError('Las cuentas de origen y destino deben ser diferentes');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    if (stepNumber === 2) {
+        const description = document.getElementById('description').value;
+        if (!description || description.trim() === '') {
+            showError('Ingresa una descripción');
+            return false;
+        }
+        return true;
+    }
+    
+    return true;
+}
+
 function setupFormSteps() {
     // Configurar navegación entre pasos del formulario
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     
+    console.log('🔧 Configurando eventos de formulario...');
+    console.log('  nextBtn:', nextBtn);
+    console.log('  prevBtn:', prevBtn);
+    console.log('  confirmBtn:', confirmBtn);
+    
     if (nextBtn) {
         nextBtn.addEventListener('click', goToNextStep);
+        console.log('✅ Evento click agregado a nextBtn');
     }
     
     if (prevBtn) {
         prevBtn.addEventListener('click', goToPrevStep);
+        console.log('✅ Evento click agregado a prevBtn');
     }
     
     if (confirmBtn) {
         confirmBtn.addEventListener('click', confirmTransfer);
+        console.log('✅ Evento click agregado a confirmBtn');
     }
 }
 
@@ -526,13 +645,16 @@ function goToNextStep() {
     const currentStep = document.querySelector('.form-step.active');
     const stepNumber = parseInt(currentStep.id.replace('step', ''));
     
-    if (validateCurrentStep(stepNumber)) {
-        showStep(stepNumber + 1);
-        
-        if (stepNumber + 1 === 3) {
-            populateConfirmationData();
-        }
+    if (!validateCurrentStep(stepNumber)) {
+        return;
     }
+    
+    // Si estamos en el paso 2, antes de ir al paso 3 llenar el resumen
+    if (stepNumber === 2) {
+        populateConfirmationData();
+    }
+    
+    showStep(stepNumber + 1);
 }
 
 function goToPrevStep() {
@@ -567,7 +689,7 @@ function updateNavigationButtons(stepNumber) {
     }
     
     if (nextBtn) {
-        nextBtn.style.display = stepNumber < 3 ? 'block' : 'none';
+        nextBtn.style.display = (stepNumber === 1 || stepNumber === 2) ? 'block' : 'none';
     }
     
     if (confirmBtn) {
@@ -724,8 +846,11 @@ function checkPreselectedAccount() {
     }
 }
 
-function updateAvailableBalance(accountNumber) {
-    const account = cuentasUsuario.find(c => c.numeroCuenta === accountNumber);
+function updateAvailableBalance(cuentaId) {
+    const account = cuentasUsuario.find(c => {
+        const id = c.cuentaId || c.cuenta_id || c.cuentaID;
+        return id == cuentaId;
+    });
     
     // Mostrar saldo disponible
     let balanceInfo = document.querySelector('.balance-info');
@@ -778,13 +903,16 @@ function showSuccess(message) {
 }
 
 function showTransferSuccess(result) {
-    const message = `Transferencia realizada exitosamente.\n\nReferencia: ${result.data?.transaccionId || 'N/A'}`;
-    showSuccess(message);
+    console.log('🎉 Mostrando mensaje de éxito y redirigiendo...');
+    const message = `¡Transferencia realizada exitosamente!\n\nLa transferencia se ha procesado correctamente.\nPuedes ver el detalle en tu historial de transacciones.`;
+    alert(message);
     
-    // Redirigir al dashboard después de un delay
+    // Redirigir a transacciones después de un momento
+    console.log('⏱️ Redirigiendo a transacciones.html en 1.5 segundos...');
     setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 2000);
+        console.log('🔄 Redirigiendo ahora...');
+        window.location.href = 'transacciones.html';
+    }, 1500);
 }
 
 function resetForm() {
@@ -804,9 +932,181 @@ function resetForm() {
     }
 }
 
-function confirmTransfer() {
-    // Enviar formulario cuando se confirme en el paso 3
-    document.getElementById('transferForm').dispatchEvent(new Event('submit'));
+async function confirmTransfer() {
+    console.log('🔵 confirmTransfer() llamada');
+    
+    // Ejecutar la transferencia cuando se confirme en el paso 3
+    const formData = getFormData();
+    console.log('📋 Datos del formulario:', formData);
+    
+    // Validación final
+    if (!validateFormData(formData)) {
+        console.log('❌ Validación falló');
+        return;
+    }
+
+    console.log('✅ Validación exitosa, ejecutando transferencia...');
+    try {
+        showLoading(true);
+        
+        // Determinar si es transferencia interna o externa
+        const isExternal = formData.transferType === 'other-bank' || formData.transferType === 'international';
+        
+        let result;
+        if (isExternal) {
+            result = await realizarTransferenciaExterna(formData);
+        } else {
+            result = await realizarTransferenciaInterna(formData);
+        }
+
+        if (result.success) {
+            console.log('✅ Transferencia exitosa!');
+            showTransferSuccess(result);
+            
+            // Actualizar límites
+            limitesTransferencia.usado_hoy += parseFloat(formData.amount);
+            updateLimitInfo();
+            
+            // Recargar cuentas y transferencias recientes
+            console.log('🔄 Recargando cuentas y transferencias...');
+            await loadCuentasUsuario();
+            await loadTransferenciasRecientes();
+            
+            // Resetear formulario y volver al paso 1
+            resetForm();
+        } else {
+            console.log('❌ Transferencia falló:', result.message);
+            showError(result.message || 'Error al realizar la transferencia');
+        }
+        
+    } catch (error) {
+        console.error('Transfer error:', error);
+        showError('Error al realizar la transferencia. Por favor, intenta de nuevo.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Cargar transferencias recientes
+async function loadTransferenciasRecientes() {
+    try {
+        const user = authService.getCurrentUser();
+        if (!user) return;
+
+        const username = user.username || user.nombreUsuario;
+        const response = await fetch(`${authService.baseURL}/banco/transacciones/usuario?username=${encodeURIComponent(username)}&limit=3`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authService.getAuthToken()}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Error al cargar transferencias:', response.status);
+            return;
+        }
+
+        const transferencias = await response.json();
+        console.log('✅ Transferencias recientes cargadas:', transferencias);
+        displayTransferenciasRecientes(transferencias);
+    } catch (error) {
+        console.error('Error al cargar transferencias:', error);
+    }
+}
+
+function displayTransferenciasRecientes(transferencias) {
+    const transfersList = document.querySelector('.transfers-list');
+    if (!transfersList) return;
+
+    if (!transferencias || transferencias.length === 0) {
+        transfersList.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No hay transferencias recientes</div>';
+        return;
+    }
+
+    const userAccountNumbers = getUserAccountNumbers();
+    transfersList.innerHTML = '';
+    
+    transferencias.forEach(trans => {
+        const transferItem = createTransferItem(trans, userAccountNumbers);
+        transfersList.appendChild(transferItem);
+    });
+}
+
+function createTransferItem(trans, userAccountNumbers) {
+    const div = document.createElement('div');
+    div.className = 'transfer-item';
+    
+    const esIngreso = esIngresoParaCliente(trans, userAccountNumbers);
+    const icon = esIngreso ? 'arrow-down' : 'arrow-up';
+    const amountClass = esIngreso ? 'positive' : 'negative';
+    const signo = esIngreso ? '+' : '-';
+    
+    const descripcion = trans.descripcion || trans.tipo_transaccion || 'Transferencia';
+    const fecha = formatearFechaTransfer(trans.fecha);
+
+    div.innerHTML = `
+        <div class="transfer-icon">
+            <i class="fas fa-${icon}"></i>
+        </div>
+        <div class="transfer-details">
+            <span class="transfer-description">${descripcion}</span>
+            <span class="transfer-date">${fecha}</span>
+        </div>
+        <div class="transfer-amount ${amountClass}">${signo}$${formatMoney(trans.monto)}</div>
+    `;
+
+    return div;
+}
+
+function esIngresoParaCliente(trans, userAccountNumbers) {
+    if (userAccountNumbers.includes(trans.cuenta_destino)) return true;
+    if (userAccountNumbers.includes(trans.cuenta_origen)) return false;
+    return trans.tipo_transaccion === 'Ingreso' || trans.tipo_transaccion === 'Depósito';
+}
+
+function getUserAccountNumbers() {
+    try {
+        const clienteInfo = sessionStorage.getItem('clienteInfo');
+        if (clienteInfo) {
+            const data = JSON.parse(clienteInfo);
+            if (data.cuentas && Array.isArray(data.cuentas)) {
+                return data.cuentas.map(c => c.numeroCuenta);
+            }
+        }
+        
+        if (cuentasUsuario && cuentasUsuario.length > 0) {
+            return cuentasUsuario.map(c => c.numeroCuenta);
+        }
+        
+        return [];
+    } catch (error) {
+        console.error('Error obteniendo números de cuenta:', error);
+        return [];
+    }
+}
+
+function formatearFechaTransfer(fecha) {
+    if (!fecha) return 'Fecha no disponible';
+    
+    const date = new Date(fecha);
+    const hoy = new Date();
+    const ayer = new Date(hoy);
+    ayer.setDate(ayer.getDate() - 1);
+    
+    hoy.setHours(0, 0, 0, 0);
+    ayer.setHours(0, 0, 0, 0);
+    const fechaDate = new Date(date);
+    fechaDate.setHours(0, 0, 0, 0);
+    
+    const hora = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    
+    if (fechaDate.getTime() === hoy.getTime()) return `Hoy, ${hora}`;
+    if (fechaDate.getTime() === ayer.getTime()) return `Ayer, ${hora}`;
+    
+    const dia = date.getDate();
+    const mes = date.toLocaleString('es-ES', { month: 'short' });
+    return `${dia} ${mes}, ${hora}`;
 }
 
 // Eventos globales necesarios para el HTML existente

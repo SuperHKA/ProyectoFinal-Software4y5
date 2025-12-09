@@ -313,6 +313,7 @@ a {
 }
 
 /* Estados de notificación por tipo */
+/* AMARILLO - Información general y pendientes */
 .notificacion1 {
     background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
     border-left: 4px solid #fdcb6e;
@@ -323,6 +324,7 @@ a {
     color: white;
 }
 
+/* ROJO - Alertas, deudas y problemas críticos */
 .notificacion2 {
     background: linear-gradient(135deg, #f8d7da 0%, #fab1a0 100%);
     border-left: 4px solid #e17055;
@@ -333,6 +335,7 @@ a {
     color: white;
 }
 
+/* VERDE - Éxitos, confirmaciones e ingresos */
 .notificacion3 {
     background: linear-gradient(135deg, #d4edda 0%, #81ecec 100%);
     border-left: 4px solid #00b894;

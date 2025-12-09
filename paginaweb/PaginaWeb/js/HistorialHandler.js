@@ -36,6 +36,9 @@ async function updateUserInfo() {
         const displayName = (cliente && (cliente.nombreCompleto || cliente.nombre || cliente.username)) || 
                           (authService.getCurrentUser() && authService.getCurrentUser().username) || 'Usuario';
 
+        // Guardar info del cliente en sessionStorage para usarla después
+        sessionStorage.setItem('clienteInfo', JSON.stringify(data));
+
         // Actualizar header de usuario
         const userNameElements = document.querySelectorAll('.user-info span');
         userNameElements.forEach(el => {
@@ -75,6 +78,15 @@ async function loadInitialData() {
     try {
         showLoading(true);
 
+        // Verificar si hay un filtro de cuenta desde sessionStorage
+        const filterAccount = sessionStorage.getItem('filterAccount');
+        if (filterAccount) {
+            currentFilters.searchTerm = filterAccount;
+            const searchInput = document.getElementById('searchTransactions');
+            if (searchInput) searchInput.value = filterAccount;
+            sessionStorage.removeItem('filterAccount'); // Limpiar después de usar
+        }
+
         // Cargar transacciones del cliente
         await loadTransactionsData();
         
@@ -95,29 +107,16 @@ async function loadInitialData() {
 async function loadTransactionsData() {
     try {
         const user = authService.getCurrentUser();
-        if (!user || !user.clienteId) {
-            throw new Error('Cliente ID no disponible');
+        if (!user || !user.username) {
+            throw new Error('Usuario no disponible');
         }
 
         // Construir parámetros de consulta
-        const queryParams = new URLSearchParams({
-            page: currentPage,
-            pageSize: pageSize
-        });
+        const limit = currentPage * pageSize;
 
-        // Agregar filtros si están definidos
-        if (currentFilters.fechaDesde) {
-            queryParams.append('desde', currentFilters.fechaDesde);
-        }
-        if (currentFilters.fechaHasta) {
-            queryParams.append('hasta', currentFilters.fechaHasta);
-        }
-        if (currentFilters.searchTerm) {
-            queryParams.append('q', currentFilters.searchTerm);
-        }
-
+        // Usar endpoint específico del cliente
         const response = await fetch(
-            `http://localhost:5202/api/banco/transacciones-cliente?clienteId=${user.clienteId}&${queryParams}`,
+            `http://localhost:5202/api/banco/transacciones/usuario?username=${encodeURIComponent(user.username)}&limit=${limit}`,
             {
                 headers: {
                     'Authorization': `Bearer ${authService.getAuthToken()}`
@@ -127,15 +126,25 @@ async function loadTransactionsData() {
 
         if (response.ok) {
             const data = await response.json();
-            displayTransactions(data.items || data);
-            updatePagination(data.total || data.length);
+            const transacciones = Array.isArray(data) ? data : (data.items || data);
+            
+            // Aplicar filtros locales si existen
+            let filteredTransactions = applyLocalFilters(transacciones);
+            
+            // Tomar solo la página actual
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageTransactions = filteredTransactions.slice(startIndex, endIndex);
+            
+            displayTransactions(pageTransactions);
+            updatePagination(filteredTransactions.length);
         } else {
-            // Fallback a endpoint general si el específico no existe
-            await loadFallbackTransactions();
+            console.warn('Failed to load transactions');
+            displayTransactions([]);
         }
     } catch (error) {
         console.error('Error loading transactions:', error);
-        await loadFallbackTransactions();
+        displayTransactions([]);
     }
 }
 
@@ -160,6 +169,42 @@ async function loadFallbackTransactions() {
     } catch (error) {
         displayFallbackTransactions();
     }
+}
+
+function applyLocalFilters(transacciones) {
+    let filtered = [...transacciones];
+    
+    // Filtrar por fechas
+    if (currentFilters.fechaDesde) {
+        const desde = new Date(currentFilters.fechaDesde);
+        filtered = filtered.filter(t => new Date(t.fecha) >= desde);
+    }
+    
+    if (currentFilters.fechaHasta) {
+        const hasta = new Date(currentFilters.fechaHasta);
+        hasta.setHours(23, 59, 59, 999); // Incluir todo el día
+        filtered = filtered.filter(t => new Date(t.fecha) <= hasta);
+    }
+    
+    // Filtrar por tipo
+    if (currentFilters.tipoTransaccion && currentFilters.tipoTransaccion !== 'todos') {
+        filtered = filtered.filter(t => {
+            const tipo = (t.tipo_transaccion || t.tipo || '').toLowerCase();
+            return tipo.includes(currentFilters.tipoTransaccion.toLowerCase());
+        });
+    }
+    
+    // Filtrar por búsqueda de texto
+    if (currentFilters.searchTerm) {
+        const searchLower = currentFilters.searchTerm.toLowerCase();
+        filtered = filtered.filter(t => {
+            const descripcion = (t.descripcion || '').toLowerCase();
+            const tipo = (t.tipo_transaccion || t.tipo || '').toLowerCase();
+            return descripcion.includes(searchLower) || tipo.includes(searchLower);
+        });
+    }
+    
+    return filtered;
 }
 
 function displayTransactions(transactions) {
@@ -246,7 +291,7 @@ function displayTransactions(transactions) {
 async function loadMonthlyStats() {
     try {
         const user = authService.getCurrentUser();
-        if (!user) return;
+        if (!user || !user.username) return;
 
         // Obtener estadísticas del mes actual
         const now = new Date();
@@ -261,9 +306,9 @@ async function loadMonthlyStats() {
         const saldoTotal = cuentas.reduce((sum, cuenta) => sum + (parseFloat(cuenta.saldo) || 0), 0);
         const saldoDisponible = saldoTotal * 0.8; // Simular 80% disponible
 
-        // Cargar transacciones del mes para estadísticas
+        // Cargar transacciones del mes para estadísticas usando endpoint del cliente
         const response = await fetch(
-            `http://localhost:5202/api/banco/transacciones-recientes?page=1&pageSize=1000`,
+            `http://localhost:5202/api/banco/transacciones/usuario?username=${encodeURIComponent(user.username)}&limit=1000`,
             {
                 headers: {
                     'Authorization': `Bearer ${authService.getAuthToken()}`
@@ -273,16 +318,19 @@ async function loadMonthlyStats() {
 
         if (response.ok) {
             const data = await response.json();
-            const transacciones = data.items || data;
+            const transacciones = Array.isArray(data) ? data : (data.items || data);
             
             const statsDelMes = calculateMonthlyStats(transacciones, firstDay, lastDay);
             updateStatsDisplay(saldoTotal, saldoDisponible, statsDelMes);
+        } else {
+            // Mostrar estadísticas por defecto
+            updateStatsDisplay(saldoTotal, saldoDisponible, { ingresos: 0, egresos: 0, transacciones: 0 });
         }
         
     } catch (error) {
         console.error('Error loading monthly stats:', error);
         // Mostrar estadísticas por defecto
-        updateStatsDisplay(1500, 1000, { ingresos: 2300, egresos: 800, transacciones: 15 });
+        updateStatsDisplay(0, 0, { ingresos: 0, egresos: 0, transacciones: 0 });
     }
 }
 
@@ -489,11 +537,11 @@ function resetFilters() {
 async function exportToCSV() {
     try {
         const user = authService.getCurrentUser();
-        if (!user) return;
+        if (!user || !user.username) return;
 
-        // Obtener todas las transacciones (sin paginación)
+        // Obtener todas las transacciones del cliente
         const response = await fetch(
-            `http://localhost:5202/api/banco/transacciones-recientes?page=1&pageSize=10000`,
+            `http://localhost:5202/api/banco/transacciones/usuario?username=${encodeURIComponent(user.username)}&limit=10000`,
             {
                 headers: {
                     'Authorization': `Bearer ${authService.getAuthToken()}`
@@ -503,7 +551,7 @@ async function exportToCSV() {
 
         if (response.ok) {
             const data = await response.json();
-            const transacciones = data.items || data;
+            const transacciones = Array.isArray(data) ? data : (data.items || data);
             
             // Crear CSV
             const csvContent = generateCSV(transacciones);
@@ -550,12 +598,47 @@ function downloadCSV(csvContent, filename) {
 
 // Funciones auxiliares
 function isIngresoTransaction(trans) {
+    // Obtener las cuentas del usuario del cache
+    const userAccounts = getUserAccountNumbers();
+    
     const tipo = (trans.tipo_transaccion || '').toLowerCase();
     const descripcion = (trans.descripcion || '').toLowerCase();
+    const cuentaOrigen = trans.cuenta_origen || trans.cuentaOrigen;
+    const cuentaDestino = trans.cuenta_destino || trans.cuentaDestino;
     
-    return tipo.includes('deposito') || tipo.includes('ingreso') || 
-           descripcion.includes('deposito') || descripcion.includes('recibida') ||
-           descripcion.includes('nomina') || descripcion.includes('sueldo');
+    // Si es un depósito directo o nómina, siempre es ingreso
+    if (tipo.includes('deposito') || tipo.includes('ingreso') || 
+        descripcion.includes('deposito') || descripcion.includes('nomina') || 
+        descripcion.includes('sueldo')) {
+        return true;
+    }
+    
+    // Para transferencias, verificar si la cuenta destino es del cliente
+    if (cuentaDestino && userAccounts.includes(cuentaDestino)) {
+        return true; // El cliente recibe dinero
+    }
+    
+    // Si la cuenta origen es del cliente y destino no, es egreso
+    if (cuentaOrigen && userAccounts.includes(cuentaOrigen)) {
+        return false; // El cliente envía dinero
+    }
+    
+    return descripcion.includes('recibida');
+}
+
+// Obtener números de cuenta del cliente actual
+function getUserAccountNumbers() {
+    try {
+        const cachedData = sessionStorage.getItem('clienteInfo');
+        if (cachedData) {
+            const data = JSON.parse(cachedData);
+            const cuentas = data.cuentas || [];
+            return cuentas.map(c => c.numeroCuenta || c.numero_cuenta).filter(Boolean);
+        }
+    } catch (e) {
+        console.warn('Error obteniendo cuentas del cache:', e);
+    }
+    return [];
 }
 
 function formatMoney(amount) {

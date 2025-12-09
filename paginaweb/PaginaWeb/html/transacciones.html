@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Transacciones - FisClase</title>
-    <link rel="stylesheet" href="../css/Diseno.css">
+    <link rel="stylesheet" href="../css/Diseño.css">
     <link rel="stylesheet" href="../css/transacciones.css">
     <link rel="stylesheet" href="../css/ApiStatus.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -46,11 +46,12 @@
         <ul class="sidebar-menu">
             <li><a href="Profile.html"><i class="fas fa-user"></i>Usuario</a></li>
             <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="notificaciones.html" class="active"><i class="fas fa-bell"></i> Notificaciones</a></li>
-            <li><a href="transacciones.html" class="transactions-link"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
+            <li><a href="notificaciones.html"><i class="fas fa-bell"></i> Notificaciones</a></li>
+            <li><a href="transacciones.html" class="active"><i class="fas fa-dollar-sign"></i> Transacciones</a></li>
             <li><a href="transferencias.html"><i class="fas fa-exchange-alt"></i> Transferencias</a></li>
+            <li><a href="cuentas.html"><i class="fas fa-university"></i> Mis Cuentas</a></li>
             <li><a href="Historial.html"><i class="fas fa-history"></i> Historial</a></li>
-            <li><a href="Pagina_Principal.html"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+            <li><a href="#" onclick="authService.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
         </ul>
     </aside>
 
@@ -66,42 +67,41 @@
                 <h2><i class="fas fa-exchange-alt"></i> Realizar Transacción</h2>
             </div>
 
-            <form class="transaction-form">
+            <form class="transaction-form" id="transaction-form">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="from-account">Cuenta de Origen</label>
-                        <select id="from-account" class="form-control">
-                            <option>Cuenta Corriente ****4582</option>
-                            <option>Cuenta Ahorros ****7821</option>
-                            <option>Cuenta Dólares ****6394</option>
+                        <select id="from-account" class="form-control" required>
+                            <option value="">Cargando cuentas...</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="to-account">Cuenta de Destino</label>
-                        <input type="text" id="to-account" class="form-control" placeholder="Número de cuenta o CBU">
+                        <input type="text" id="to-account" class="form-control" placeholder="Número de cuenta o CBU" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="amount">Monto</label>
-                        <input type="number" id="amount" class="form-control" placeholder="0.00">
+                        <input type="number" id="amount" class="form-control" placeholder="0.00" step="0.01" min="0.01" required>
                     </div>
 
                     <div class="form-group">
                         <label for="transaction-type">Tipo de Transacción</label>
-                        <select id="transaction-type" class="form-control">
-                            <option>Transferencia</option>
-                            <option>Pago de Servicio</option>
-                            <option>Pago a Tarjeta</option>
+                        <select id="transaction-type" class="form-control" required>
+                            <option value="">Seleccione tipo</option>
+                            <option value="Pag">Pago general</option>
+                            <option value="Pago de Servicio">Pago de Servicio</option>
+                            <option value="Pago a Tarjeta">Pago a Tarjeta</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group full-width">
                     <label for="description">Descripción</label>
-                    <input type="text" id="description" class="form-control" placeholder="Descripción de la transacción">
+                    <input type="text" id="description" class="form-control" placeholder="Descripción de la transacción" required>
                 </div>
 
                 <div class="form-group full-width">
@@ -133,96 +133,12 @@
                         <th>Estado</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="transactions-tbody">
+                    <!-- Las transacciones se cargarán dinámicamente desde la base de datos -->
                     <tr>
-                        <td class="transaction-date">
-                            <span class="date">15/10/2023</span>
-                            <span class="time">14:30 PM</span>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando transacciones...
                         </td>
-                        <td class="transaction-description">
-                            <div class="transaction-icon">
-                                <i class="fas fa-exchange-alt"></i>
-                            </div>
-                            <div class="transaction-info">
-                                <strong>Transferencia a María González</strong>
-                                <span>Cuenta ****1234</span>
-                            </div>
-                        </td>
-                        <td><span class="category-tag transfer">Transferencia</span></td>
-                        <td class="transaction-amount negative">-$250.00</td>
-                        <td><span class="status-badge completed">Completado</span></td>
-                    </tr>
-                    <tr>
-                        <td class="transaction-date">
-                            <span class="date">14/10/2023</span>
-                            <span class="time">09:15 AM</span>
-                        </td>
-                        <td class="transaction-description">
-                            <div class="transaction-icon">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div class="transaction-info">
-                                <strong>Depósito de nómina</strong>
-                                <span>Empresa XYZ S.A.</span>
-                            </div>
-                        </td>
-                        <td><span class="category-tag deposit">Depósito</span></td>
-                        <td class="transaction-amount positive">+$1,850.00</td>
-                        <td><span class="status-badge completed">Completado</span></td>
-                    </tr>
-                    <tr>
-                        <td class="transaction-date">
-                            <span class="date">12/10/2023</span>
-                            <span class="time">16:45 PM</span>
-                        </td>
-                        <td class="transaction-description">
-                            <div class="transaction-icon">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <div class="transaction-info">
-                                <strong>Pago servicio eléctrico</strong>
-                                <span>Ref: 789456123</span>
-                            </div>
-                        </td>
-                        <td><span class="category-tag payment">Pago</span></td>
-                        <td class="transaction-amount negative">-$85.30</td>
-                        <td><span class="status-badge completed">Completado</span></td>
-                    </tr>
-                    <tr>
-                        <td class="transaction-date">
-                            <span class="date">10/10/2023</span>
-                            <span class="time">11:20 AM</span>
-                        </td>
-                        <td class="transaction-description">
-                            <div class="transaction-icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="transaction-info">
-                                <strong>Compra en supermercado</strong>
-                                <span>Super Max Centro</span>
-                            </div>
-                        </td>
-                        <td><span class="category-tag purchase">Compra</span></td>
-                        <td class="transaction-amount negative">-$124.75</td>
-                        <td><span class="status-badge completed">Completado</span></td>
-                    </tr>
-                    <tr>
-                        <td class="transaction-date">
-                            <span class="date">08/10/2023</span>
-                            <span class="time">10:00 AM</span>
-                        </td>
-                        <td class="transaction-description">
-                            <div class="transaction-icon">
-                                <i class="fas fa-exchange-alt"></i>
-                            </div>
-                            <div class="transaction-info">
-                                <strong>Transferencia recibida</strong>
-                                <span>De: Pedro Martínez</span>
-                            </div>
-                        </td>
-                        <td><span class="category-tag transfer">Transferencia</span></td>
-                        <td class="transaction-amount positive">+$500.00</td>
-                        <td><span class="status-badge completed">Completado</span></td>
                     </tr>
                     </tbody>
                 </table>

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj": {}
+    "C:\\Users\\DELL\\Pictures\\ProyectoFinal-Software4y5\\API_BancoFisclase\\API_BancoFisclase.csproj": {}
   },
   "projects": {
-    "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj": {
+    "C:\\Users\\DELL\\Pictures\\ProyectoFinal-Software4y5\\API_BancoFisclase\\API_BancoFisclase.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
+        "projectUniqueName": "C:\\Users\\DELL\\Pictures\\ProyectoFinal-Software4y5\\API_BancoFisclase\\API_BancoFisclase.csproj",
         "projectName": "API_BancoFisclase",
-        "projectPath": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\API_BancoFisclase.csproj",
-        "packagesPath": "C:\\Users\\andre\\.nuget\\packages\\",
-        "outputPath": "C:\\Visual Studio Projects\\ProyectoFinal-Software-4-y-5\\API_BancoFisclase\\obj\\",
+        "projectPath": "C:\\Users\\DELL\\Pictures\\ProyectoFinal-Software4y5\\API_BancoFisclase\\API_BancoFisclase.csproj",
+        "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\DELL\\Pictures\\ProyectoFinal-Software4y5\\API_BancoFisclase\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\andre\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
