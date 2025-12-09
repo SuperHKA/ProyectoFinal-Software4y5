@@ -33,30 +33,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 InitializeComponent();
 
-                // Map designer buttons to existing fields expected by logic (with null checks)
-                btnNuevo = this.btnNuevoCliente ?? btnNuevo;
-                btnGuardar = this.btnGuardarCliente ?? btnGuardar;
-                btnEliminar = this.btnEliminarCliente ?? btnEliminar;
-                btnActualizar = this.btnActualizarClientes ?? btnActualizar;
-                btnCambiarContrasena = this.btnCambiarContrasenaCliente ?? btnCambiarContrasena;
-                btnCrearCuenta = this.btnCrearCuentaCliente ?? btnCrearCuenta;
-                btnActualizarSaldo = this.btnActualizarSaldoCliente ?? btnActualizarSaldo;
-                btnVerCuentas = this.btnVerCuentasCliente ?? btnVerCuentas;
+                // Eliminar mapeo a botones del Designer; usaremos creación dinámica
+                // btnNuevo = this.btnNuevoCliente;
+                // btnGuardar = this.btnGuardarCliente;
+                // btnEliminar = this.btnEliminarCliente;
+                // btnActualizar = this.btnActualizarClientes;
+                // btnCambiarContrasena = this.btnCambiarContrasenaCliente;
+                // btnCrearCuenta = this.btnCrearCuentaCliente;
+                // btnActualizarSaldo = this.btnActualizarSaldoCliente;
+                // btnVerCuentas = this.btnVerCuentasCliente;
 
-                // Use API adapter (single instance)
                 _apiCliente = new ApiAdmin("http://localhost:5202", allowInvalidSsl: false);
                 _servicioBancoApi = new ServicioBancoApi("http://localhost:5202", allowInvalidSsl: false);
 
-                // Aplicar estilos modernos
                 AplicarEstilosModernos();
 
-                // Crear formulario de cliente dinámicamente (sin botones aquí)
+                // Crear formulario de cliente dinámicamente (incluiremos botones dinámicos)
                 CrearFormularioCliente();
 
-                // Conectar eventos
                 ConectarEventos();
 
-                // Defer heavy I/O to form load to keep constructor fast
                 this.Load += PanelAdministrativo_Load;
             }
             catch (Exception ex)
@@ -478,10 +474,6 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private void CrearFormularioCliente()
         {
             var panel = panelFormularioCliente;
-            // Preservar el flow de botones si existe en el Designer
-            var flow = this.flowClienteBotones;
-
-            // Limpiar solo los controles existentes, pero volver a agregar el flow al final
             panel.Controls.Clear();
 
             var tableLayout = new TableLayoutPanel
@@ -514,15 +506,38 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
             AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true, Name = "txtClienteContrasena" }, row++);
 
-            // Agregar el layout al panel
-            panel.Controls.Add(tableLayout);
+            // Agregar panel de botones creado dinámicamente (arriba para replicar el comportamiento original)
+            var panelBotones = CrearPanelBotones();
+            panelBotones.Dock = DockStyle.Bottom; // o DockStyle.Bottom si lo prefieres abajo
+            panel.Controls.Add(panelBotones);
 
-            // Volver a agregar el flow si existe para que quede abajo
-            if (flow != null)
+            // Luego el layout de formulario ocupa el resto
+            panel.Controls.Add(tableLayout);
+        }
+
+        // Crea los botones y asigna a los campos existentes para que la lógica de eventos funcione
+        private Panel CrearPanelBotones()
+        {
+            var panel = new Panel { Height = 150, Dock = DockStyle.Top };
+            var flowLayout = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight };
+
+            btnNuevo = new Button { Text = "Nuevo", Size = new Size(100, 30) };
+            btnGuardar = new Button { Text = "Guardar", Size = new Size(100, 30) };
+            btnEliminar = new Button { Text = "Eliminar", Size = new Size(100, 30) };
+            btnActualizar = new Button { Text = "Actualizar", Size = new Size(100, 30) };
+            btnCambiarContrasena = new Button { Text = "Cambiar Contraseña", Size = new Size(140, 30) };
+            btnCrearCuenta = new Button { Text = "Crear Cuenta", Size = new Size(110, 30) };
+            btnActualizarSaldo = new Button { Text = "Actualizar Saldo", Size = new Size(140, 30) };
+            btnVerCuentas = new Button { Text = "Ver Cuentas", Size = new Size(110, 30), BackColor = Color.SlateBlue, ForeColor = Color.White };
+
+            flowLayout.Controls.AddRange(new Control[]
             {
-                flow.Dock = DockStyle.Bottom;
-                panel.Controls.Add(flow);
-            }
+                btnNuevo, btnGuardar, btnEliminar, btnActualizar,
+                btnCambiarContrasena, btnCrearCuenta, btnActualizarSaldo, btnVerCuentas
+            });
+
+            panel.Controls.Add(flowLayout);
+            return panel;
         }
 
         private void AgregarControl(TableLayoutPanel tableLayout, string labelText, Control control, int row)

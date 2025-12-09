@@ -72,7 +72,12 @@ function populateProfileForm(cliente) {
 function setFieldValue(fieldId, value) {
     const field = document.getElementById(fieldId);
     if (field) {
-        field.value = value || '';
+        // Soporta tanto inputs/textarea/select (con .value) como spans/divs (textContent)
+        if (Object.prototype.hasOwnProperty.call(field, 'value')) {
+            field.value = value || '';
+        } else {
+            field.textContent = value || '';
+        }
     }
 }
 
