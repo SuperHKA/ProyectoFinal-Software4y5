@@ -99,18 +99,18 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                // Obtener todas las transacciones del sistema
-                var todasTransacciones = await _apiCliente.ObtenerTransaccionesAsync();
-                
-                // Filtrar las transacciones que involucran a esta cuenta específica
-                var transaccionesCuenta = todasTransacciones.Where(t =>
+                // Preferir endpoint específico del cliente para obtener columnas cuenta_origen/cuenta_destino
+                var transCliente = await _apiCliente.ObtenerTransaccionesClienteAsync(_clienteId, 200).ConfigureAwait(false);
+
+                // Filtrar las transacciones que involucran esta cuenta específica
+                var transaccionesCuenta = transCliente.Where(t =>
                 {
                     var cuentaOrigen = GetStringValue(t, "cuenta_origen");
                     var cuentaDestino = GetStringValue(t, "cuenta_destino");
                     var numeroTransferencia = GetStringValue(t, "numero_cuenta");
-                    
-                    return cuentaOrigen == _numeroCuenta || 
-                           cuentaDestino == _numeroCuenta || 
+
+                    return cuentaOrigen == _numeroCuenta ||
+                           cuentaDestino == _numeroCuenta ||
                            numeroTransferencia == _numeroCuenta;
                 }).ToList();
 
@@ -128,8 +128,36 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error cargando transacciones por cuenta: {ex.Message}");
-                throw;
+                System.Diagnostics.Debug.WriteLine($"Error cargando transacciones por cuenta (endpoint cliente): {ex.Message}");
+                // Fallback a método anterior si falla el endpoint específico
+                try
+                {
+                    var todasTransacciones = await _apiCliente.ObtenerTransaccionesAsync().ConfigureAwait(false);
+                    var transaccionesCuenta = todasTransacciones.Where(t =>
+                    {
+                        var cuentaOrigen = GetStringValue(t, "cuenta_origen");
+                        var cuentaDestino = GetStringValue(t, "cuenta_destino");
+                        var numeroTransferencia = GetStringValue(t, "numero_cuenta");
+
+                        return cuentaOrigen == _numeroCuenta ||
+                               cuentaDestino == _numeroCuenta ||
+                               numeroTransferencia == _numeroCuenta;
+                    }).ToList();
+
+                    foreach (var transaccion in transaccionesCuenta)
+                    {
+                        var historial = ConvertirATransaccionHistorial(transaccion);
+                        if (historial != null)
+                        {
+                            _transacciones.Add(historial);
+                        }
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error en fallback transacciones por cuenta: {ex2.Message}");
+                    throw;
+                }
             }
         }
 

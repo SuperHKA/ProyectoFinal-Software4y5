@@ -564,5 +564,55 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
             }
         }
+
+        // Obtener transacciones por cliente (con soporte para diferentes formatos del API)
+        public async Task<IEnumerable<Dictionary<string, object>>> ObtenerTransaccionesClienteAsync(int clienteId, int limit = 50)
+        {
+            if (clienteId <= 0) return new List<Dictionary<string, object>>();
+
+            // 1) Intentar formato paginado
+            try
+            {
+                var paged = await GetJsonAsync<PaginatedResponse<Dictionary<string, object>>>(
+                    $"/api/banco/transacciones-cliente?clienteId={clienteId}&page=1&pageSize={limit}")
+                    .ConfigureAwait(false);
+                if (paged != null && paged.items != null)
+                {
+                    return paged.items;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WARN ObtenerTransaccionesClienteAsync (paged) fallo: {ex.Message}");
+            }
+
+            // 2) Intentar lista simple con 'limit'
+            try
+            {
+                var list = await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
+                    $"/api/banco/transacciones-cliente?clienteId={clienteId}&limit={limit}")
+                    .ConfigureAwait(false);
+                if (list != null) return list;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WARN ObtenerTransaccionesClienteAsync (limit) fallo: {ex.Message}");
+            }
+
+            // 3) Intentar lista simple con 'pageSize'
+            try
+            {
+                var list = await GetJsonAsync<IEnumerable<Dictionary<string, object>>>(
+                    $"/api/banco/transacciones-cliente?clienteId={clienteId}&pageSize={limit}")
+                    .ConfigureAwait(false);
+                if (list != null) return list;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR ObtenerTransaccionesClienteAsync (pageSize) fallo: {ex.Message}");
+            }
+
+            return new List<Dictionary<string, object>>();
+        }
     }
 }
