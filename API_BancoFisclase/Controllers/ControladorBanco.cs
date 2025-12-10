@@ -822,11 +822,8 @@ namespace API_BancoFisclase.Controllers
                 int usuarioId = request.UsuarioId ?? 1;
                 if (!string.IsNullOrWhiteSpace(request.Username))
                 {
-                    var usuario = await _banco.ObtenerUsuarioPorUsernameAsync(request.Username).ConfigureAwait(false);
-                    if (usuario != null)
-                    {
-                        usuarioId = usuario["ID Usuario"] != DBNull.Value ? Convert.ToInt32(usuario["ID Usuario"]) : 1;
-                    }
+                    var uid = await _banco.GetUsuarioIdByUsernameAsync(request.Username.Trim()).ConfigureAwait(false);
+                    if (uid.HasValue && uid.Value > 0) usuarioId = uid.Value;
                 }
 
                 var resultado = await _banco.TransferenciaInternaAsync(
@@ -873,11 +870,9 @@ namespace API_BancoFisclase.Controllers
                 int usuarioId = request.UsuarioId ?? 1;
                 if (!string.IsNullOrWhiteSpace(request.Username))
                 {
-                    var usuario = await _banco.ObtenerUsuarioPorUsernameAsync(request.Username).ConfigureAwait(false);
-                    if (usuario != null)
-                    {
-                        usuarioId = usuario["ID Usuario"] != DBNull.Value ? Convert.ToInt32(usuario["ID Usuario"]) : 1;
-                    }
+                    var uid = await _banco.GetUsuarioIdByUsernameAsync(request.Username.Trim()).ConfigureAwait(false);
+                    uid = await _banco.GetUsuarioIdByUsernameAsync(request.Username.Trim()).ConfigureAwait(false);
+                    if (uid.HasValue && uid.Value > 0) usuarioId = uid.Value;
                 }
 
                 var resultado = await _banco.TransferenciaExternaAsync(
