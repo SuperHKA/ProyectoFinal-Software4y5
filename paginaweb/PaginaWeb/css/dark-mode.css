@@ -604,6 +604,28 @@ body.dark-mode .account-info-value {
     color: var(--text-primary) !important;
 }
 
+/* No cuentas (empty state) */
+body.dark-mode .no-cuentas {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .no-cuentas h3 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .no-cuentas p {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .no-data-icon {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .cuentas-grid {
+    background: transparent !important;
+}
+
 /* Transferencias page specific */
 body.dark-mode .transferencias-content {
     background: var(--bg-card) !important;
