@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadCuentasUsuario();
     setupTransferForm();
     setupExternalTransfers();
+    setupQuickActions();
     loadContactosFrecuentes();
     setupLimitesTransferencia();
     
@@ -519,17 +520,30 @@ async function realizarTransferenciaExterna(formData) {
             throw new Error('Usuario no autenticado');
         }
 
+        // Obtener número de cuenta origen desde el ID
+        const cuentaOrigenObj = cuentasUsuario.find(c => {
+            const id = c.cuentaId || c.cuenta_id || c['ID Cuenta'];
+            return id == formData.fromAccount;
+        });
+        
+        if (!cuentaOrigenObj) {
+            throw new Error('Cuenta de origen no encontrada');
+        }
+        
+        const cuentaOrigenNormalizada = normalizeCuentaData(cuentaOrigenObj);
+        const numeroCuentaOrigen = cuentaOrigenNormalizada.numeroCuenta;
+        const numeroCuentaDestino = formData.toAccount; // Ya es el número de cuenta
+
         const transferData = {
-            cuentaOrigen: formData.fromAccount.toString(),
-            cuentaDestino: formData.toAccount.toString(),
+            cuentaOrigen: numeroCuentaOrigen,
+            cuentaDestino: numeroCuentaDestino,
             monto: parseFloat(formData.amount),
             descripcion: formData.description,
-            tipoTransferencia: formData.transferType,
             usuarioId: user.id || user.clienteId,
             username: user.username
         };
 
-        const response = await fetch(`${authService.baseURL}/banco/transfer/external`, {
+        const response = await fetch(`${authService.baseURL}/banco/transacciones/transferencia-externa`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1345,6 +1359,33 @@ function formatearFechaTransfer(fecha) {
     const dia = date.getDate();
     const mes = date.toLocaleString('es-ES', { month: 'short' });
     return `${dia} ${mes}, ${hora}`;
+}
+
+// Configurar botones de acciones rápidas
+function setupQuickActions() {
+    const quickActionCards = document.querySelectorAll('.quick-action-card');
+    const transferTypeSelect = document.getElementById('transferType');
+    
+    quickActionCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const action = this.dataset.action;
+            
+            if (transferTypeSelect) {
+                if (action === 'same-bank') {
+                    transferTypeSelect.value = 'same-bank';
+                } else if (action === 'other-bank') {
+                    transferTypeSelect.value = 'other-bank';
+                } else if (action === 'international') {
+                    transferTypeSelect.value = 'international';
+                }
+                
+                handleTransferTypeChange(transferTypeSelect.value);
+                
+                // Scroll al formulario
+                document.getElementById('step1').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
 }
 
 // Eventos globales necesarios para el HTML existente

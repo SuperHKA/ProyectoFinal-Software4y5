@@ -211,9 +211,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             
             // Obtener fecha de apertura si existe
             DateTime fechaApertura = DateTime.Now.AddMonths(-6);
-            if (cuentaData.ContainsKey("fecha_apertura") && cuentaData["fecha_apertura"] != null)
+            if (cuentaData.ContainsKey("Fecha de Apertura") && cuentaData["Fecha de Apertura"] != null)
             {
-                DateTime.TryParse(cuentaData["fecha_apertura"].ToString(), out fechaApertura);
+                DateTime.TryParse(cuentaData["Fecha de Apertura"].ToString(), out fechaApertura);
             }
 
             // Determinar tipo de cuenta

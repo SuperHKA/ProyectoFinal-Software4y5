@@ -195,7 +195,7 @@ namespace API_BancoFisclase.Servicios
                     c.codigo_postal AS 'Codigo Postal',
                     c.pais AS 'Pais'
                 FROM Usuario u 
-                LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id 
+                LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id
                 ORDER BY u.usuario_id";
             return await ExecuteQueryAsync(sql).ConfigureAwait(false);
         }
@@ -338,7 +338,7 @@ namespace API_BancoFisclase.Servicios
                     c.saldo AS 'Saldo',
                     c.activa AS 'Activa'
                 FROM Cuenta c 
-                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
+                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id
                 WHERE c.cliente_id = @clienteId AND c.activa = 1 
                 ORDER BY c.cuenta_id";
             return await ExecuteQueryAsync(sql, ("@clienteId", clienteId)).ConfigureAwait(false);
@@ -415,7 +415,7 @@ namespace API_BancoFisclase.Servicios
                     clienteDestino.nombre AS 'Cliente Destino'
                 FROM Transaccion t 
                 LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id
-                LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
+                LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id
                 LEFT JOIN Cuenta co ON t.cuenta_origen_id = co.cuenta_id
                 LEFT JOIN Cuenta cd ON t.cuenta_destino_id = cd.cuenta_id
                 LEFT JOIN Cliente clienteDestino ON cd.cliente_id = clienteDestino.cliente_id
@@ -447,7 +447,7 @@ namespace API_BancoFisclase.Servicios
         private async Task<int?> GetCuentaIdByNumeroAsync(string numeroCuenta)
         {
             if (string.IsNullOrWhiteSpace(numeroCuenta)) return null;
-            const string sql = "SELECT TOP(1) [ID Cuenta] FROM Cuenta WHERE [Numero de Cuenta] = @numero";
+            const string sql = "SELECT TOP(1) cuenta_id FROM Cuenta WHERE numero_cuenta = @numero";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
@@ -980,7 +980,7 @@ namespace API_BancoFisclase.Servicios
             const string sql = @"
                 SELECT 
                     c.cuenta_id AS 'ID Cuenta', 
-                    c.numero_cuenta AS 'Número de Cuenta', 
+                    c.numero_cuenta AS 'Numero de Cuenta', 
                     CASE tc.nombre
                         WHEN 'AHORRO' THEN 'Cuenta de ahorros personal'
                         WHEN 'CORRIENTE' THEN 'Cuenta corriente personal'
@@ -992,7 +992,7 @@ namespace API_BancoFisclase.Servicios
                     cl.nombre AS 'Nombre del Cliente',
                     c.cliente_id AS 'ID Cliente'
                 FROM Cuenta c 
-                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id 
+                LEFT JOIN TipoCuenta tc ON c.tipo_cuenta_id = tc.tipo_cuenta_id
                 LEFT JOIN Cliente cl ON c.cliente_id = cl.cliente_id
                 WHERE c.activa = 1 
                 ORDER BY c.numero_cuenta";
