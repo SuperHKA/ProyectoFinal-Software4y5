@@ -1,5 +1,11 @@
+/**
+ * Dark Mode Toggle - Global Implementation
+ * Applies dark mode across all pages when activated from profile
+ */
+
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
+    document.documentElement.classList.toggle('dark-mode');
     
     // Actualizar botón si existe
     const toggleBtn = document.getElementById('darkModeToggle');
@@ -8,25 +14,44 @@ function toggleDarkMode() {
     }
 
     // Guardar preferencia en localStorage
-    if (document.body.classList.contains('dark-mode')) {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    if (isDarkMode) {
         localStorage.setItem('darkMode', 'enabled');
     } else {
         localStorage.setItem('darkMode', 'disabled');
     }
+    
+    // Dispatch custom event for other components to react
+    window.dispatchEvent(new CustomEvent('darkModeToggle', { 
+        detail: { enabled: isDarkMode } 
+    }));
 }
 
-// Aplicar modo oscuro inmediatamente (antes de DOMContentLoaded para evitar flash)
-if (localStorage.getItem('darkMode') === 'enabled') {
-    document.documentElement.classList.add('dark-mode');
-    if (document.body) {
-        document.body.classList.add('dark-mode');
+/**
+ * Apply dark mode immediately on page load
+ * This runs before DOMContentLoaded to prevent flash of light mode
+ */
+(function() {
+    const darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
+    if (darkModeEnabled) {
+        document.documentElement.classList.add('dark-mode');
+        if (document.body) {
+            document.body.classList.add('dark-mode');
+        }
     }
-}
+})();
 
-// Cargar preferencia al iniciar y sincronizar botón
-window.addEventListener('DOMContentLoaded', (event) => {
-    if (localStorage.getItem('darkMode') === 'enabled') {
+/**
+ * Ensure dark mode is applied after DOM is loaded and sync toggle button
+ */
+window.addEventListener('DOMContentLoaded', function() {
+    const darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
+    
+    if (darkModeEnabled) {
         document.body.classList.add('dark-mode');
+        document.documentElement.classList.add('dark-mode');
+        
+        // Sync toggle button state
         const toggleBtn = document.getElementById('darkModeToggle');
         if (toggleBtn) {
             toggleBtn.classList.add('active');
@@ -34,5 +59,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-// Hacer la función global
+// Make functions globally available
 window.toggleDarkMode = toggleDarkMode;
+
+// Expose dark mode state getter
+window.isDarkMode = function() {
+    return localStorage.getItem('darkMode') === 'enabled';
+};

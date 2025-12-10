@@ -1,0 +1,1180 @@
+/* ==================== GLOBAL DARK MODE STYLES ==================== */
+
+/* Root dark mode variables */
+body.dark-mode {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-card: #21262d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --border-color: #30363d;
+    --hover-bg: #292e36;
+    --accent-color: #8b7dd8;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Body and main containers */
+body.dark-mode {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode main {
+    background-color: var(--bg-primary) !important;
+}
+
+body.dark-mode .dashboard-container,
+body.dark-mode .dashboard-content {
+    background-color: transparent !important;
+}
+
+/* Header */
+body.dark-mode .site-header {
+    background: #0f3460;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
+body.dark-mode .main-nav a {
+    color: var(--text-primary);
+}
+
+body.dark-mode .main-nav a:hover {
+    background-color: rgba(139, 125, 216, 0.3);
+}
+
+body.dark-mode .user-info {
+    color: var(--text-primary);
+}
+
+body.dark-mode .user-avatar {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Sidebar */
+body.dark-mode .sidebar {
+    background: var(--bg-secondary);
+    box-shadow: 0 5px 15px var(--shadow);
+}
+
+body.dark-mode .sidebar h3 {
+    color: var(--text-primary);
+}
+
+body.dark-mode .sidebar-menu a {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .sidebar-menu a:hover {
+    background-color: var(--hover-bg);
+    color: var(--accent-color);
+}
+
+body.dark-mode .sidebar-menu a.active,
+body.dark-mode .sidebar-menu a.dash-link {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Cards and containers */
+body.dark-mode .card,
+body.dark-mode .section-card,
+body.dark-mode .dashboard-card,
+body.dark-mode .account-card,
+body.dark-mode .transaction-card,
+body.dark-mode .stats-card,
+body.dark-mode .summary-card,
+body.dark-mode .monthly-summary {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 5px 15px var(--shadow) !important;
+}
+
+body.dark-mode .card h3,
+body.dark-mode .section-card h3,
+body.dark-mode .dashboard-card h3 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .card p,
+body.dark-mode .section-card p {
+    color: var(--text-secondary) !important;
+}
+
+/* Tables */
+body.dark-mode table {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+body.dark-mode thead {
+    background: var(--bg-card);
+}
+
+body.dark-mode th {
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+body.dark-mode td {
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.dark-mode tr:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Forms */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: var(--accent-color);
+    background: var(--bg-secondary);
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+body.dark-mode label {
+    color: var(--text-primary);
+}
+
+/* Buttons */
+body.dark-mode .btn,
+body.dark-mode button:not(.close-modal):not(.toggle-switch) {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode button:not(.close-modal):not(.toggle-switch):hover {
+    background: #9d8ee6;
+}
+
+body.dark-mode .btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: var(--hover-bg);
+}
+
+/* Modals */
+body.dark-mode .modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .modal-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.dark-mode .modal-header h3 {
+    color: var(--text-primary);
+}
+
+body.dark-mode .modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+body.dark-mode .close-modal {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .close-modal:hover {
+    color: var(--text-primary);
+}
+
+/* Alerts and messages */
+body.dark-mode .alert,
+body.dark-mode .message,
+body.dark-mode .notification {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-mode .alert-success {
+    background: #1a4d2e;
+    border-color: #2d7a4f;
+}
+
+body.dark-mode .alert-error,
+body.dark-mode .alert-danger {
+    background: #4d1a1a;
+    border-color: #7a2d2d;
+}
+
+body.dark-mode .alert-warning {
+    background: #4d3d1a;
+    border-color: #7a5f2d;
+}
+
+body.dark-mode .alert-info {
+    background: #1a2d4d;
+    border-color: #2d4f7a;
+}
+
+/* Account cards (Dashboard) */
+body.dark-mode .account-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .account-item:hover {
+    background: var(--hover-bg) !important;
+    border-color: var(--accent-color) !important;
+}
+
+body.dark-mode .account-type {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .account-number {
+    color: var(--accent-color) !important;
+}
+
+body.dark-mode .account-balance {
+    color: var(--text-primary) !important;
+}
+
+/* Stats summary cards */
+body.dark-mode .stat-item,
+body.dark-mode .summary-stat {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .stat-item h4,
+body.dark-mode .stat-item .stat-label {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .stat-item .amount,
+body.dark-mode .stat-value {
+    color: var(--text-primary) !important;
+}
+
+/* Transaction items */
+body.dark-mode .transaction-item {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.dark-mode .transaction-item:hover {
+    background: var(--hover-bg);
+}
+
+body.dark-mode .transaction-description {
+    color: var(--text-primary);
+}
+
+body.dark-mode .transaction-date {
+    color: var(--text-secondary);
+}
+
+/* Recent transactions section */
+body.dark-mode .recent-transactions,
+body.dark-mode .recent-movements,
+body.dark-mode .recent-activity,
+body.dark-mode .movements-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .recent-transactions h3,
+body.dark-mode .recent-transactions h4,
+body.dark-mode .recent-movements h3,
+body.dark-mode .recent-movements h4,
+body.dark-mode .movements-header,
+body.dark-mode .section-header {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .recent-transactions .movements-list,
+body.dark-mode .recent-transactions .transactions-list,
+body.dark-mode .movements-list,
+body.dark-mode .transactions-list {
+    background: var(--bg-card) !important;
+}
+
+/* Movement/transaction individual items */
+body.dark-mode .recent-transactions .movement-item,
+body.dark-mode .recent-transactions .transaction-row,
+body.dark-mode .movement-item,
+body.dark-mode .transaction-row {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .recent-transactions .movement-item:hover,
+body.dark-mode .recent-transactions .transaction-row:hover,
+body.dark-mode .movement-item:hover,
+body.dark-mode .transaction-row:hover {
+    background: var(--hover-bg) !important;
+}
+
+/* Footer */
+body.dark-mode footer {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+body.dark-mode footer a {
+    color: var(--accent-color);
+}
+
+body.dark-mode footer a:hover {
+    color: #9d8ee6;
+}
+
+/* Stats and metrics */
+body.dark-mode .stat-value {
+    color: var(--text-primary);
+}
+
+body.dark-mode .stat-label {
+    color: var(--text-secondary);
+}
+
+/* Loading spinner */
+body.dark-mode .spinner,
+body.dark-mode .loading {
+    border-color: var(--border-color);
+    border-top-color: var(--accent-color);
+}
+
+/* Scrollbar */
+body.dark-mode::-webkit-scrollbar {
+    width: 12px;
+    background: var(--bg-primary);
+}
+
+body.dark-mode::-webkit-scrollbar-thumb {
+    background: var(--bg-card);
+    border-radius: 6px;
+}
+
+body.dark-mode::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+/* Additional specific elements */
+body.dark-mode .balance-display {
+    color: var(--text-primary);
+}
+
+body.dark-mode .badge {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .badge.badge-success {
+    background: #2d7a4f;
+    border-color: #3d9a6f;
+}
+
+body.dark-mode .badge.badge-danger {
+    background: #7a2d2d;
+    border-color: #9a3d3d;
+}
+
+body.dark-mode .badge.badge-warning {
+    background: #7a5f2d;
+    border-color: #9a7f3d;
+}
+
+/* Chart containers and canvas backgrounds */
+body.dark-mode .chart-container,
+body.dark-mode canvas {
+    background: transparent !important;
+}
+
+body.dark-mode .chart-wrapper {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Accounts section */
+body.dark-mode .accounts-section,
+body.dark-mode .accounts-grid {
+    background: transparent !important;
+}
+
+body.dark-mode .account-card-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Summary section colors */
+body.dark-mode .summary-section {
+    background: transparent !important;
+}
+
+body.dark-mode .income-card,
+body.dark-mode .summary-item,
+body.dark-mode .stat-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .income-card {
+    border-left: 4px solid #22c55e !important;
+}
+
+body.dark-mode .expense-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-left: 4px solid #ef4444 !important;
+}
+
+body.dark-mode .balance-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-left: 4px solid #8b7dd8 !important;
+}
+
+/* Override any white backgrounds on summary items */
+body.dark-mode .summary-item,
+body.dark-mode .summary-card,
+body.dark-mode .monthly-summary,
+body.dark-mode .monthly-summary > div {
+    background: var(--bg-card) !important;
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .summary-item h4,
+body.dark-mode .summary-item p,
+body.dark-mode .summary-item span {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .summary-item .amount,
+body.dark-mode .summary-item h2 {
+    color: var(--text-primary) !important;
+}
+
+/* Dividers */
+body.dark-mode hr {
+    border-color: var(--border-color);
+}
+
+/* Links */
+body.dark-mode a:not(.btn):not(.sidebar-menu a):not(.main-nav a) {
+    color: var(--accent-color);
+}
+
+body.dark-mode a:not(.btn):not(.sidebar-menu a):not(.main-nav a):hover {
+    color: #9d8ee6;
+}
+
+/* Dashboard specific */
+body.dark-mode .welcome-section {
+    background: var(--bg-secondary);
+}
+
+body.dark-mode .quick-actions {
+    background: var(--bg-secondary);
+}
+
+body.dark-mode .recent-activity {
+    background: var(--bg-secondary);
+}
+
+/* Cuentas page specific */
+body.dark-mode .accounts-content {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .cuentas-stats {
+    background: transparent !important;
+}
+
+body.dark-mode .cuentas-stats .stat-item,
+body.dark-mode .cuentas-stats .info-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .cuentas-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .cuenta-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .cuenta-header {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .cuenta-details {
+    background: transparent !important;
+}
+
+body.dark-mode .info-section {
+    background: transparent !important;
+}
+
+body.dark-mode .info-card,
+body.dark-mode .info-cards .info-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .info-card:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .info-card h3,
+body.dark-mode .info-card h4 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .info-card p {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .productos-section {
+    background: transparent !important;
+}
+
+body.dark-mode .producto-card,
+body.dark-mode .product-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .producto-card:hover,
+body.dark-mode .product-card:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .producto-card h3,
+body.dark-mode .producto-card h4 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .producto-card p,
+body.dark-mode .producto-card ul li {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .account-details-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .account-actions button {
+    background: var(--accent-color) !important;
+}
+
+body.dark-mode .account-info-item {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .account-info-label {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .account-info-value {
+    color: var(--text-primary) !important;
+}
+
+/* Transferencias page specific */
+body.dark-mode .transferencias-content {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .transferencias-grid {
+    background: transparent !important;
+}
+
+body.dark-mode .transfer-form-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .transfer-form {
+    background: transparent !important;
+}
+
+body.dark-mode .form-step {
+    background: transparent !important;
+}
+
+body.dark-mode .form-step h3 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .amount-input {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .currency-symbol {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .transfer-summary {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .summary-item {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .summary-label {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .summary-value,
+body.dark-mode .summary-amount {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .quick-actions-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .quick-action-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .quick-action-card:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .action-icon {
+    background: var(--accent-color) !important;
+}
+
+body.dark-mode .action-title {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .action-description {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .recent-transfers {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .limits-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .contactos-frecuentes {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .contacto-item,
+body.dark-mode .contact-card,
+body.dark-mode .quick-contact-btn {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .contacto-item:hover,
+body.dark-mode .contact-card:hover,
+body.dark-mode .quick-contact-btn:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .contact-name,
+body.dark-mode .contacto-nombre {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .contact-account,
+body.dark-mode .contacto-cuenta {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .transfer-item {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .transfer-item:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .limit-info,
+body.dark-mode .limit-card,
+body.dark-mode .limits-grid .limit-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .limit-title,
+body.dark-mode .limit-type {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .limit-amount,
+body.dark-mode .limit-text {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .limit-used {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .progress-bar {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .progress-fill {
+    background: var(--accent-color) !important;
+}
+
+/* Historial page specific */
+body.dark-mode .content-area,
+body.dark-mode .historial-content {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .resumen-mes {
+    background: transparent !important;
+}
+
+body.dark-mode .stats-grid {
+    background: transparent !important;
+}
+
+body.dark-mode .seccion-tarjeta {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .seccion-transacciones {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .seccion-historial {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .filter-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .filtros-container {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .filtros-header {
+    background: transparent !important;
+}
+
+body.dark-mode .filtros-grid {
+    background: transparent !important;
+}
+
+body.dark-mode .filter-group label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .tabla-wrapper {
+    background: transparent !important;
+}
+
+body.dark-mode .pagination-container {
+    background: transparent !important;
+}
+
+body.dark-mode .history-table {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .history-item,
+body.dark-mode .transaction-history-item {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .history-item:hover,
+body.dark-mode .transaction-history-item:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .ultimas-transacciones {
+    background: transparent !important;
+}
+
+body.dark-mode .transaction-list-item {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .transaction-list-item:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .transacciones-lista,
+body.dark-mode .transaction-lista {
+    background: transparent !important;
+}
+
+body.dark-mode .transaccion-item,
+body.dark-mode div.transaction-item {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .transaccion-item:hover,
+body.dark-mode div.transaction-item:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .transaction-info {
+    background: transparent !important;
+}
+
+body.dark-mode .merchant,
+body.dark-mode .fecha {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .monto-negativo,
+body.dark-mode .monto-positivo {
+    color: var(--text-primary) !important;
+}
+
+/* Transacciones page specific */
+body.dark-mode .transactions-content {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .welcome-banner {
+    background: transparent !important;
+}
+
+body.dark-mode .transactions-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .section-header {
+    background: transparent !important;
+}
+
+body.dark-mode .section-header h2 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .transaction-form {
+    background: transparent !important;
+}
+
+body.dark-mode .form-row {
+    background: transparent !important;
+}
+
+body.dark-mode .form-group {
+    background: transparent !important;
+}
+
+body.dark-mode .form-group label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .transactions-table-container {
+    background: transparent !important;
+}
+
+body.dark-mode .transactions-table {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .transactions-table thead {
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .transactions-table th {
+    color: var(--text-primary) !important;
+    background: var(--bg-card) !important;
+}
+
+body.dark-mode .transactions-table td {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .transactions-table tbody tr {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .transactions-table tbody tr:hover {
+    background: var(--hover-bg) !important;
+}
+
+/* Notificaciones page specific */
+body.dark-mode .notificaciones-container {
+    background: transparent !important;
+}
+
+body.dark-mode .notifications-header {
+    background: transparent !important;
+}
+
+/* Notification cards */
+body.dark-mode .notificacion,
+body.dark-mode .notificacion1,
+body.dark-mode .notificacion2,
+body.dark-mode .notificacion3 {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .notificacion:hover {
+    background: var(--hover-bg) !important;
+}
+
+body.dark-mode .notificacion.read {
+    background: var(--bg-secondary) !important;
+    opacity: 0.8 !important;
+}
+
+/* Notification header */
+body.dark-mode .notificacion-header {
+    background: transparent !important;
+}
+
+body.dark-mode .notificacion-titulo {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .notificacion-fecha {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .notificacion-info {
+    background: transparent !important;
+}
+
+/* Notification content */
+body.dark-mode .notificacion-content {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .notificacion-mensaje {
+    color: var(--text-secondary) !important;
+}
+
+/* Notification icons - keep their colors but adjust for dark mode */
+body.dark-mode .notificacion-icon {
+    opacity: 0.9;
+}
+
+/* Notification actions */
+body.dark-mode .notificacion-actions button {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .notificacion-actions button:hover {
+    background: var(--hover-bg) !important;
+}
+
+/* Loading state */
+body.dark-mode .loading-notificaciones {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .loading-notificaciones p {
+    color: var(--text-secondary) !important;
+}
+
+/* No notifications state */
+body.dark-mode .no-notificaciones {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .no-notificaciones h3 {
+    color: var(--text-primary) !important;
+}
+
+/* Transition for smooth theme switching */
+body.dark-mode * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Catch-all for any remaining white backgrounds */
+body.dark-mode div[style*="background: white"],
+body.dark-mode div[style*="background-color: white"],
+body.dark-mode div[style*="background:#fff"],
+body.dark-mode div[style*="background-color:#fff"],
+body.dark-mode .white-bg,
+body.dark-mode .bg-white {
+    background: var(--bg-card) !important;
+    background-color: var(--bg-card) !important;
+}
+
+/* Ensure all text is visible */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode h4, 
+body.dark-mode h5, 
+body.dark-mode h6 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode p,
+body.dark-mode span:not(.badge) {
+    color: var(--text-secondary) !important;
+}
+
+/* Quick actions section */
+body.dark-mode .quick-actions,
+body.dark-mode .actions-grid {
+    background: transparent !important;
+}
+
+body.dark-mode .action-btn,
+body.dark-mode .quick-action-btn {
+    background: var(--accent-color) !important;
+    color: white !important;
+    border: none !important;
+}
+
+body.dark-mode .action-btn:hover,
+body.dark-mode .quick-action-btn:hover {
+    background: #9d8ee6 !important;
+}
+
+/* Pagina Principal (Landing page) specific */
+body.dark-mode .presentacion {
+    background: transparent !important;
+}
+
+body.dark-mode .texto-presentacion {
+    background: transparent !important;
+}
+
+body.dark-mode .mensaje-seguro,
+body.dark-mode .mensaje-ayuda {
+    color: #ffffff !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+body.dark-mode #informacion-banco {
+    background: transparent !important;
+}
+
+body.dark-mode .data-container {
+    background: transparent !important;
+}
+
+/* Cuadro opciones (Options dropdown) */
+body.dark-mode #cuadro-opciones,
+body.dark-mode .cuadro-opciones,
+body.dark-mode .opciones {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .opcion-btn1,
+body.dark-mode .opcion-btn2 {
+    background: var(--accent-color) !important;
+    color: white !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .opcion-btn1:hover,
+body.dark-mode .opcion-btn2:hover {
+    background: #9d8ee6 !important;
+}
+
+/* Informacion banco section and service cards */
+body.dark-mode #informacion-banco .contenido {
+    background: transparent !important;
+}
+
+body.dark-mode #informacion-banco .title-cont {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode #informacion-banco .texto {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .texto h3,
+body.dark-mode .texto h4 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .texto p,
+body.dark-mode .texto li {
+    color: var(--text-secondary) !important;
+}
+
+/* Register page specific */
+body.dark-mode .register-container {
+    background: transparent !important;
+}
+
+body.dark-mode .cont-cuadro {
+    background: transparent !important;
+}
+
+body.dark-mode .form-container {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+body.dark-mode .form-container h2 {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .form-container label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .form-grid,
+body.dark-mode .form-full {
+    background: transparent !important;
+}
+
+body.dark-mode .inicio {
+    background: var(--bg-card) !important;
+}
+
