@@ -64,6 +64,5 @@ namespace API_BancoFisclase.Servicios
 
         // Realiza una transferencia externa usando número de cuenta origen y número de cuenta destino (el destino puede pertenecer a otro cliente)
         Task<(bool Success, string Message, int TransaccionId)> TransferenciaExternaAsync(string numeroCuentaOrigen, string numeroCuentaDestino, decimal monto, string descripcion, int usuarioId);
-        Task ObtenerUsuarioPorUsernameAsync(string username);
     }
 }

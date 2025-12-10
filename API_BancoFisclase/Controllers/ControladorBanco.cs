@@ -818,7 +818,6 @@ namespace API_BancoFisclase.Controllers
                 if (request.CuentaOrigen == request.CuentaDestino)
                     return BadRequest(new { error = "Cuentas inválidas", message = "La cuenta origen y destino no pueden ser iguales" });
 
-                // Obtener usuarioId desde Username si no se proporciona UsuarioId
                 int usuarioId = request.UsuarioId ?? 1;
                 if (!string.IsNullOrWhiteSpace(request.Username))
                 {
@@ -836,11 +835,7 @@ namespace API_BancoFisclase.Controllers
 
                 if (resultado.Success)
                 {
-                    return Ok(new { 
-                        success = true, 
-                        message = resultado.Message,
-                        transaccionId = resultado.TransaccionId
-                    });
+                    return Ok(new { success = true, message = resultado.Message, transaccionId = resultado.TransaccionId });
                 }
 
                 return BadRequest(new { error = "Transferencia fallida", message = resultado.Message });
@@ -866,12 +861,10 @@ namespace API_BancoFisclase.Controllers
                 if (request.Monto <= 0)
                     return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
 
-                // Obtener usuarioId desde Username si no se proporciona UsuarioId
                 int usuarioId = request.UsuarioId ?? 1;
                 if (!string.IsNullOrWhiteSpace(request.Username))
                 {
                     var uid = await _banco.GetUsuarioIdByUsernameAsync(request.Username.Trim()).ConfigureAwait(false);
-                    uid = await _banco.GetUsuarioIdByUsernameAsync(request.Username.Trim()).ConfigureAwait(false);
                     if (uid.HasValue && uid.Value > 0) usuarioId = uid.Value;
                 }
 
@@ -885,11 +878,7 @@ namespace API_BancoFisclase.Controllers
 
                 if (resultado.Success)
                 {
-                    return Ok(new { 
-                        success = true, 
-                        message = resultado.Message,
-                        transaccionId = resultado.TransaccionId
-                    });
+                    return Ok(new { success = true, message = resultado.Message, transaccionId = resultado.TransaccionId });
                 }
 
                 return BadRequest(new { error = "Transferencia fallida", message = resultado.Message });
