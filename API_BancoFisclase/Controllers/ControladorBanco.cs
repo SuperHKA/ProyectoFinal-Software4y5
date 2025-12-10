@@ -818,12 +818,23 @@ namespace API_BancoFisclase.Controllers
                 if (request.CuentaOrigen == request.CuentaDestino)
                     return BadRequest(new { error = "Cuentas inválidas", message = "La cuenta origen y destino no pueden ser iguales" });
 
+                // Obtener usuarioId desde Username si no se proporciona UsuarioId
+                int usuarioId = request.UsuarioId ?? 1;
+                if (!string.IsNullOrWhiteSpace(request.Username))
+                {
+                    var usuario = await _banco.ObtenerUsuarioPorUsernameAsync(request.Username).ConfigureAwait(false);
+                    if (usuario != null)
+                    {
+                        usuarioId = usuario["ID Usuario"] != DBNull.Value ? Convert.ToInt32(usuario["ID Usuario"]) : 1;
+                    }
+                }
+
                 var resultado = await _banco.TransferenciaInternaAsync(
                     request.CuentaOrigen,
                     request.CuentaDestino,
                     request.Monto,
                     request.Descripcion ?? "Transferencia interna",
-                    request.UsuarioId ?? 1
+                    usuarioId
                 ).ConfigureAwait(false);
 
                 if (resultado.Success)
@@ -858,12 +869,23 @@ namespace API_BancoFisclase.Controllers
                 if (request.Monto <= 0)
                     return BadRequest(new { error = "Monto inválido", message = "El monto debe ser mayor a 0" });
 
+                // Obtener usuarioId desde Username si no se proporciona UsuarioId
+                int usuarioId = request.UsuarioId ?? 1;
+                if (!string.IsNullOrWhiteSpace(request.Username))
+                {
+                    var usuario = await _banco.ObtenerUsuarioPorUsernameAsync(request.Username).ConfigureAwait(false);
+                    if (usuario != null)
+                    {
+                        usuarioId = usuario["ID Usuario"] != DBNull.Value ? Convert.ToInt32(usuario["ID Usuario"]) : 1;
+                    }
+                }
+
                 var resultado = await _banco.TransferenciaExternaAsync(
                     request.CuentaOrigen,
                     request.CuentaDestino,
                     request.Monto,
                     request.Descripcion ?? "Transferencia externa",
-                    request.UsuarioId ?? 1
+                    usuarioId
                 ).ConfigureAwait(false);
 
                 if (resultado.Success)

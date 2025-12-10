@@ -15,6 +15,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         private readonly ApiAdmin _apiCliente;
         private int? _clienteId;
         private string _cuentaOrigenPredefinida;
+        private string _username;
 
         public NuevaTransaccion()
         {
@@ -24,11 +25,12 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             CargarTiposTransaccion();
         }
 
-        // Constructor con cuenta de origen predefinida
-        public NuevaTransaccion(int clienteId, string numeroCuenta) : this()
+        // Constructor con cuenta de origen predefinida y username
+        public NuevaTransaccion(int clienteId, string numeroCuenta, string username) : this()
         {
             _clienteId = clienteId;
             _cuentaOrigenPredefinida = numeroCuenta;
+            _username = username;
             txtNumeroCuenta.Text = numeroCuenta;
             txtNumeroCuenta.ReadOnly = true;
         }
@@ -61,10 +63,21 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             
             if (tipoSeleccionado == "Transferencia Interna" || tipoSeleccionado == "Transferencia Externa")
             {
-                lblNumeroCuenta.Text = "Cuenta Destino:";
-                if (!txtNumeroCuenta.ReadOnly)
+                // Si NO hay cuenta de origen predefinida, mostrar campo para cuenta origen
+                if (string.IsNullOrEmpty(_cuentaOrigenPredefinida))
                 {
+                    lblNumeroCuenta.Text = "Cuenta Origen/Destino:";
+                    txtNumeroCuenta.ReadOnly = false;
                     txtNumeroCuenta.Text = "";
+                }
+                else
+                {
+                    // Si ya hay cuenta origen, solo pedir destino
+                    lblNumeroCuenta.Text = "Cuenta Destino:";
+                    if (!txtNumeroCuenta.ReadOnly)
+                    {
+                        txtNumeroCuenta.Text = "";
+                    }
                 }
             }
             else
@@ -129,24 +142,52 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         break;
 
                     case "Transferencia Interna":
+                        // Si no hay cuenta origen predefinida, solicitar ambas cuentas
                         if (string.IsNullOrEmpty(_cuentaOrigenPredefinida))
                         {
-                            MessageBox.Show("No se ha especificado una cuenta de origen.", "Error", 
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
+                            // Pedir cuenta origen mediante InputBox simple
+                            string cuentaOrigen = InputBox.Show(
+                                "Ingrese el número de cuenta de origen:", 
+                                "Cuenta Origen");
+                            
+                            if (string.IsNullOrEmpty(cuentaOrigen))
+                            {
+                                MessageBox.Show("Debe especificar una cuenta de origen.", "Error", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            
+                            resultado = await RealizarTransferenciaInternaAsync(cuentaOrigen, numeroCuenta, monto, descripcion);
                         }
-                        resultado = await RealizarTransferenciaInternaAsync(_cuentaOrigenPredefinida, numeroCuenta, monto, descripcion);
+                        else
+                        {
+                            resultado = await RealizarTransferenciaInternaAsync(_cuentaOrigenPredefinida, numeroCuenta, monto, descripcion);
+                        }
                         mensaje = resultado ? "Transferencia interna realizada exitosamente" : "Error al realizar la transferencia interna";
                         break;
 
                     case "Transferencia Externa":
+                        // Si no hay cuenta origen predefinida, solicitar ambas cuentas
                         if (string.IsNullOrEmpty(_cuentaOrigenPredefinida))
                         {
-                            MessageBox.Show("No se ha especificado una cuenta de origen.", "Error", 
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
+                            // Pedir cuenta origen mediante InputBox simple
+                            string cuentaOrigen = InputBox.Show(
+                                "Ingrese el número de cuenta de origen:", 
+                                "Cuenta Origen");
+                            
+                            if (string.IsNullOrEmpty(cuentaOrigen))
+                            {
+                                MessageBox.Show("Debe especificar una cuenta de origen.", "Error", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            
+                            resultado = await RealizarTransferenciaExternaAsync(cuentaOrigen, numeroCuenta, monto, descripcion);
                         }
-                        resultado = await RealizarTransferenciaExternaAsync(_cuentaOrigenPredefinida, numeroCuenta, monto, descripcion);
+                        else
+                        {
+                            resultado = await RealizarTransferenciaExternaAsync(_cuentaOrigenPredefinida, numeroCuenta, monto, descripcion);
+                        }
                         mensaje = resultado ? "Transferencia externa realizada exitosamente" : "Error al realizar la transferencia externa";
                         break;
                 }
@@ -215,13 +256,14 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             try
             {
-                // Nota: Necesitarás implementar este endpoint en el API
                 var payload = new
                 {
                     NumeroCuenta = numeroCuenta,
                     Monto = monto,
                     Descripcion = descripcion,
-                    TipoTransaccion = "DEPOSITO"
+                    TipoTransaccion = "DEPOSITO",
+                    Username = _username ?? "admin",
+                    UsuarioId = _clienteId
                 };
 
                 var response = await _apiCliente.PostJsonAsync<object, Dictionary<string, object>>(
@@ -247,7 +289,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     NumeroCuenta = numeroCuenta,
                     Monto = monto,
                     Descripcion = descripcion,
-                    TipoTransaccion = "RETIRO"
+                    TipoTransaccion = "RETIRO",
+                    Username = _username ?? "admin",
+                    UsuarioId = _clienteId
                 };
 
                 var response = await _apiCliente.PostJsonAsync<object, Dictionary<string, object>>(
@@ -273,7 +317,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     CuentaOrigen = cuentaOrigen,
                     CuentaDestino = cuentaDestino,
                     Monto = monto,
-                    Descripcion = descripcion
+                    Descripcion = descripcion,
+                    Username = _username ?? "admin",
+                    UsuarioId = _clienteId
                 };
 
                 var response = await _apiCliente.PostJsonAsync<object, Dictionary<string, object>>(
@@ -299,7 +345,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     CuentaOrigen = cuentaOrigen,
                     CuentaDestino = cuentaDestino,
                     Monto = monto,
-                    Descripcion = descripcion
+                    Descripcion = descripcion,
+                    Username = _username ?? "admin",
+                    UsuarioId = _clienteId
                 };
 
                 var response = await _apiCliente.PostJsonAsync<object, Dictionary<string, object>>(
@@ -320,6 +368,41 @@ namespace ProyectoFinal_Software_4_y_5.Forms
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
+        }
+    }
+
+    // Helper class for InputBox
+    public static class InputBox
+    {
+        public static string Show(string prompt, string title = "Entrada", string defaultValue = "")
+        {
+            Form promptForm = new Form()
+            {
+                Width = 400,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = title,
+                StartPosition = FormStartPosition.CenterScreen,
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            Label textLabel = new Label() { Left = 20, Top = 20, Text = prompt, Width = 350 };
+            TextBox textBox = new TextBox() { Left = 20, Top = 45, Width = 350, Text = defaultValue };
+            Button confirmation = new Button() { Text = "OK", Left = 220, Width = 70, Top = 75, DialogResult = DialogResult.OK };
+            Button cancel = new Button() { Text = "Cancelar", Left = 295, Width = 75, Top = 75, DialogResult = DialogResult.Cancel };
+
+            confirmation.Click += (sender, e) => { promptForm.Close(); };
+            cancel.Click += (sender, e) => { promptForm.Close(); };
+
+            promptForm.Controls.Add(textLabel);
+            promptForm.Controls.Add(textBox);
+            promptForm.Controls.Add(confirmation);
+            promptForm.Controls.Add(cancel);
+            promptForm.AcceptButton = confirmation;
+            promptForm.CancelButton = cancel;
+
+            return promptForm.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
     }
 }

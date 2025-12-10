@@ -361,7 +361,6 @@ async function solicitarNuevaCuenta() {
                             <option value="">Seleccionar tipo</option>
                             <option value="Corriente">Cuenta Corriente</option>
                             <option value="Ahorro">Cuenta de Ahorro</option>
-                            <option value="Dolares">Cuenta en Dólares</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -400,7 +399,7 @@ async function submitSolicitudCuenta() {
     }
     
     try {
-        // Por ahora solo simular la solicitud (la API no tiene endpoint específico)
+        // Por ahora solo simular la solicitud
         showLoading(true);
         
         // Simular delay
@@ -549,9 +548,7 @@ async function descargarEstadoCuenta(numeroCuenta) {
 function getAccountTypeClass(tipoCuenta) {
     const typeMap = {
         'Corriente': 'corriente',
-        'Ahorro': 'ahorro', 
-        'Dolares': 'dolares',
-        'Dólares': 'dolares'
+        'Ahorro': 'ahorro'
     };
     return typeMap[tipoCuenta] || 'default';
 }
@@ -559,9 +556,7 @@ function getAccountTypeClass(tipoCuenta) {
 function getAccountIcon(tipoCuenta) {
     const iconMap = {
         'Corriente': 'fas fa-university',
-        'Ahorro': 'fas fa-piggy-bank',
-        'Dolares': 'fas fa-dollar-sign',
-        'Dólares': 'fas fa-dollar-sign'
+        'Ahorro': 'fas fa-piggy-bank'
     };
     return iconMap[tipoCuenta] || 'fas fa-credit-card';
 }

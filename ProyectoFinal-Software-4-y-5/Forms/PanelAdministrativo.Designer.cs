@@ -180,7 +180,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTituloSistema.ForeColor = System.Drawing.Color.White;
             this.lblTituloSistema.Location = new System.Drawing.Point(25, 18);
             this.lblTituloSistema.Name = "lblTituloSistema";
-            this.lblTituloSistema.Size = new System.Drawing.Size(381, 32);
+            this.lblTituloSistema.Size = new System.Drawing.Size(473, 41);
             this.lblTituloSistema.TabIndex = 0;
             this.lblTituloSistema.Text = "FISCLASE - Panel Administrativo";
             // 
@@ -217,16 +217,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tabPanelAdmin.Location = new System.Drawing.Point(0, 0);
             this.tabPanelAdmin.Name = "tabPanelAdmin";
             this.tabPanelAdmin.SelectedIndex = 0;
-            this.tabPanelAdmin.Size = new System.Drawing.Size(1397, 575);
+            this.tabPanelAdmin.Size = new System.Drawing.Size(1469, 594);
             this.tabPanelAdmin.TabIndex = 0;
             // 
             // tabDashboard
             // 
             this.tabDashboard.Controls.Add(this.panelDashboard);
-            this.tabDashboard.Location = new System.Drawing.Point(4, 26);
+            this.tabDashboard.Location = new System.Drawing.Point(4, 32);
             this.tabDashboard.Name = "tabDashboard";
             this.tabDashboard.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDashboard.Size = new System.Drawing.Size(1389, 545);
+            this.tabDashboard.Size = new System.Drawing.Size(1461, 558);
             this.tabDashboard.TabIndex = 0;
             this.tabDashboard.Text = "Dashboard";
             this.tabDashboard.UseVisualStyleBackColor = true;
@@ -238,7 +238,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelDashboard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelDashboard.Location = new System.Drawing.Point(3, 3);
             this.panelDashboard.Name = "panelDashboard";
-            this.panelDashboard.Size = new System.Drawing.Size(1383, 539);
+            this.panelDashboard.Size = new System.Drawing.Size(1455, 552);
             this.panelDashboard.TabIndex = 0;
             // 
             // panelTransaccionesRecientes
@@ -249,7 +249,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelTransaccionesRecientes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelTransaccionesRecientes.Location = new System.Drawing.Point(0, 150);
             this.panelTransaccionesRecientes.Name = "panelTransaccionesRecientes";
-            this.panelTransaccionesRecientes.Size = new System.Drawing.Size(1383, 389);
+            this.panelTransaccionesRecientes.Size = new System.Drawing.Size(1455, 402);
             this.panelTransaccionesRecientes.TabIndex = 1;
             // 
             // gridTransaccionesRecientes
@@ -271,7 +271,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridTransaccionesRecientes.RowHeadersWidth = 51;
             this.gridTransaccionesRecientes.RowTemplate.Height = 32;
             this.gridTransaccionesRecientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1383, 344);
+            this.gridTransaccionesRecientes.Size = new System.Drawing.Size(1455, 357);
             this.gridTransaccionesRecientes.TabIndex = 1;
             // 
             // btnActualizarTransRecientes
@@ -283,7 +283,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.btnActualizarTransRecientes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnActualizarTransRecientes.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnActualizarTransRecientes.ForeColor = System.Drawing.Color.White;
-            this.btnActualizarTransRecientes.Location = new System.Drawing.Point(1230, 8);
+            this.btnActualizarTransRecientes.Location = new System.Drawing.Point(1302, 8);
             this.btnActualizarTransRecientes.Name = "btnActualizarTransRecientes";
             this.btnActualizarTransRecientes.Size = new System.Drawing.Size(140, 30);
             this.btnActualizarTransRecientes.TabIndex = 2;
@@ -299,7 +299,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblTransRecientes.Location = new System.Drawing.Point(0, 0);
             this.lblTransRecientes.Name = "lblTransRecientes";
             this.lblTransRecientes.Padding = new System.Windows.Forms.Padding(20, 10, 20, 10);
-            this.lblTransRecientes.Size = new System.Drawing.Size(1383, 45);
+            this.lblTransRecientes.Size = new System.Drawing.Size(1455, 45);
             this.lblTransRecientes.TabIndex = 0;
             this.lblTransRecientes.Text = "📊 Transacciones Recientes";
             this.lblTransRecientes.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -310,7 +310,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelEstadisticas.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelEstadisticas.Location = new System.Drawing.Point(0, 0);
             this.panelEstadisticas.Name = "panelEstadisticas";
-            this.panelEstadisticas.Size = new System.Drawing.Size(1383, 150);
+            this.panelEstadisticas.Size = new System.Drawing.Size(1455, 150);
             this.panelEstadisticas.TabIndex = 0;
             // 
             // flowLayoutEstadisticas
@@ -324,7 +324,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.flowLayoutEstadisticas.ForeColor = System.Drawing.SystemColors.ControlText;
             this.flowLayoutEstadisticas.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutEstadisticas.Name = "flowLayoutEstadisticas";
-            this.flowLayoutEstadisticas.Size = new System.Drawing.Size(1383, 150);
+            this.flowLayoutEstadisticas.Size = new System.Drawing.Size(1455, 150);
             this.flowLayoutEstadisticas.TabIndex = 0;
             // 
             // panelTotalClientes
@@ -478,10 +478,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabClientes
             // 
             this.tabClientes.Controls.Add(this.splitContainerClientes);
-            this.tabClientes.Location = new System.Drawing.Point(4, 26);
+            this.tabClientes.Location = new System.Drawing.Point(4, 32);
             this.tabClientes.Name = "tabClientes";
             this.tabClientes.Padding = new System.Windows.Forms.Padding(3);
-            this.tabClientes.Size = new System.Drawing.Size(1389, 545);
+            this.tabClientes.Size = new System.Drawing.Size(1389, 539);
             this.tabClientes.TabIndex = 1;
             this.tabClientes.Text = "Gestión de Clientes";
             this.tabClientes.UseVisualStyleBackColor = true;
@@ -499,7 +499,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // splitContainerClientes.Panel2
             // 
             this.splitContainerClientes.Panel2.Controls.Add(this.panelFormularioCliente);
-            this.splitContainerClientes.Size = new System.Drawing.Size(1383, 539);
+            this.splitContainerClientes.Size = new System.Drawing.Size(1383, 533);
             this.splitContainerClientes.SplitterDistance = 798;
             this.splitContainerClientes.TabIndex = 0;
             // 
@@ -516,7 +516,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaClientes.RowHeadersWidth = 51;
             this.tablaClientes.RowTemplate.Height = 24;
             this.tablaClientes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.tablaClientes.Size = new System.Drawing.Size(798, 539);
+            this.tablaClientes.Size = new System.Drawing.Size(798, 533);
             this.tablaClientes.TabIndex = 0;
             // 
             // panelFormularioCliente
@@ -524,15 +524,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormularioCliente.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelFormularioCliente.Location = new System.Drawing.Point(0, 0);
             this.panelFormularioCliente.Name = "panelFormularioCliente";
-            this.panelFormularioCliente.Size = new System.Drawing.Size(581, 539);
+            this.panelFormularioCliente.Size = new System.Drawing.Size(581, 533);
             this.panelFormularioCliente.TabIndex = 0;
             // 
             // tabSeguridad
             // 
             this.tabSeguridad.Controls.Add(this.splitContainerSeguridad);
-            this.tabSeguridad.Location = new System.Drawing.Point(4, 26);
+            this.tabSeguridad.Location = new System.Drawing.Point(4, 32);
             this.tabSeguridad.Name = "tabSeguridad";
-            this.tabSeguridad.Size = new System.Drawing.Size(1389, 545);
+            this.tabSeguridad.Size = new System.Drawing.Size(1389, 539);
             this.tabSeguridad.TabIndex = 2;
             this.tabSeguridad.Text = "Seguridad";
             this.tabSeguridad.UseVisualStyleBackColor = true;
@@ -551,8 +551,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // splitContainerSeguridad.Panel2
             // 
             this.splitContainerSeguridad.Panel2.Controls.Add(this.panelCrearAdmin);
-            this.splitContainerSeguridad.Size = new System.Drawing.Size(1389, 545);
-            this.splitContainerSeguridad.SplitterDistance = 271;
+            this.splitContainerSeguridad.Size = new System.Drawing.Size(1389, 539);
+            this.splitContainerSeguridad.SplitterDistance = 268;
             this.splitContainerSeguridad.TabIndex = 0;
             // 
             // panelUsuariosBloqueados
@@ -564,7 +564,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelUsuariosBloqueados.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelUsuariosBloqueados.Location = new System.Drawing.Point(0, 0);
             this.panelUsuariosBloqueados.Name = "panelUsuariosBloqueados";
-            this.panelUsuariosBloqueados.Size = new System.Drawing.Size(1389, 271);
+            this.panelUsuariosBloqueados.Size = new System.Drawing.Size(1389, 268);
             this.panelUsuariosBloqueados.TabIndex = 0;
             // 
             // btnActualizarBloqueados
@@ -578,7 +578,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // btnDesbloquearUsuario
             // 
             this.btnDesbloquearUsuario.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnDesbloquearUsuario.Location = new System.Drawing.Point(0, 238);
+            this.btnDesbloquearUsuario.Location = new System.Drawing.Point(0, 235);
             this.btnDesbloquearUsuario.Name = "btnDesbloquearUsuario";
             this.btnDesbloquearUsuario.Size = new System.Drawing.Size(1389, 33);
             this.btnDesbloquearUsuario.TabIndex = 2;
@@ -597,7 +597,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridUsuariosBloqueados.ReadOnly = true;
             this.gridUsuariosBloqueados.RowHeadersWidth = 51;
             this.gridUsuariosBloqueados.RowTemplate.Height = 24;
-            this.gridUsuariosBloqueados.Size = new System.Drawing.Size(1389, 241);
+            this.gridUsuariosBloqueados.Size = new System.Drawing.Size(1389, 238);
             this.gridUsuariosBloqueados.TabIndex = 1;
             // 
             // lblUsuariosBloqueadosTitle
@@ -620,7 +620,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelCrearAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCrearAdmin.Location = new System.Drawing.Point(0, 0);
             this.panelCrearAdmin.Name = "panelCrearAdmin";
-            this.panelCrearAdmin.Size = new System.Drawing.Size(1389, 270);
+            this.panelCrearAdmin.Size = new System.Drawing.Size(1389, 267);
             this.panelCrearAdmin.TabIndex = 0;
             // 
             // panelFormAdmin
@@ -631,13 +631,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelFormAdmin.Location = new System.Drawing.Point(0, 30);
             this.panelFormAdmin.Name = "panelFormAdmin";
             this.panelFormAdmin.Padding = new System.Windows.Forms.Padding(10);
-            this.panelFormAdmin.Size = new System.Drawing.Size(1389, 240);
+            this.panelFormAdmin.Size = new System.Drawing.Size(1389, 237);
             this.panelFormAdmin.TabIndex = 1;
             // 
             // btnCrearAdministrador
             // 
             this.btnCrearAdministrador.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnCrearAdministrador.Location = new System.Drawing.Point(10, 197);
+            this.btnCrearAdministrador.Location = new System.Drawing.Point(10, 194);
             this.btnCrearAdministrador.Name = "btnCrearAdministrador";
             this.btnCrearAdministrador.Size = new System.Drawing.Size(1369, 33);
             this.btnCrearAdministrador.TabIndex = 1;
@@ -673,77 +673,77 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.lblAdminUsername.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAdminUsername.AutoSize = true;
-            this.lblAdminUsername.Location = new System.Drawing.Point(3, 15);
+            this.lblAdminUsername.Location = new System.Drawing.Point(3, 13);
             this.lblAdminUsername.Name = "lblAdminUsername";
-            this.lblAdminUsername.Size = new System.Drawing.Size(74, 19);
+            this.lblAdminUsername.Size = new System.Drawing.Size(91, 23);
             this.lblAdminUsername.TabIndex = 0;
             this.lblAdminUsername.Text = "Username:";
             // 
             // txtAdminUsername
             // 
             this.txtAdminUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminUsername.Location = new System.Drawing.Point(413, 12);
+            this.txtAdminUsername.Location = new System.Drawing.Point(413, 10);
             this.txtAdminUsername.MaxLength = 100;
             this.txtAdminUsername.Name = "txtAdminUsername";
-            this.txtAdminUsername.Size = new System.Drawing.Size(953, 25);
+            this.txtAdminUsername.Size = new System.Drawing.Size(953, 30);
             this.txtAdminUsername.TabIndex = 1;
             // 
             // lblAdminPassword
             // 
             this.lblAdminPassword.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAdminPassword.AutoSize = true;
-            this.lblAdminPassword.Location = new System.Drawing.Point(3, 65);
+            this.lblAdminPassword.Location = new System.Drawing.Point(3, 63);
             this.lblAdminPassword.Name = "lblAdminPassword";
-            this.lblAdminPassword.Size = new System.Drawing.Size(70, 19);
+            this.lblAdminPassword.Size = new System.Drawing.Size(84, 23);
             this.lblAdminPassword.TabIndex = 2;
             this.lblAdminPassword.Text = "Password:";
             // 
             // txtAdminPassword
             // 
             this.txtAdminPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminPassword.Location = new System.Drawing.Point(413, 62);
+            this.txtAdminPassword.Location = new System.Drawing.Point(413, 60);
             this.txtAdminPassword.MaxLength = 100;
             this.txtAdminPassword.Name = "txtAdminPassword";
             this.txtAdminPassword.PasswordChar = '*';
-            this.txtAdminPassword.Size = new System.Drawing.Size(953, 25);
+            this.txtAdminPassword.Size = new System.Drawing.Size(953, 30);
             this.txtAdminPassword.TabIndex = 3;
             // 
             // lblAdminNombre
             // 
             this.lblAdminNombre.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAdminNombre.AutoSize = true;
-            this.lblAdminNombre.Location = new System.Drawing.Point(3, 115);
+            this.lblAdminNombre.Location = new System.Drawing.Point(3, 113);
             this.lblAdminNombre.Name = "lblAdminNombre";
-            this.lblAdminNombre.Size = new System.Drawing.Size(62, 19);
+            this.lblAdminNombre.Size = new System.Drawing.Size(77, 23);
             this.lblAdminNombre.TabIndex = 4;
             this.lblAdminNombre.Text = "Nombre:";
             // 
             // txtAdminNombre
             // 
             this.txtAdminNombre.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminNombre.Location = new System.Drawing.Point(413, 112);
+            this.txtAdminNombre.Location = new System.Drawing.Point(413, 110);
             this.txtAdminNombre.MaxLength = 100;
             this.txtAdminNombre.Name = "txtAdminNombre";
-            this.txtAdminNombre.Size = new System.Drawing.Size(953, 25);
+            this.txtAdminNombre.Size = new System.Drawing.Size(953, 30);
             this.txtAdminNombre.TabIndex = 5;
             // 
             // lblAdminEmail
             // 
             this.lblAdminEmail.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAdminEmail.AutoSize = true;
-            this.lblAdminEmail.Location = new System.Drawing.Point(3, 165);
+            this.lblAdminEmail.Location = new System.Drawing.Point(3, 163);
             this.lblAdminEmail.Name = "lblAdminEmail";
-            this.lblAdminEmail.Size = new System.Drawing.Size(44, 19);
+            this.lblAdminEmail.Size = new System.Drawing.Size(55, 23);
             this.lblAdminEmail.TabIndex = 6;
             this.lblAdminEmail.Text = "Email:";
             // 
             // txtAdminEmail
             // 
             this.txtAdminEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdminEmail.Location = new System.Drawing.Point(413, 162);
+            this.txtAdminEmail.Location = new System.Drawing.Point(413, 160);
             this.txtAdminEmail.MaxLength = 200;
             this.txtAdminEmail.Name = "txtAdminEmail";
-            this.txtAdminEmail.Size = new System.Drawing.Size(953, 25);
+            this.txtAdminEmail.Size = new System.Drawing.Size(953, 30);
             this.txtAdminEmail.TabIndex = 7;
             // 
             // lblCrearAdminTitle
@@ -762,9 +762,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabReportes
             // 
             this.tabReportes.Controls.Add(this.panelReportes);
-            this.tabReportes.Location = new System.Drawing.Point(4, 26);
+            this.tabReportes.Location = new System.Drawing.Point(4, 32);
             this.tabReportes.Name = "tabReportes";
-            this.tabReportes.Size = new System.Drawing.Size(1389, 545);
+            this.tabReportes.Size = new System.Drawing.Size(1389, 539);
             this.tabReportes.TabIndex = 3;
             this.tabReportes.Text = "Reportes Avanzados";
             this.tabReportes.UseVisualStyleBackColor = true;
@@ -776,7 +776,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelReportes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelReportes.Location = new System.Drawing.Point(0, 0);
             this.panelReportes.Name = "panelReportes";
-            this.panelReportes.Size = new System.Drawing.Size(1389, 545);
+            this.panelReportes.Size = new System.Drawing.Size(1389, 539);
             this.panelReportes.TabIndex = 0;
             // 
             // gridReporteTransacciones
@@ -791,7 +791,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridReporteTransacciones.ReadOnly = true;
             this.gridReporteTransacciones.RowHeadersWidth = 51;
             this.gridReporteTransacciones.RowTemplate.Height = 24;
-            this.gridReporteTransacciones.Size = new System.Drawing.Size(1389, 465);
+            this.gridReporteTransacciones.Size = new System.Drawing.Size(1389, 459);
             this.gridReporteTransacciones.TabIndex = 1;
             // 
             // panelFiltrosReporte
@@ -822,7 +822,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaFin.Location = new System.Drawing.Point(550, 28);
             this.dtpFechaFin.Name = "dtpFechaFin";
-            this.dtpFechaFin.Size = new System.Drawing.Size(200, 25);
+            this.dtpFechaFin.Size = new System.Drawing.Size(200, 30);
             this.dtpFechaFin.TabIndex = 4;
             // 
             // lblFechaFin
@@ -831,7 +831,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblFechaFin.ForeColor = System.Drawing.Color.White;
             this.lblFechaFin.Location = new System.Drawing.Point(470, 32);
             this.lblFechaFin.Name = "lblFechaFin";
-            this.lblFechaFin.Size = new System.Drawing.Size(69, 19);
+            this.lblFechaFin.Size = new System.Drawing.Size(85, 23);
             this.lblFechaFin.TabIndex = 3;
             this.lblFechaFin.Text = "Fecha Fin:";
             // 
@@ -839,7 +839,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.dtpFechaInicio.Location = new System.Drawing.Point(220, 28);
             this.dtpFechaInicio.Name = "dtpFechaInicio";
-            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 25);
+            this.dtpFechaInicio.Size = new System.Drawing.Size(200, 30);
             this.dtpFechaInicio.TabIndex = 2;
             // 
             // lblFechaInicio
@@ -848,7 +848,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblFechaInicio.ForeColor = System.Drawing.Color.White;
             this.lblFechaInicio.Location = new System.Drawing.Point(120, 32);
             this.lblFechaInicio.Name = "lblFechaInicio";
-            this.lblFechaInicio.Size = new System.Drawing.Size(83, 19);
+            this.lblFechaInicio.Size = new System.Drawing.Size(104, 23);
             this.lblFechaInicio.TabIndex = 1;
             this.lblFechaInicio.Text = "Fecha Inicio:";
             // 
@@ -859,16 +859,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblFiltrarPor.ForeColor = System.Drawing.Color.White;
             this.lblFiltrarPor.Location = new System.Drawing.Point(20, 30);
             this.lblFiltrarPor.Name = "lblFiltrarPor";
-            this.lblFiltrarPor.Size = new System.Drawing.Size(81, 16);
+            this.lblFiltrarPor.Size = new System.Drawing.Size(94, 19);
             this.lblFiltrarPor.TabIndex = 0;
             this.lblFiltrarPor.Text = "Filtrar por:";
             // 
             // tabNotificaciones
             // 
             this.tabNotificaciones.Controls.Add(this.panelNotificaciones);
-            this.tabNotificaciones.Location = new System.Drawing.Point(4, 26);
+            this.tabNotificaciones.Location = new System.Drawing.Point(4, 32);
             this.tabNotificaciones.Name = "tabNotificaciones";
-            this.tabNotificaciones.Size = new System.Drawing.Size(1389, 545);
+            this.tabNotificaciones.Size = new System.Drawing.Size(1389, 539);
             this.tabNotificaciones.TabIndex = 4;
             this.tabNotificaciones.Text = "Notificaciones Sistema";
             this.tabNotificaciones.UseVisualStyleBackColor = true;
@@ -880,7 +880,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelNotificaciones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelNotificaciones.Location = new System.Drawing.Point(0, 0);
             this.panelNotificaciones.Name = "panelNotificaciones";
-            this.panelNotificaciones.Size = new System.Drawing.Size(1389, 545);
+            this.panelNotificaciones.Size = new System.Drawing.Size(1389, 539);
             this.panelNotificaciones.TabIndex = 0;
             // 
             // gridNotificacionesSistema
@@ -895,7 +895,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.gridNotificacionesSistema.ReadOnly = true;
             this.gridNotificacionesSistema.RowHeadersWidth = 51;
             this.gridNotificacionesSistema.RowTemplate.Height = 24;
-            this.gridNotificacionesSistema.Size = new System.Drawing.Size(1389, 465);
+            this.gridNotificacionesSistema.Size = new System.Drawing.Size(1389, 459);
             this.gridNotificacionesSistema.TabIndex = 1;
             // 
             // panelControlesNotificaciones
@@ -925,16 +925,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.lblNotificacionesTitulo.ForeColor = System.Drawing.Color.White;
             this.lblNotificacionesTitulo.Location = new System.Drawing.Point(400, 32);
             this.lblNotificacionesTitulo.Name = "lblNotificacionesTitulo";
-            this.lblNotificacionesTitulo.Size = new System.Drawing.Size(192, 16);
+            this.lblNotificacionesTitulo.Size = new System.Drawing.Size(214, 19);
             this.lblNotificacionesTitulo.TabIndex = 0;
             this.lblNotificacionesTitulo.Text = "Notificaciones del Sistema";
             // 
             // tabMovimientos
             // 
             this.tabMovimientos.Controls.Add(this.panelMovimientos);
-            this.tabMovimientos.Location = new System.Drawing.Point(4, 26);
+            this.tabMovimientos.Location = new System.Drawing.Point(4, 32);
             this.tabMovimientos.Name = "tabMovimientos";
-            this.tabMovimientos.Size = new System.Drawing.Size(1389, 545);
+            this.tabMovimientos.Size = new System.Drawing.Size(1389, 539);
             this.tabMovimientos.TabIndex = 5;
             this.tabMovimientos.Text = "Movimientos del Día";
             this.tabMovimientos.UseVisualStyleBackColor = true;
@@ -946,7 +946,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelMovimientos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelMovimientos.Location = new System.Drawing.Point(0, 0);
             this.panelMovimientos.Name = "panelMovimientos";
-            this.panelMovimientos.Size = new System.Drawing.Size(1389, 545);
+            this.panelMovimientos.Size = new System.Drawing.Size(1389, 539);
             this.panelMovimientos.TabIndex = 0;
             // 
             // tablaMovimientos
@@ -963,7 +963,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaMovimientos.ReadOnly = true;
             this.tablaMovimientos.RowHeadersWidth = 51;
             this.tablaMovimientos.RowTemplate.Height = 24;
-            this.tablaMovimientos.Size = new System.Drawing.Size(1369, 485);
+            this.tablaMovimientos.Size = new System.Drawing.Size(1369, 479);
             this.tablaMovimientos.TabIndex = 0;
             // 
             // btnActualizarMovimientos
@@ -986,9 +986,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabAnalisis
             // 
             this.tabAnalisis.Controls.Add(this.panelAnalisis);
-            this.tabAnalisis.Location = new System.Drawing.Point(4, 26);
+            this.tabAnalisis.Location = new System.Drawing.Point(4, 32);
             this.tabAnalisis.Name = "tabAnalisis";
-            this.tabAnalisis.Size = new System.Drawing.Size(1389, 545);
+            this.tabAnalisis.Size = new System.Drawing.Size(1389, 539);
             this.tabAnalisis.TabIndex = 6;
             this.tabAnalisis.Text = "Análisis de Transacciones";
             this.tabAnalisis.UseVisualStyleBackColor = true;
@@ -1000,7 +1000,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelAnalisis.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelAnalisis.Location = new System.Drawing.Point(0, 0);
             this.panelAnalisis.Name = "panelAnalisis";
-            this.panelAnalisis.Size = new System.Drawing.Size(1389, 545);
+            this.panelAnalisis.Size = new System.Drawing.Size(1389, 539);
             this.panelAnalisis.TabIndex = 0;
             // 
             // tablaAnalisis
@@ -1017,7 +1017,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaAnalisis.ReadOnly = true;
             this.tablaAnalisis.RowHeadersWidth = 51;
             this.tablaAnalisis.RowTemplate.Height = 24;
-            this.tablaAnalisis.Size = new System.Drawing.Size(1369, 485);
+            this.tablaAnalisis.Size = new System.Drawing.Size(1369, 479);
             this.tablaAnalisis.TabIndex = 0;
             // 
             // btnActualizarAnalisis
@@ -1040,9 +1040,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // tabResumen
             // 
             this.tabResumen.Controls.Add(this.panelResumen);
-            this.tabResumen.Location = new System.Drawing.Point(4, 26);
+            this.tabResumen.Location = new System.Drawing.Point(4, 32);
             this.tabResumen.Name = "tabResumen";
-            this.tabResumen.Size = new System.Drawing.Size(1389, 545);
+            this.tabResumen.Size = new System.Drawing.Size(1389, 539);
             this.tabResumen.TabIndex = 7;
             this.tabResumen.Text = "Resumen de Clientes";
             this.tabResumen.UseVisualStyleBackColor = true;
@@ -1054,7 +1054,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.panelResumen.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelResumen.Location = new System.Drawing.Point(0, 0);
             this.panelResumen.Name = "panelResumen";
-            this.panelResumen.Size = new System.Drawing.Size(1389, 545);
+            this.panelResumen.Size = new System.Drawing.Size(1389, 539);
             this.panelResumen.TabIndex = 0;
             // 
             // tablaResumen
@@ -1071,7 +1071,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tablaResumen.ReadOnly = true;
             this.tablaResumen.RowHeadersWidth = 51;
             this.tablaResumen.RowTemplate.Height = 24;
-            this.tablaResumen.Size = new System.Drawing.Size(1369, 485);
+            this.tablaResumen.Size = new System.Drawing.Size(1369, 479);
             this.tablaResumen.TabIndex = 0;
             // 
             // btnActualizarResumen
@@ -1158,10 +1158,10 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             // PanelAdministrativo
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1397, 575);
+            this.ClientSize = new System.Drawing.Size(1469, 594);
             this.Controls.Add(this.tabPanelAdmin);
             this.Font = new System.Drawing.Font("Arial Narrow", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

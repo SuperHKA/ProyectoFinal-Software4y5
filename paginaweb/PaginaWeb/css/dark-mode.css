@@ -665,6 +665,10 @@ body.dark-mode .transfer-summary {
     border: 1px solid var(--border-color) !important;
 }
 
+body.dark-mode .balance-amount {
+    color: var(--text-primary) !important;
+}
+
 body.dark-mode .summary-item {
     background: transparent !important;
     border-bottom: 1px solid var(--border-color) !important;
@@ -888,6 +892,10 @@ body.dark-mode .transaction-info {
     background: transparent !important;
 }
 
+body.dark-mode .transaction-info strong {
+    color: var(--text-primary) !important;
+}   
+
 body.dark-mode .merchant,
 body.dark-mode .fecha {
     color: var(--text-primary) !important;
@@ -923,6 +931,10 @@ body.dark-mode .section-header h2 {
 body.dark-mode .transaction-form {
     background: transparent !important;
 }
+
+body.dark-mode .transaction-name {
+    color: var(--text-primary) !important;
+} 
 
 body.dark-mode .form-row {
     background: transparent !important;
@@ -1081,7 +1093,7 @@ body.dark-mode h6 {
 
 body.dark-mode p,
 body.dark-mode span:not(.badge) {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
 /* Quick actions section */
@@ -1200,3 +1212,6 @@ body.dark-mode .inicio {
     background: var(--bg-card) !important;
 }
 
+body.dark-mode .inicio h3 {
+    color: var(--text-primary) !important;
+}

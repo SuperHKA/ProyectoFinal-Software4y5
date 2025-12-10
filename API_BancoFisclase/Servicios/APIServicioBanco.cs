@@ -447,7 +447,7 @@ namespace API_BancoFisclase.Servicios
         private async Task<int?> GetCuentaIdByNumeroAsync(string numeroCuenta)
         {
             if (string.IsNullOrWhiteSpace(numeroCuenta)) return null;
-            const string sql = "SELECT TOP(1) cuenta_id FROM Cuenta WHERE numero_cuenta = @numero";
+            const string sql = "SELECT TOP(1) [ID Cuenta] FROM Cuenta WHERE [Numero de Cuenta] = @numero";
             using (var conn = new SqlConnection(_cs))
             using (var cmd = new SqlCommand(sql, conn))
             {
