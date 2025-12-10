@@ -17,13 +17,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 function normalizeClienteData(cliente) {
     if (!cliente) return null;
     
+    // Extraer campos de dirección
+    const calle = cliente['Calle'] || cliente.calle || '';
+    const numero = cliente['Numero'] || cliente.numero || '';
+    const ciudad = cliente['Ciudad'] || cliente.ciudad || '';
+    const estado = cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia || '';
+    const codigoPostal = cliente['Codigo Postal'] || cliente.codigoPostal || cliente.codigo_postal || '';
+    const pais = cliente['Pais'] || cliente.pais || '';
+    
+    // Concatenar dirección completa: País + Estado/Provincia + Ciudad + Calle + Número
+    const direccionPartes = [];
+    if (pais) direccionPartes.push(pais);
+    if (estado) direccionPartes.push(estado);
+    if (ciudad) direccionPartes.push(ciudad);
+    if (calle) direccionPartes.push(calle);
+    if (numero) direccionPartes.push('#' + numero);
+    const direccionCompleta = direccionPartes.length > 0 ? direccionPartes.join(', ') : 'N/A';
+    
     return {
         clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
-        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
-        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        nombre: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
+        nombreCompleto: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
         email: cliente['Email'] || cliente.email,
-        telefono: cliente['Teléfono'] || cliente.telefono,
-        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        telefono: cliente['Telefono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username,
+        direccion: direccionCompleta,
+        direccionCompleta: direccionCompleta,
         ...cliente
     };
 }
@@ -34,7 +53,7 @@ function normalizeCuentaData(cuenta) {
     
     return {
         cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
-        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        numeroCuenta: cuenta['Numero de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
         tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
         saldo: cuenta['Saldo'] || cuenta.saldo || 0,
         activa: cuenta['Activa'] !== false && cuenta.activa !== false,
@@ -47,13 +66,13 @@ function normalizeTransaccionData(transaccion) {
     if (!transaccion) return null;
     
     return {
-        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        transaccionId: transaccion['ID Transaccion'] || transaccion.transaccionId || transaccion.transaccion_id,
         fecha: transaccion['Fecha'] || transaccion.fecha,
         tipo: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
         tipoTransaccion: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
         estado: transaccion['Estado'] || transaccion.estado,
         monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
-        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        descripcion: transaccion['Descripcion'] || transaccion.descripcion,
         cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuentaOrigen || transaccion.cuenta_origen,
         cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuentaDestino || transaccion.cuenta_destino,
         clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
@@ -99,8 +118,13 @@ async function loadDashboardData() {
 
         // Obtener datos del cliente (incluye cliente + cuentas)
         const data = await authService.getClienteInfo();
+        console.log('Datos del cliente recibidos:', data);
+        
         const cuentasRaw = data.cuentas || data; // Compatibilidad con respuesta vieja
+        console.log('Cuentas raw:', cuentasRaw);
+        
         const cuentas = Array.isArray(cuentasRaw) ? cuentasRaw.map(normalizeCuentaData) : [];
+        console.log('Cuentas normalizadas:', cuentas);
         
         // Guardar info del cliente en sessionStorage para usarla después
         sessionStorage.setItem('clienteInfo', JSON.stringify(data));

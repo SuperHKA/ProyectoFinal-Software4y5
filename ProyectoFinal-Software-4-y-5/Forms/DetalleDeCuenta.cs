@@ -134,13 +134,13 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 System.Diagnostics.Debug.WriteLine($"DEBUG DetalleDeCuenta: Se recibieron {cuentas.Count()} cuentas");
                 foreach (var cuenta in cuentas)
                 {
-                    var numCuenta = cuenta.ContainsKey("Número de Cuenta") ? cuenta["Número de Cuenta"]?.ToString() : "N/A";
+                    var numCuenta = cuenta.ContainsKey("Numero de Cuenta") ? cuenta["Numero de Cuenta"]?.ToString() : "N/A";
                     System.Diagnostics.Debug.WriteLine($"  - Cuenta: {numCuenta}");
                 }
                 
                 // Buscar la cuenta usando el nombre de columna correcto de la API
                 var cuentaData = cuentas.FirstOrDefault(c => 
-                    c.ContainsKey("Número de Cuenta") && c["Número de Cuenta"]?.ToString() == numeroCuenta);
+                    c.ContainsKey("Numero de Cuenta") && c["Numero de Cuenta"]?.ToString() == numeroCuenta);
 
                 if (cuentaData == null)
                 {
@@ -207,7 +207,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             }
             
             // Obtener número de cuenta
-            var numeroCuenta = cuentaData.ContainsKey("Número de Cuenta") ? cuentaData["Número de Cuenta"]?.ToString() : "";
+            var numeroCuenta = cuentaData.ContainsKey("Numero de Cuenta") ? cuentaData["Numero de Cuenta"]?.ToString() : "";
             
             // Obtener fecha de apertura si existe
             DateTime fechaApertura = DateTime.Now.AddMonths(-6);

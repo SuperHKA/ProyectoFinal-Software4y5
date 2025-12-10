@@ -69,7 +69,7 @@ function normalizeCuentaData(cuenta) {
     
     return {
         cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
-        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        numeroCuenta: cuenta['Numero de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
         tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
         saldo: cuenta['Saldo'] || cuenta.saldo || 0,
         activa: cuenta['Activa'] !== false && cuenta.activa !== false,
@@ -82,12 +82,12 @@ function normalizeTransaccionData(transaccion) {
     if (!transaccion) return null;
     
     return {
-        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
-        tipo_transaccion: transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
-        tipoTransaccion: transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        transaccionId: transaccion['ID Transaccion'] || transaccion.transaccionId || transaccion.transaccion_id,
+        tipo_transaccion: transaccion['Tipo Transaccion'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        tipoTransaccion: transaccion['Tipo Transaccion'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
         monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
         fecha: transaccion['Fecha'] || transaccion.fecha,
-        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        descripcion: transaccion['Descripcion'] || transaccion.descripcion,
         estado: transaccion['Estado'] || transaccion.estado || 'Completado',
         cuenta_origen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
         cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
@@ -151,7 +151,8 @@ function setupExternalTransfers() {
     if (transferTypeSelect) {
         transferTypeSelect.addEventListener('change', function() {
             const isExternal = this.value === 'other-bank' || this.value === 'international';
-            showExternalTransferInfo(isExternal);
+            // TODO: Implementar showExternalTransferInfo cuando sea necesario
+            // showExternalTransferInfo(isExternal);
         });
     }
 }
@@ -280,11 +281,12 @@ function validateTransferAmount(amount) {
     }
     
     // Obtener saldo de la cuenta seleccionada
-    const selectedAccount = cuentasUsuario.find(c => {
+    const selectedAccountRaw = cuentasUsuario.find(c => {
         const id = c['ID Cuenta'] || c.cuentaId || c.cuenta_id || c.cuentaID;
         return id == fromAccount;
     });
-    const saldo = selectedAccount ? (selectedAccount.Saldo || selectedAccount.saldo) : 0;
+    const selectedAccount = selectedAccountRaw ? normalizeCuentaData(selectedAccountRaw) : null;
+    const saldo = selectedAccount ? selectedAccount.saldo : 0;
     if (selectedAccount && amountValue > saldo) {
         showAmountValidation('Saldo insuficiente', 'error');
         amountInput.classList.add('invalid');
@@ -347,7 +349,7 @@ function validateDestinationAccount(accountNumber) {
     const transferType = document.getElementById('transferType').value;
     const toAccountInput = document.getElementById('toAccount');
     
-    if (!toAccountInput || !accountNumber) return;
+    if (!toAccountInput || !accountNumber) return false;
     
     // Limpiar validaciones anteriores
     toAccountInput.classList.remove('valid', 'invalid');
@@ -362,14 +364,18 @@ function validateDestinationAccount(accountNumber) {
             break;
             
         case 'other-bank':
-            isValid = /^[0-9]{20,22}$/.test(accountNumber);
-            message = isValid ? 'CBU válido' : 'Formato de CBU inválido (20-22 dígitos)';
+            isValid = /^[0-9]{12,22}$/.test(accountNumber);
+            message = isValid ? 'CBU válido' : 'Formato de CBU inválido (12-22 dígitos)';
             break;
             
         case 'international':
             // Validación básica para IBAN (simplificada)
             isValid = /^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/.test(accountNumber.toUpperCase());
             message = isValid ? 'IBAN válido' : 'Formato de IBAN inválido';
+            break;
+            
+        default:
+            isValid = true; // Si no hay tipo específico, aceptar cualquier formato
             break;
     }
     
@@ -400,7 +406,7 @@ function showAccountValidation(message, type) {
 async function buscarCuentaIdPorNumero(numeroCuenta) {
     try {
         const token = authService.getAuthToken();
-        console.log('📌 Buscando cuenta con número:', numeroCuenta);
+        console.log('Buscando cuenta con número:', numeroCuenta);
 
         const response = await fetch(`${authService.baseURL}/banco/cuentas`, {
             method: 'GET',
@@ -414,17 +420,17 @@ async function buscarCuentaIdPorNumero(numeroCuenta) {
             throw new Error('Error al buscar cuenta de destino');
         }
 
-        const todasLasCuentas = await response.json();
-        console.log('📌 Total de cuentas en el sistema:', todasLasCuentas.length);
+        const todasLasCuentasRaw = await response.json();
+        const todasLasCuentas = todasLasCuentasRaw.map(normalizeCuentaData);
+        console.log('Total de cuentas en el sistema:', todasLasCuentas.length);
 
         const cuentaEncontrada = todasLasCuentas.find(c =>
-            (c['Número de Cuenta'] || c.numeroCuenta || c.numero_cuenta || c.numero) === numeroCuenta
+            c.numeroCuenta === numeroCuenta
         );
 
         if (cuentaEncontrada) {
-            const cuentaId = cuentaEncontrada['ID Cuenta'] || cuentaEncontrada.cuentaId || cuentaEncontrada.cuenta_id || cuentaEncontrada.cuentaID;
-            console.log('✅ Cuenta destino encontrada:', { cuentaId, numero: numeroCuenta });
-            return cuentaId;
+            console.log('✅ Cuenta destino encontrada:', { cuentaId: cuentaEncontrada.cuentaId, numero: numeroCuenta });
+            return cuentaEncontrada.cuentaId;
         }
 
         console.log('❌ Cuenta destino NO encontrada con número:', numeroCuenta);
@@ -443,7 +449,7 @@ async function realizarTransferenciaInterna(formData) {
             throw new Error('Usuario no autenticado');
         }
 
-        console.log('🔍 Buscando cuenta de destino...');
+        console.log('Buscando cuenta de destino...');
         const cuentaDestinoId = await buscarCuentaIdPorNumero(formData.toAccount);
         
         if (!cuentaDestinoId) {
@@ -465,8 +471,8 @@ async function realizarTransferenciaInterna(formData) {
             username: user.username
         };
 
-        console.log('🌐 Enviando transferencia interna a API:', transferData);
-        console.log('🔗 URL:', `${authService.baseURL}/banco/transfer/internal`);
+        console.log('Enviando transferencia interna a API:', transferData);
+        console.log('URL:', `${authService.baseURL}/banco/transfer/internal`);
 
         const response = await fetch(`${authService.baseURL}/banco/transfer/internal`, {
             method: 'POST',
@@ -477,12 +483,12 @@ async function realizarTransferenciaInterna(formData) {
             body: JSON.stringify(transferData),
         });
 
-        console.log('📦 Status de respuesta:', response.status, response.statusText);
+        console.log('Status de respuesta:', response.status, response.statusText);
         
         let data;
         try {
             data = await response.json();
-            console.log('📥 Respuesta de la API:', data);
+            console.log('Respuesta de la API:', data);
         } catch (jsonError) {
             console.error('❌ Error parseando JSON:', jsonError);
             data = { message: 'Error al procesar la respuesta del servidor' };
@@ -628,12 +634,13 @@ function validateCurrentStep(stepNumber) {
             return false;
         }
         
-        const selectedAccount = cuentasUsuario.find(c => {
+        const selectedAccountRaw = cuentasUsuario.find(c => {
             const id = c['ID Cuenta'] || c.cuentaId || c.cuenta_id || c.cuentaID;
             return id == fromAccount;
         });
-        if (selectedAccount) {
-            const saldo = selectedAccount.Saldo || selectedAccount.saldo || 0;
+        if (selectedAccountRaw) {
+            const selectedAccount = normalizeCuentaData(selectedAccountRaw);
+            const saldo = selectedAccount.saldo;
             if (parseFloat(amount) > parseFloat(saldo)) {
                 showError(`Saldo insuficiente. Disponible: $${formatMoney(saldo)}`);
                 return false;
@@ -666,7 +673,7 @@ function setupFormSteps() {
     const prevBtn = document.getElementById('prevBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     
-    console.log('🔧 Configurando eventos de formulario...');
+    console.log('Configurando eventos de formulario...');
     console.log('  nextBtn:', nextBtn);
     console.log('  prevBtn:', prevBtn);
     console.log('  confirmBtn:', confirmBtn);
@@ -776,13 +783,13 @@ function calculateCommission(transferType, amount) {
 }
 
 function getAccountDisplayName(accountNumber) {
-    const account = cuentasUsuario.find(c => {
-        const num = c['Número de Cuenta'] || c.numeroCuenta || c.numero_cuenta;
+    const accountRaw = cuentasUsuario.find(c => {
+        const num = c['Numero de Cuenta'] || c.numeroCuenta || c.numero_cuenta;
         return num === accountNumber;
     });
-    if (account) {
-        const tipo = account['Tipo de Cuenta'] || account.tipoCuenta || 'Cuenta';
-        return `${tipo} - ${accountNumber}`;
+    if (accountRaw) {
+        const account = normalizeCuentaData(accountRaw);
+        return `${account.tipoCuenta} - ${accountNumber}`;
     }
     return accountNumber;
 }
@@ -1075,10 +1082,11 @@ function checkPreselectedAccount() {
 }
 
 function updateAvailableBalance(cuentaId) {
-    const account = cuentasUsuario.find(c => {
+    const accountRaw = cuentasUsuario.find(c => {
         const id = c.cuentaId || c.cuenta_id || c.cuentaID;
         return id == cuentaId;
     });
+    const account = accountRaw ? normalizeCuentaData(accountRaw) : null;
     
     // Mostrar saldo disponible
     let balanceInfo = document.querySelector('.balance-info');
@@ -1131,14 +1139,14 @@ function showSuccess(message) {
 }
 
 function showTransferSuccess(result) {
-    console.log('🎉 Mostrando mensaje de éxito y redirigiendo...');
+    console.log('Mostrando mensaje de éxito y redirigiendo...');
     const message = `¡Transferencia realizada exitosamente!\n\nLa transferencia se ha procesado correctamente.\nPuedes ver el detalle en tu historial de transacciones.`;
     alert(message);
     
     // Redirigir a transacciones después de un momento
     console.log('⏱️ Redirigiendo a transacciones.html en 1.5 segundos...');
     setTimeout(() => {
-        console.log('🔄 Redirigiendo ahora...');
+        console.log('Redirigiendo ahora...');
         window.location.href = 'transacciones.html';
     }, 1500);
 }
@@ -1161,11 +1169,11 @@ function resetForm() {
 }
 
 async function confirmTransfer() {
-    console.log('🔵 confirmTransfer() llamada');
+    console.log('confirmTransfer() llamada');
     
     // Ejecutar la transferencia cuando se confirme en el paso 3
     const formData = getFormData();
-    console.log('📋 Datos del formulario:', formData);
+    console.log('Datos del formulario:', formData);
     
     // Validación final
     if (!validateFormData(formData)) {
@@ -1196,7 +1204,7 @@ async function confirmTransfer() {
             updateLimitInfo();
             
             // Recargar cuentas y transferencias recientes
-            console.log('🔄 Recargando cuentas y transferencias...');
+            console.log('Recargando cuentas y transferencias...');
             await loadCuentasUsuario();
             await loadTransferenciasRecientes();
             

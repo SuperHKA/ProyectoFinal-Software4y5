@@ -42,12 +42,12 @@ namespace ProyectoFinal_Software_4_y_5.Servicios
             var items = await _api.ObtenerTransaccionesRecientesAsync(top).ConfigureAwait(false);
             var list = items.Select(t => new Dictionary<string, object>
             {
-                ["ID Transacción"] = t.transaccion_id,
+                ["ID Transaccion"] = t.transaccion_id,
                 ["Fecha"] = t.fecha,
-                ["Tipo de Transacción"] = t.tipo_transaccion,
+                ["Tipo de Transaccion"] = t.tipo_transaccion,
                 ["Estado"] = t.estado,
                 ["Monto"] = t.monto,
-                ["Descripción"] = t.descripcion
+                ["Descripcion"] = t.descripcion
             });
             return ToDataTable(list);
         }

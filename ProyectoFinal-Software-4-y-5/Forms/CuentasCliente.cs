@@ -42,15 +42,15 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 }
 
                 var dt = new DataTable();
-                dt.Columns.Add("Número de Cuenta", typeof(string));
+                dt.Columns.Add("Numero de Cuenta", typeof(string));
                 dt.Columns.Add("Tipo de Cuenta", typeof(string));
                 dt.Columns.Add("Saldo", typeof(string));
                 dt.Columns.Add("Estado", typeof(string));
 
                 foreach (var cuenta in cuentas)
                 {
-                    var numeroCuenta = cuenta.ContainsKey("Número de Cuenta") 
-                        ? cuenta["Número de Cuenta"]?.ToString() 
+                    var numeroCuenta = cuenta.ContainsKey("Numero de Cuenta") 
+                        ? cuenta["Numero de Cuenta"]?.ToString() 
                         : "N/A";
 
                     var tipoCuenta = cuenta.ContainsKey("Tipo de Cuenta") 
@@ -78,7 +78,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 // Ajustar ancho de columnas
                 if (dgvCuentas.Columns.Count >= 4)
                 {
-                    dgvCuentas.Columns[0].Width = 200; // Número de Cuenta
+                    dgvCuentas.Columns[0].Width = 200; // Numero de Cuenta
                     dgvCuentas.Columns[1].Width = 200; // Tipo
                     dgvCuentas.Columns[2].Width = 180; // Saldo
                     dgvCuentas.Columns[3].Width = 160; // Estado

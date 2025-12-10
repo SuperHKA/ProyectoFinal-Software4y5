@@ -36,7 +36,7 @@ async function cargarCuentasUsuario() {
         const token = localStorage.getItem('authToken');
         const user = JSON.parse(localStorage.getItem('user'));
 
-        console.log('📌 Usuario completo desde localStorage:', user);
+        console.log('Usuario completo desde localStorage:', user);
 
         if (!user) {
             throw new Error('Usuario no encontrado');
@@ -48,7 +48,7 @@ async function cargarCuentasUsuario() {
         }
 
         const url = `${API_BASE_URL}/Banco/clientes/por-usuario?username=${encodeURIComponent(username)}`;
-        console.log('📌 URL completa de la petición:', url);
+        console.log('URL completa de la petición:', url);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -58,7 +58,7 @@ async function cargarCuentasUsuario() {
             }
         });
 
-        console.log('📌 Status de respuesta del servidor:', response.status);
+        console.log('Status de respuesta del servidor:', response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -89,7 +89,7 @@ function normalizeCuentaData(cuenta) {
     
     return {
         cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
-        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        numeroCuenta: cuenta['Numero de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
         tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
         saldo: cuenta['Saldo'] || cuenta.saldo || 0,
         activa: cuenta['Activa'] !== false && cuenta.activa !== false,
@@ -102,13 +102,13 @@ function normalizeTransaccionData(transaccion) {
     if (!transaccion) return null;
     
     return {
-        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
-        tipo_transaccion: transaccion['Tipo Transacción'] || transaccion['Tipo de Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
-        tipoTransaccion: transaccion['Tipo Transacción'] || transaccion['Tipo de Transacción'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        transaccionId: transaccion['ID Transaccion'] || transaccion.transaccionId || transaccion.transaccion_id,
+        tipo_transaccion: transaccion['Tipo Transaccion'] || transaccion['Tipo de Transaccion'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
+        tipoTransaccion: transaccion['Tipo Transaccion'] || transaccion['Tipo de Transaccion'] || transaccion.tipo_transaccion || transaccion.tipoTransaccion,
         monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
         fecha: transaccion['Fecha'] || transaccion.fecha || transaccion.fechaTransaccion,
         fechaTransaccion: transaccion['Fecha'] || transaccion.fecha || transaccion.fechaTransaccion,
-        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        descripcion: transaccion['Descripcion'] || transaccion.descripcion,
         estado: transaccion['Estado'] || transaccion.estado || 'Completado',
         cuenta_origen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
         cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuenta_origen || transaccion.cuentaOrigen,
@@ -151,7 +151,7 @@ function crearOpcionCuenta(cuenta) {
     option.dataset.numero = numeroCuenta;
     option.dataset.cuentaId = cuentaId;
 
-    console.log('📌 Cuenta cargada:', { cuentaId, numeroCuenta, tipoCuenta, saldo });
+    console.log('Cuenta cargada:', { cuentaId, numeroCuenta, tipoCuenta, saldo });
     return option;
 }
 
@@ -190,7 +190,7 @@ async function procesarTransaccion() {
             return;
         }
 
-        console.log('📌 Cuenta Destino - ID encontrado:', cuentaDestinoId);
+        console.log('Cuenta Destino - ID encontrado:', cuentaDestinoId);
 
         const transferencia = {
             cuentaOrigen: formData.cuentaOrigenId.toString(),
@@ -201,7 +201,7 @@ async function procesarTransaccion() {
             username: user.username
         };
 
-        console.log('📌 Enviando transferencia:', transferencia);
+        console.log('Enviando transferencia:', transferencia);
 
         const response = await fetch(`${API_BASE_URL}/Banco/transfer/internal`, {
             method: 'POST',
@@ -213,7 +213,7 @@ async function procesarTransaccion() {
         });
 
         const resultado = await response.json();
-        console.log('📌 Respuesta del servidor:', resultado);
+        console.log('Respuesta del servidor:', resultado);
 
         if (!response.ok || !resultado.success) {
             throw new Error(resultado.message || 'Error al procesar la transacción');
@@ -302,7 +302,7 @@ function limpiarFormulario() {
 async function buscarCuentaIdPorNumero(numeroCuenta) {
     try {
         const token = localStorage.getItem('authToken');
-        console.log('📌 Buscando cuenta con número:', numeroCuenta);
+        console.log('Buscando cuenta con número:', numeroCuenta);
 
         const response = await fetch(`${API_BASE_URL}/Banco/cuentas`, {
             method: 'GET',
@@ -316,17 +316,17 @@ async function buscarCuentaIdPorNumero(numeroCuenta) {
             throw new Error('Error al buscar cuenta de destino');
         }
 
-        const todasLasCuentas = await response.json();
-        console.log('📌 Total de cuentas en el sistema:', todasLasCuentas.length);
+        const todasLasCuentasRaw = await response.json();
+        const todasLasCuentas = todasLasCuentasRaw.map(normalizeCuentaData);
+        console.log('Total de cuentas en el sistema:', todasLasCuentas.length);
 
         const cuentaEncontrada = todasLasCuentas.find(c =>
-            (c.numeroCuenta || c.numero_cuenta || c.numero) === numeroCuenta
+            c.cuentaId === numeroCuenta || c.numeroCuenta === numeroCuenta
         );
 
         if (cuentaEncontrada) {
-            const cuentaId = cuentaEncontrada.cuentaId || cuentaEncontrada.cuenta_id || cuentaEncontrada.cuentaID;
-            console.log('✅ Cuenta destino encontrada:', { cuentaId, numero: numeroCuenta });
-            return cuentaId;
+            console.log('✅ Cuenta destino encontrada:', { cuentaId: cuentaEncontrada.cuentaId, numero: numeroCuenta });
+            return cuentaEncontrada.cuentaId;
         }
 
         console.log('❌ Cuenta destino NO encontrada con número:', numeroCuenta);

@@ -49,19 +49,39 @@ async function loadUserProfile() {
 function normalizeClienteData(cliente) {
     if (!cliente) return null;
     
+    // Extraer campos de dirección
+    const calle = cliente['Calle'] || cliente.calle || '';
+    const numero = cliente['Numero'] || cliente.numero || '';
+    const ciudad = cliente['Ciudad'] || cliente.ciudad || '';
+    const estado = cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia || '';
+    const codigoPostal = cliente['Codigo Postal'] || cliente.codigoPostal || cliente.codigo_postal || '';
+    const pais = cliente['Pais'] || cliente.pais || '';
+    
+    // Concatenar dirección completa: País + Estado/Provincia + Ciudad + Calle + Número
+    const direccionPartes = [];
+    if (pais) direccionPartes.push(pais);
+    if (estado) direccionPartes.push(estado);
+    if (ciudad) direccionPartes.push(ciudad);
+    if (calle) direccionPartes.push(calle);
+    if (numero) direccionPartes.push('#' + numero);
+    
+    const direccionCompleta = direccionPartes.length > 0 ? direccionPartes.join(', ') : 'N/A';
+    
     return {
         clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
-        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
-        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        nombre: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
+        nombreCompleto: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
         email: cliente['Email'] || cliente.email,
-        telefono: cliente['Teléfono'] || cliente.telefono,
-        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
-        calle: cliente['Calle'] || cliente.calle,
-        numero: cliente['Número'] || cliente.numero,
-        ciudad: cliente['Ciudad'] || cliente.ciudad,
-        estado: cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia,
-        codigoPostal: cliente['Código Postal'] || cliente.codigoPostal || cliente.codigo_postal,
-        pais: cliente['País'] || cliente.pais,
+        telefono: cliente['Telefono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente['Nombre de Usuario'] || cliente.username,
+        calle: calle,
+        numero: numero,
+        ciudad: ciudad,
+        estado: estado,
+        codigoPostal: codigoPostal,
+        pais: pais,
+        direccion: direccionCompleta,
+        direccionCompleta: direccionCompleta,
         fechaRegistro: cliente['Fecha de Registro'] || cliente.fechaRegistro || cliente.fecha_registro,
         verificado: cliente.verificado !== false,
         // Mantener campos originales también
@@ -77,8 +97,8 @@ function populateProfileForm(cliente) {
     setFieldValue('profileUsername', cliente.username || '');
     setFieldValue('profileBirthDate', formatDateForInput(cliente.fechaNacimiento));
     
-    // Dirección
-    setFieldValue('profileAddress', cliente.direccion || '');
+    // Dirección - usar dirección completa concatenada
+    setFieldValue('profileAddress', cliente.direccionCompleta || cliente.direccion || 'N/A');
     setFieldValue('profileCity', cliente.ciudad || '');
     setFieldValue('profileState', cliente.estado || '');
     setFieldValue('profileCountry', cliente.pais || 'Panamá');

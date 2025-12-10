@@ -667,6 +667,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.tableLayoutAdmin.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutAdmin.Size = new System.Drawing.Size(1369, 200);
             this.tableLayoutAdmin.TabIndex = 0;
+            this.tableLayoutAdmin.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutAdmin_Paint);
             // 
             // lblAdminUsername
             // 
@@ -682,6 +683,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.txtAdminUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminUsername.Location = new System.Drawing.Point(413, 12);
+            this.txtAdminUsername.MaxLength = 100;
             this.txtAdminUsername.Name = "txtAdminUsername";
             this.txtAdminUsername.Size = new System.Drawing.Size(953, 25);
             this.txtAdminUsername.TabIndex = 1;
@@ -700,6 +702,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.txtAdminPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminPassword.Location = new System.Drawing.Point(413, 62);
+            this.txtAdminPassword.MaxLength = 100;
             this.txtAdminPassword.Name = "txtAdminPassword";
             this.txtAdminPassword.PasswordChar = '*';
             this.txtAdminPassword.Size = new System.Drawing.Size(953, 25);
@@ -719,6 +722,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.txtAdminNombre.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminNombre.Location = new System.Drawing.Point(413, 112);
+            this.txtAdminNombre.MaxLength = 100;
             this.txtAdminNombre.Name = "txtAdminNombre";
             this.txtAdminNombre.Size = new System.Drawing.Size(953, 25);
             this.txtAdminNombre.TabIndex = 5;
@@ -737,6 +741,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             // 
             this.txtAdminEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtAdminEmail.Location = new System.Drawing.Point(413, 162);
+            this.txtAdminEmail.MaxLength = 200;
             this.txtAdminEmail.Name = "txtAdminEmail";
             this.txtAdminEmail.Size = new System.Drawing.Size(953, 25);
             this.txtAdminEmail.TabIndex = 7;
@@ -1162,7 +1167,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "PanelAdministrativo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Banco Fisclase 24/7 - Panel de Administración Avanzado";
+            this.Text = "Banco Fisclase 24/7 - Panel de Administración Avanzado - Hecho por André Reboulet" +
+    ", Diego Vásquez, Edward Magallón, Juan Solis y Rubén Domínguez";
             this.panelSuperior.ResumeLayout(false);
             this.panelSuperior.PerformLayout();
             this.tabPanelAdmin.ResumeLayout(false);

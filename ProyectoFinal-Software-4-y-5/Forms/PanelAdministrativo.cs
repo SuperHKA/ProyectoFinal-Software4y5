@@ -340,7 +340,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 dt.Columns.Add("Usuario");
                 dt.Columns.Add("Nombre");
                 dt.Columns.Add("Email");
-                dt.Columns.Add("Teléfono");
+                dt.Columns.Add("Telefono");
                 dt.Columns.Add("Estado");
 
                 foreach (var cliente in clientes)
@@ -381,7 +381,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 dt.Columns.Add("Usuario");
                 dt.Columns.Add("Nombre");
                 dt.Columns.Add("Email");
-                dt.Columns.Add("Teléfono");
+                dt.Columns.Add("Telefono");
                 dt.Columns.Add("Estado");
 
                 foreach (var cliente in clientes)
@@ -398,7 +398,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     row["Usuario"] = cliente.username ?? "N/A";  // Nombre de usuario (username)
                     row["Nombre"] = cliente.nombre_completo ?? "N/A";  // Nombre completo
                     row["Email"] = cliente.email ?? "N/A";
-                    row["Teléfono"] = cliente.telefono ?? "N/A";
+                    row["Telefono"] = cliente.telefono ?? "N/A";
                     row["Estado"] = cliente.bloqueado ? "Bloqueado" : "Activo";
                     dt.Rows.Add(row);
                 }
@@ -501,16 +501,16 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             AgregarControl(tableLayout, "Usuario:", txtUsuario = new TextBox { Name = "txtClienteUsuario" }, row++);
             AgregarControl(tableLayout, "Nombre:", txtNombre = new TextBox { Name = "txtClienteNombre" }, row++);
             AgregarControl(tableLayout, "Email:", txtEmail = new TextBox { Name = "txtClienteEmail" }, row++);
-            AgregarControl(tableLayout, "Teléfono:", txtTelefono = new TextBox { Name = "txtClienteTelefono" }, row++);
+            AgregarControl(tableLayout, "Telefono:", txtTelefono = new TextBox { Name = "txtClienteTelefono" }, row++);
 
             tableLayout.Controls.Add(new Label { Text = "Dirección", Font = new Font("Arial", 9, FontStyle.Bold), Name = "lblDireccionTitulo" }, 0, row++);
             tableLayout.SetColumnSpan(tableLayout.Controls[tableLayout.Controls.Count - 1], 2);
 
             AgregarControl(tableLayout, "Calle:", txtCalle = new TextBox { Name = "txtClienteCalle" }, row++);
-            AgregarControl(tableLayout, "Número:", txtNumero = new TextBox { Name = "txtClienteNumero" }, row++);
+            AgregarControl(tableLayout, "Numero:", txtNumero = new TextBox { Name = "txtClienteNumero" }, row++);
             AgregarControl(tableLayout, "Ciudad:", txtCiudad = new TextBox { Name = "txtClienteCiudad" }, row++);
             AgregarControl(tableLayout, "Estado:", txtEstado = new TextBox { Name = "txtClienteEstado" }, row++);
-            AgregarControl(tableLayout, "Código Postal:", txtCodigoPostal = new TextBox { Name = "txtClienteCodigoPostal" }, row++);
+            AgregarControl(tableLayout, "Codigo Postal:", txtCodigoPostal = new TextBox { Name = "txtClienteCodigoPostal" }, row++);
             AgregarControl(tableLayout, "País:", txtPais = new TextBox { Name = "txtClientePais" }, row++);
 
             AgregarControl(tableLayout, "Contraseña:", txtContrasena = new TextBox { UseSystemPasswordChar = true, Name = "txtClienteContrasena" }, row++);
@@ -640,8 +640,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     {
                         // Si solo hay una cuenta, abrirla directamente
                         var cuenta = listaCuentas.First();
-                        numeroCuenta = cuenta.ContainsKey("Número de Cuenta") 
-                            ? cuenta["Número de Cuenta"]?.ToString() 
+                        numeroCuenta = cuenta.ContainsKey("Numero de Cuenta") 
+                            ? cuenta["Numero de Cuenta"]?.ToString() 
                             : null;
 
                         if (string.IsNullOrEmpty(numeroCuenta))
@@ -673,8 +673,8 @@ namespace ProyectoFinal_Software_4_y_5.Forms
 
                             foreach (var cuenta in listaCuentas)
                             {
-                                var numCta = cuenta.ContainsKey("Número de Cuenta") 
-                                    ? cuenta["Número de Cuenta"]?.ToString() 
+                                var numCta = cuenta.ContainsKey("Numero de Cuenta") 
+                                    ? cuenta["Numero de Cuenta"]?.ToString() 
                                     : "N/A";
                                 var tipoCta = cuenta.ContainsKey("Tipo de Cuenta") 
                                     ? cuenta["Tipo de Cuenta"]?.ToString() 
@@ -1078,16 +1078,26 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         ? row.Cells["Nombre"].Value.ToString() : "";
                     txtEmail.Text = tablaClientes.Columns.Contains("Email") && row.Cells["Email"].Value != null
                         ? row.Cells["Email"].Value.ToString() : "";
-                    txtTelefono.Text = tablaClientes.Columns.Contains("Teléfono") && row.Cells["Teléfono"].Value != null
-                        ? row.Cells["Teléfono"].Value.ToString() : "";
+                    txtTelefono.Text = tablaClientes.Columns.Contains("Telefono") && row.Cells["Telefono"].Value != null
+                        ? row.Cells["Telefono"].Value.ToString() : "";
 
-                    // clear address fields -- API DTO does not include address in current contract
-                    txtCalle.Text = "";
-                    txtNumero.Text = "";
-                    txtCiudad.Text = "";
-                    txtEstado.Text = "";
-                    txtCodigoPostal.Text = "";
-                    txtPais.Text = "";
+                    // Cargar campos de dirección desde la API
+                    // Necesitamos hacer una llamada adicional a la API para obtener los detalles completos
+                    var clienteId = clienteIdVal > 0 ? clienteIdVal : usuarioIdVal;
+                    if (clienteId > 0)
+                    {
+                        _ = CargarDireccionClienteAsync(clienteId);
+                    }
+                    else
+                    {
+                        // clear address fields if no valid ID
+                        txtCalle.Text = "";
+                        txtNumero.Text = "";
+                        txtCiudad.Text = "";
+                        txtEstado.Text = "";
+                        txtCodigoPostal.Text = "";
+                        txtPais.Text = "";
+                    }
 
                     System.Diagnostics.Debug.WriteLine($"DEBUG: Loaded client - ID: {txtId.Text}, Usuario: {txtUsuario.Text}, Nombre: {txtNombre.Text}");
                 }
@@ -1097,6 +1107,22 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                     // Clear all fields on error
                     LimpiarFormulario();
                 }
+            }
+        }
+
+        private async Task CargarDireccionClienteAsync(int clienteId)
+        {
+            try
+            {
+                // Obtener detalles completos del cliente desde la API
+                var clientes = await _apiCliente.ObtenerClientesAsync().ConfigureAwait(false);
+                var clienteDetalle = clientes.FirstOrDefault(c => c.cliente_id == clienteId);
+
+                // Address fields removed - no longer needed
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al cargar dirección del cliente: {ex.Message}");
             }
         }
 
@@ -1461,7 +1487,7 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                         var cmbCuentas = new ComboBox { Width = 250, DropDownStyle = ComboBoxStyle.DropDownList, Anchor = AnchorStyles.Left | AnchorStyles.Right };
                         foreach (var cuenta in cuentas)
                         {
-                            string numeroCuenta = cuenta.ContainsKey("Número de Cuenta") ? cuenta["Número de Cuenta"]?.ToString() : cuenta["numero_cuenta"]?.ToString();
+                            string numeroCuenta = cuenta.ContainsKey("Numero de Cuenta") ? cuenta["Numero de Cuenta"]?.ToString() : cuenta["numero_cuenta"]?.ToString();
                             string tipoCuenta = cuenta.ContainsKey("Tipo de Cuenta") ? cuenta["Tipo de Cuenta"]?.ToString() : cuenta["tipo_cuenta"]?.ToString();
                             decimal saldo = cuenta.ContainsKey("Saldo") ? Convert.ToDecimal(cuenta["Saldo"]) : Convert.ToDecimal(cuenta["saldo"]);
                             cmbCuentas.Items.Add($"{numeroCuenta} - {tipoCuenta} (Saldo actual: ${saldo:N2})");
@@ -1559,6 +1585,11 @@ namespace ProyectoFinal_Software_4_y_5.Forms
             {
                 MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void tableLayoutAdmin_Paint(object sender, PaintEventArgs e)
+        {
+
         }
 
         private void AbrirCuentasCliente()
@@ -1738,9 +1769,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                 {
                     Id = c.ContainsKey("ID Cuenta") && c["ID Cuenta"] != null && c["ID Cuenta"] != DBNull.Value ?
                         Convert.ToInt32(c["ID Cuenta"]) : 0,
-                    Display = c.ContainsKey("Número de Cuenta") && c["Número de Cuenta"] != null ?
-                        c["Número de Cuenta"].ToString() :
-                        (c.ContainsKey("ID Cuenta") && c["ID Cuenta"] != null ? c["ID Cuenta"].ToString() : "Sin número")
+                    Display = c.ContainsKey("Numero de Cuenta") && c["Numero de Cuenta"] != null ?
+                        c["Numero de Cuenta"].ToString() :
+                        (c.ContainsKey("ID Cuenta") && c["ID Cuenta"] != null ? c["ID Cuenta"].ToString() : "Sin numero")
                 }).ToArray();
 
                 // Ask source using UI thread

@@ -275,9 +275,9 @@ namespace ProyectoFinal_Software_4_y_5.Forms
                           ?? GetStringValue(item, "email") 
                           ?? "",
                     
-                    telefono = GetStringValue(item, "Teléfono")
+                    telefono = GetStringValue(item, "Telefono")
                              ?? GetStringValue(item, "telefono") 
-                             ?? GetStringValue(item, "Telefono") 
+                             ?? GetStringValue(item, "Télefono") 
                              ?? "",
                     
                     // Mapear booleans con múltiples posibilidades

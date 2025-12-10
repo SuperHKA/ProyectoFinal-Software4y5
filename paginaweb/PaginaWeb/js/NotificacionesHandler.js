@@ -20,13 +20,30 @@ document.addEventListener('DOMContentLoaded', async function() {
 function normalizeClienteData(cliente) {
     if (!cliente) return null;
     
+    // Extraer campos de dirección
+    const calle = cliente['Calle'] || cliente.calle || '';
+    const numero = cliente['Numero'] || cliente.numero || '';
+    const ciudad = cliente['Ciudad'] || cliente.ciudad || '';
+    const estado = cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia || '';
+    const pais = cliente['Pais'] || cliente.pais || '';
+    
+    // Concatenar dirección completa
+    const direccionPartes = [];
+    if (pais) direccionPartes.push(pais);
+    if (estado) direccionPartes.push(estado);
+    if (ciudad) direccionPartes.push(ciudad);
+    if (calle) direccionPartes.push(calle);
+    if (numero) direccionPartes.push('#' + numero);
+    const direccionCompleta = direccionPartes.length > 0 ? direccionPartes.join(', ') : 'N/A';
+    
     return {
         clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
-        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
-        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        nombre: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
+        nombreCompleto: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
         email: cliente['Email'] || cliente.email,
-        telefono: cliente['Teléfono'] || cliente.telefono,
-        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
+        telefono: cliente['Telefono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username,
+        direccion: direccionCompleta,
         ...cliente
     };
 }

@@ -137,16 +137,16 @@ namespace API_BancoFisclase.Servicios
                 ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
                 ["Nombre"] = row.ContainsKey("cliente_nombre") ? row["cliente_nombre"] : null,
                 ["Email"] = row.ContainsKey("cliente_email") ? row["cliente_email"] : null,
-                ["ID Transacción"] = row.ContainsKey("transaccion_id") ? row["transaccion_id"] : null,
+                ["ID Transaccion"] = row.ContainsKey("transaccion_id") ? row["transaccion_id"] : null,
                 ["Fecha"] = row.ContainsKey("fecha") ? row["fecha"] : null,
-                ["Tipo de Transacción"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
+                ["Tipo de Transaccion"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
                 ["Monto"] = row.ContainsKey("monto") ? row["monto"] : null,
-                ["Descripción"] = row.ContainsKey("descripcion") ? row["descripcion"] : null,
+                ["Descripcion"] = row.ContainsKey("descripcion") ? row["descripcion"] : null,
                 ["Cuenta de Origen"] = row.ContainsKey("cuenta_origen_id") ? row["cuenta_origen_id"] : null,
                 ["Cuenta de Destino"] = row.ContainsKey("cuenta_destino_id") ? row["cuenta_destino_id"] : null,
-                ["Monto Débito"] = row.ContainsKey("monto_debito") ? row["monto_debito"] : null,
-                ["Monto Crédito"] = row.ContainsKey("monto_credito") ? row["monto_credito"] : null,
-                ["Estado de Transacción"] = row.ContainsKey("estado_transaccion") ? MapEstadoTransaccion(row["estado_transaccion"]?.ToString()) : null,
+                ["Monto Debito"] = row.ContainsKey("monto_debito") ? row["monto_debito"] : null,
+                ["Monto Credito"] = row.ContainsKey("monto_credito") ? row["monto_credito"] : null,
+                ["Estado de Transaccion"] = row.ContainsKey("estado_transaccion") ? MapEstadoTransaccion(row["estado_transaccion"]?.ToString()) : null,
                 ["Usuario"] = row.ContainsKey("usuario_transaccion") ? row["usuario_transaccion"] : null
             });
         }
@@ -185,15 +185,15 @@ namespace API_BancoFisclase.Servicios
                     u.username AS 'Usuario', 
                     c.nombre AS 'Nombre Completo', 
                     c.email AS 'Email', 
-                    c.telefono AS 'Teléfono', 
+                    c.telefono AS 'Telefono', 
                     u.es_admin AS 'Es Admin', 
                     u.bloqueado AS 'Bloqueado',
                     c.calle AS 'Calle',
-                    c.numero AS 'Número',
+                    c.numero AS 'Numero',
                     c.ciudad AS 'Ciudad',
                     c.estado_provincia AS 'Estado/Provincia',
-                    c.codigo_postal AS 'Código Postal',
-                    c.pais AS 'País'
+                    c.codigo_postal AS 'Codigo Postal',
+                    c.pais AS 'Pais'
                 FROM Usuario u 
                 LEFT JOIN Cliente c ON u.cliente_id = c.cliente_id 
                 ORDER BY u.usuario_id";
@@ -204,25 +204,25 @@ namespace API_BancoFisclase.Servicios
         {
             const string sqlTemplate = @"
                 SELECT TOP(@limit) 
-                    t.transaccion_id AS 'ID Transacción',
+                    t.transaccion_id AS 'ID Transaccion',
                     t.fecha AS 'Fecha',
                     CASE tt.nombre
                         WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
                         WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
-                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'DEPOSITO' THEN 'Deposito de efectivo'
                         WHEN 'RETIRO' THEN 'Retiro de efectivo'
                         WHEN 'TRANSFERENCIA' THEN 'Transferencia'
                         WHEN 'PAGO' THEN 'Pago'
                         ELSE tt.nombre
-                    END AS 'Tipo Transacción',
+                    END AS 'Tipo Transaccion',
                     CASE et.nombre
-                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
-                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
-                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        WHEN 'COMPLETADO' THEN 'Transaccion completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transaccion rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transaccion pendiente de procesamiento'
                         ELSE et.nombre
                     END AS 'Estado',
                     t.monto AS 'Monto',
-                    t.descripcion AS 'Descripción'
+                    t.descripcion AS 'Descripcion'
                 FROM Transaccion t 
                 LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id 
                 LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
@@ -239,13 +239,13 @@ namespace API_BancoFisclase.Servicios
             {
                 ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
                 ["Nombre del Cliente"] = row.ContainsKey("cliente_nombre") ? row["cliente_nombre"] : null,
-                ["Tipo de Transacción"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
+                ["Tipo de Transaccion"] = row.ContainsKey("tipo_transaccion") ? MapTipoTransaccion(row["tipo_transaccion"]?.ToString()) : null,
                 ["Cantidad de Transacciones"] = row.ContainsKey("cantidad_transacciones") ? row["cantidad_transacciones"] : null,
                 ["Monto Total"] = row.ContainsKey("monto_total") ? row["monto_total"] : null,
                 ["Monto Promedio"] = row.ContainsKey("monto_promedio") ? row["monto_promedio"] : null,
-                ["Primera Transacción"] = row.ContainsKey("primera_transaccion") ? row["primera_transaccion"] : null,
-                ["Última Transacción"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
-                ["Estado Más Común"] = row.ContainsKey("estado_mas_comun") ? MapEstadoTransaccion(row["estado_mas_comun"]?.ToString()) : null
+                ["Primera Transaccion"] = row.ContainsKey("primera_transaccion") ? row["primera_transaccion"] : null,
+                ["Ultima Transaccion"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
+                ["Estado Mas Comun"] = row.ContainsKey("estado_mas_comun") ? MapEstadoTransaccion(row["estado_mas_comun"]?.ToString()) : null
             });
         }
 
@@ -259,12 +259,12 @@ namespace API_BancoFisclase.Servicios
                 ["ID Cliente"] = row.ContainsKey("cliente_id") ? row["cliente_id"] : null,
                 ["Nombre del Cliente"] = row.ContainsKey("nombre") ? row["nombre"] : null,
                 ["Email"] = row.ContainsKey("email") ? row["email"] : null,
-                ["Teléfono"] = row.ContainsKey("telefono") ? row["telefono"] : null,
+                ["Telefono"] = row.ContainsKey("telefono") ? row["telefono"] : null,
                 ["Total de Cuentas"] = row.ContainsKey("total_cuentas") ? row["total_cuentas"] : null,
                 ["Cuentas Activas"] = row.ContainsKey("cuentas_activas") ? row["cuentas_activas"] : null,
                 ["Cuentas Inactivas"] = row.ContainsKey("cuentas_inactivas") ? row["cuentas_inactivas"] : null,
                 ["Saldo Total"] = row.ContainsKey("saldo_total") ? row["saldo_total"] : null,
-                ["Última Transacción"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
+                ["Ultima Transaccion"] = row.ContainsKey("ultima_transaccion") ? row["ultima_transaccion"] : null,
                 ["Usuarios Asociados"] = row.ContainsKey("usuarios_asociados") ? row["usuarios_asociados"] : null
             });
         }
@@ -279,11 +279,11 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    notificacion_id AS 'ID Notificación',
+                    notificacion_id AS 'ID Notificacion',
                     cliente_id AS 'ID Cliente',
                     tipo AS 'Tipo',
                     asunto AS 'Asunto',
-                    fecha_envio AS 'Fecha Envío',
+                    fecha_envio AS 'Fecha Envio',
                     estado AS 'Estado'
                 FROM Notificacion 
                 ORDER BY fecha_envio DESC";
@@ -294,24 +294,24 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    t.transaccion_id AS 'ID Transacción',
+                    t.transaccion_id AS 'ID Transaccion',
                     CASE tt.nombre
                         WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
                         WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
-                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'DEPOSITO' THEN 'Deposito de efectivo'
                         WHEN 'RETIRO' THEN 'Retiro de efectivo'
                         WHEN 'TRANSFERENCIA' THEN 'Transferencia'
                         WHEN 'PAGO' THEN 'Pago'
                         ELSE tt.nombre
-                    END AS 'Tipo Transacción',
+                    END AS 'Tipo Transaccion',
                     t.monto AS 'Monto',
                     CASE et.nombre
-                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
-                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
-                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        WHEN 'COMPLETADO' THEN 'Transaccion completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transaccion rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transaccion pendiente de procesamiento'
                         ELSE et.nombre
                     END AS 'Estado',
-                    t.descripcion AS 'Descripción',
+                    t.descripcion AS 'Descripcion',
                     t.fecha AS 'Fecha',
                     t.usuario_id AS 'ID Usuario'
                 FROM Transaccion t 
@@ -327,12 +327,12 @@ namespace API_BancoFisclase.Servicios
             const string sql = @"
                 SELECT 
                     c.cuenta_id AS 'ID Cuenta',
-                    c.numero_cuenta AS 'Número de Cuenta',
+                    c.numero_cuenta AS 'Numero de Cuenta',
                     CASE tc.nombre
                         WHEN 'AHORRO' THEN 'Cuenta de ahorros personal'
                         WHEN 'CORRIENTE' THEN 'Cuenta corriente personal'
-                        WHEN 'CREDITO' THEN 'Tarjeta de crédito'
-                        WHEN 'DEBITO' THEN 'Tarjeta de débito'
+                        WHEN 'CREDITO' THEN 'Tarjeta de credito'
+                        WHEN 'DEBITO' THEN 'Tarjeta de debito'
                         ELSE tc.nombre
                     END AS 'Tipo de Cuenta',
                     c.saldo AS 'Saldo',
@@ -349,17 +349,17 @@ namespace API_BancoFisclase.Servicios
             const string sql = @"
                 SELECT 
                     c.cliente_id AS 'ID Cliente',
-                    c.nombre AS 'Nombre',
+                    c.nombre AS 'Nombre Completo',
                     c.email AS 'Email',
-                    c.telefono AS 'Teléfono',
+                    c.telefono AS 'Telefono',
                     c.calle AS 'Calle',
-                    c.numero AS 'Número',
+                    c.numero AS 'Numero',
                     c.ciudad AS 'Ciudad',
                     c.estado_provincia AS 'Estado/Provincia',
-                    c.codigo_postal AS 'Código Postal',
-                    c.pais AS 'País',
+                    c.codigo_postal AS 'Codigo Postal',
+                    c.pais AS 'Pais',
                     c.fecha_registro AS 'Fecha de Registro',
-                    u.username AS 'Nombre de Usuario'
+                    u.username AS 'Usuario'
                 FROM Cliente c
                 LEFT JOIN Usuario u ON c.cliente_id = u.cliente_id
                 WHERE c.cliente_id = @clienteId";
@@ -372,11 +372,11 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT 
-                    notificacion_id AS 'ID Notificación',
+                    notificacion_id AS 'ID Notificacion',
                     tipo AS 'Tipo',
                     asunto AS 'Asunto',
                     contenido AS 'Contenido',
-                    fecha_envio AS 'Fecha de Envío',
+                    fecha_envio AS 'Fecha de Envio',
                     estado AS 'Estado'
                 FROM Notificacion
                 WHERE cliente_id = @clienteId
@@ -391,28 +391,28 @@ namespace API_BancoFisclase.Servicios
         {
             const string sql = @"
                 SELECT TOP(@limit) 
-                    t.transaccion_id AS 'ID Transacción', 
+                    t.transaccion_id AS 'ID Transaccion', 
                     t.fecha AS 'Fecha', 
                     CASE tt.nombre
                         WHEN 'TRANSFER_INTERNO' THEN 'Transferencia entre cuentas del mismo cliente'
                         WHEN 'TRANSFER_EXTERNO' THEN 'Transferencia a cuentas de otros clientes'
-                        WHEN 'DEPOSITO' THEN 'Depósito de efectivo'
+                        WHEN 'DEPOSITO' THEN 'Deposito de efectivo'
                         WHEN 'RETIRO' THEN 'Retiro de efectivo'
                         WHEN 'TRANSFERENCIA' THEN 'Transferencia'
                         WHEN 'PAGO' THEN 'Pago'
                         ELSE tt.nombre
-                    END AS 'Tipo Transacción', 
+                    END AS 'Tipo Transaccion', 
                     CASE et.nombre
-                        WHEN 'COMPLETADO' THEN 'Transacción completada exitosamente'
-                        WHEN 'RECHAZADO' THEN 'Transacción rechazada'
-                        WHEN 'PENDIENTE' THEN 'Transacción pendiente de procesamiento'
+                        WHEN 'COMPLETADO' THEN 'Transaccion completada exitosamente'
+                        WHEN 'RECHAZADO' THEN 'Transaccion rechazada'
+                        WHEN 'PENDIENTE' THEN 'Transaccion pendiente de procesamiento'
                         ELSE et.nombre
                     END AS 'Estado', 
                     t.monto AS 'Monto', 
-                    t.descripcion AS 'Descripción',
+                    t.descripcion AS 'Descripcion',
                     co.numero_cuenta AS 'Cuenta Origen',
                     cd.numero_cuenta AS 'Cuenta Destino',
-                    clienteDestino.nombre_completo AS 'Cliente Destino'
+                    clienteDestino.nombre AS 'Cliente Destino'
                 FROM Transaccion t 
                 LEFT JOIN TipoTransaccion tt ON t.tipo_transaccion_id = tt.tipo_transaccion_id
                 LEFT JOIN EstadoTransaccion et ON t.estado_transaccion_id = et.estado_transaccion_id 
@@ -884,8 +884,8 @@ namespace API_BancoFisclase.Servicios
                     c.numero AS 'Numero',
                     c.ciudad AS 'Ciudad',
                     c.estado_provincia AS 'Estado/Provincia',
-                    c.codigo_postal AS 'Código Postal',
-                    c.pais AS 'País'
+                    c.codigo_postal AS 'Codigo Postal',
+                    c.pais AS 'Pais'
                 FROM Cliente c 
                 LEFT JOIN Usuario u ON u.cliente_id = c.cliente_id 
                 {where} 

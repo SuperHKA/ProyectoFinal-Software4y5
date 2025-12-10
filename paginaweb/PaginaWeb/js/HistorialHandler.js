@@ -33,14 +33,31 @@ let currentFilters = {
 function normalizeClienteData(cliente) {
     if (!cliente) return null;
     
+    // Extraer campos de dirección
+    const calle = cliente['Calle'] || cliente.calle || '';
+    const numero = cliente['Numero'] || cliente.numero || '';
+    const ciudad = cliente['Ciudad'] || cliente.ciudad || '';
+    const estado = cliente['Estado/Provincia'] || cliente.estado || cliente.estado_provincia || '';
+    const pais = cliente['Pais'] || cliente.pais || '';
+    
+    // Concatenar dirección completa
+    const direccionPartes = [];
+    if (pais) direccionPartes.push(pais);
+    if (estado) direccionPartes.push(estado);
+    if (ciudad) direccionPartes.push(ciudad);
+    if (calle) direccionPartes.push(calle);
+    if (numero) direccionPartes.push('#' + numero);
+    const direccionCompleta = direccionPartes.length > 0 ? direccionPartes.join(', ') : 'N/A';
+    
     return {
         clienteId: cliente['ID Cliente'] || cliente.clienteId || cliente.cliente_id,
-        nombre: cliente['Nombre'] || cliente.nombre || cliente['Nombre Completo'],
-        nombreCompleto: cliente['Nombre'] || cliente['Nombre Completo'] || cliente.nombre,
+        nombre: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
+        nombreCompleto: cliente['Nombre Completo'] || cliente['Nombre'] || cliente.nombre,
         email: cliente['Email'] || cliente.email,
-        telefono: cliente['Teléfono'] || cliente.telefono,
-        username: cliente['Usuario'] || cliente.username || cliente['Nombre de Usuario'],
-        numeroCuenta: cliente['Número de Cuenta'] || cliente.numeroCuenta || cliente.numero_cuenta,
+        telefono: cliente['Telefono'] || cliente.telefono,
+        username: cliente['Usuario'] || cliente.username,
+        numeroCuenta: cliente['Numero de Cuenta'] || cliente.numeroCuenta || cliente.numero_cuenta,
+        direccion: direccionCompleta,
         ...cliente
     };
 }
@@ -51,7 +68,7 @@ function normalizeCuentaData(cuenta) {
     
     return {
         cuentaId: cuenta['ID Cuenta'] || cuenta.cuentaId || cuenta.cuenta_id,
-        numeroCuenta: cuenta['Número de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
+        numeroCuenta: cuenta['Numero de Cuenta'] || cuenta.numeroCuenta || cuenta.numero_cuenta,
         tipoCuenta: cuenta['Tipo de Cuenta'] || cuenta.tipoCuenta || cuenta.tipo_cuenta,
         saldo: cuenta['Saldo'] || cuenta.saldo || 0,
         activa: cuenta['Activa'] !== false && cuenta.activa !== false,
@@ -64,12 +81,12 @@ function normalizeTransaccionData(transaccion) {
     if (!transaccion) return null;
     
     return {
-        transaccionId: transaccion['ID Transacción'] || transaccion.transaccionId || transaccion.transaccion_id,
+        transaccionId: transaccion['ID Transaccion'] || transaccion.transaccionId || transaccion.transaccion_id,
         fecha: transaccion['Fecha'] || transaccion.fecha,
         tipo: transaccion['Tipo de Transacción'] || transaccion['Tipo Transacción'] || transaccion.tipo_transaccion || transaccion.tipo,
         estado: transaccion['Estado'] || transaccion.estado,
         monto: parseFloat(transaccion['Monto'] || transaccion.monto || 0),
-        descripcion: transaccion['Descripción'] || transaccion.descripcion,
+        descripcion: transaccion['Descripcion'] || transaccion.descripcion,
         cuentaOrigen: transaccion['Cuenta Origen'] || transaccion.cuentaOrigen || transaccion.cuenta_origen,
         cuentaDestino: transaccion['Cuenta Destino'] || transaccion.cuentaDestino || transaccion.cuenta_destino,
         clienteDestino: transaccion['Cliente Destino'] || transaccion.clienteDestino || transaccion.cliente_destino,
@@ -250,7 +267,7 @@ function applyLocalFilters(transacciones) {
     if (currentFilters.searchTerm) {
         const searchLower = currentFilters.searchTerm.toLowerCase();
         filtered = filtered.filter(t => {
-            const descripcion = (t['Descripción'] || t.descripcion || '').toLowerCase();
+            const descripcion = (t['Descripcion'] || t.descripcion || '').toLowerCase();
             const tipo = (t['Tipo de Transacción'] || t['Tipo Transacción'] || t.tipo_transaccion || t.tipo || '').toLowerCase();
             return descripcion.includes(searchLower) || tipo.includes(searchLower);
         });
@@ -299,7 +316,7 @@ function displayTransactions(transactions) {
                 <td>${formatDate(trans.fecha || trans.Fecha)}</td>
                 <td>
                     <div class="transaction-description">
-                        <span class="description-text">${trans['Descripción'] || trans.descripcion || trans['Tipo de Transacción'] || trans.tipo_transaccion}</span>
+                        <span class="description-text">${trans['Descripcion'] || trans.descripcion || trans['Tipo de Transaccion'] || trans.tipo_transaccion}</span>
                         <span class="transaction-type">${trans['Tipo de Transacción'] || trans.tipo_transaccion || 'Transacción'}</span>
                     </div>
                 </td>
@@ -327,7 +344,7 @@ function displayTransactions(transactions) {
             
             item.innerHTML = `
                 <div class="transaccion-info">
-                    <div class="merchant">${trans['Descripción'] || trans.descripcion || trans['Tipo de Transacción'] || trans.tipo_transaccion}</div>
+                    <div class="merchant">${trans['Descripcion'] || trans.descripcion || trans['Tipo de Transaccion'] || trans.tipo_transaccion}</div>
                     <div class="fecha">${formatDate(trans.fecha || trans.Fecha)}</div>
                 </div>
                 <div class="monto ${isIngreso ? 'positivo' : 'negativo'}">
@@ -352,7 +369,8 @@ async function loadMonthlyStats() {
 
         // Cargar cuentas para obtener saldo actual
         const accountData = await authService.getClienteInfo();
-        const cuentas = accountData.cuentas || [];
+        const cuentasRaw = accountData.cuentas || [];
+        const cuentas = cuentasRaw.map(normalizeCuentaData);
         
         // Calcular saldo total
         const saldoTotal = cuentas.reduce((sum, cuenta) => sum + (parseFloat(cuenta.saldo) || 0), 0);
@@ -370,7 +388,8 @@ async function loadMonthlyStats() {
 
         if (response.ok) {
             const data = await response.json();
-            const transacciones = Array.isArray(data) ? data : (data.items || data);
+            const transaccionesRaw = Array.isArray(data) ? data : (data.items || data);
+            const transacciones = transaccionesRaw.map(normalizeTransaccionData);
             
             const statsDelMes = calculateMonthlyStats(transacciones, firstDay, lastDay);
             updateStatsDisplay(saldoTotal, saldoDisponible, statsDelMes);
